@@ -1,0 +1,9 @@
+node_modules
+*.db
+*.db-journal
+npm-debug.log
+.DS_Store
+
+# Local workspace configuration (never committed)
+.bob/mcp.json
+.env

@@ -1,0 +1,15 @@
+# Secrets — the agent must not read these
+.env
+.env.*
+secrets/
+*.pem
+*.key
+id_rsa*
+
+# Local data stores
+*.db
+
+# Build artifacts and noise
+node_modules/
+coverage/
+dist/

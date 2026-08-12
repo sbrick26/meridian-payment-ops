@@ -1,0 +1,293 @@
+name: guardrail-gate
+
+# Meridian - Engineering Governance
+# Merge-chokepoint enforcement of the Engineering Constitution (.bob/rules/).
+#
+# The rulebook, the audit prompt and every script this job runs are pinned from
+# the immutable `governance` branch, never from the pull request. A branch can
+# therefore neither weaken the rules it is judged by nor poison the tooling that
+# judges it.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write        # publish the evidence record to the gh-pages dashboard branch
+  pull-requests: write   # post the verdict comment (default GITHUB_TOKEN is read-only)
+
+jobs:
+  bob-audit:
+    name: bob-guardrail-audit
+    runs-on: ubuntu-latest
+    env:
+      # Bob Shell 2.0 reads BOB_API_KEY. BOBSHELL_API_KEY is still honoured as a
+      # deprecated alias, but setting BOTH to different values is a hard error,
+      # so only BOB_API_KEY is exported here.
+      BOB_API_KEY: ${{ secrets.BOBSHELL_API_KEY }}
+      VERDICT_JSON: /tmp/verdict.json      # normalized verdict from parse-verdict.py
+      EVENT_JSON: /tmp/governance-event.json
+      GOV_BRANCH: governance
+      CANARY: MT-ENG-CONSTITUTION-CANARY-9F31
+    steps:
+      - name: Check out pull-request branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Bob Shell
+        # The installer reads /dev/tty for package-manager selection, which hangs
+        # forever on a runner with no terminal. --pm npm skips that prompt. It
+        # installs via `npm install -g`, so the npm global bin goes on PATH.
+        run: |
+          curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
+          echo "$(npm prefix -g)/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Bob is on PATH
+        run: bob --version
+
+      - name: Pin the rulebook from the immutable governance branch
+        # A pull request must be able to change neither the rules that judge it
+        # nor the tooling that applies them. Restore the whole control surface
+        # from `governance`, a protected branch that only the code owner can
+        # change. The pull request's edits to these paths still appear in the
+        # diff below (it is computed from git history), so tampering is still
+        # visible and still fails - it just cannot take effect during the audit.
+        run: |
+          set -eu
+          PIN=".bob/rules .bob/skills .bobignore governance/ dashboard/"
+          if git fetch -q origin "$GOV_BRANCH" 2>/dev/null; then
+            SRC="origin/$GOV_BRANCH"
+          else
+            echo "::warning title=governance branch missing::The immutable '$GOV_BRANCH' branch does not exist yet; falling back to origin/${{ github.base_ref }}. Create and protect the governance branch (repo-setup.sh) to close this gap."
+            git fetch -q origin "${{ github.base_ref }}"
+            SRC="origin/${{ github.base_ref }}"
+          fi
+          echo "Pinning control surface from $SRC"
+          for p in $PIN; do
+            if git cat-file -e "$SRC:${p%/}" 2>/dev/null; then
+              git checkout "$SRC" -- "$p"
+              echo "  pinned: $p"
+            else
+              echo "  skipped (absent on $SRC): $p"
+            fi
+          done
+          echo "PINNED_FROM=$SRC" >> "$GITHUB_ENV"
+
+      - name: Deterministic governance guard (no model)
+        # Hard, path-based block that runs BEFORE the model audit: any pull
+        # request whose diff touches .bob/, .bobignore, governance/, .github/, or
+        # dashboard/ fails here. Governance changes travel on the governance
+        # branch under code-owner review, so this cannot be talked around. Runs
+        # the pinned guard script, never the pull request's copy.
+        run: |
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+            | python3 governance/protected-guard.py /tmp/verdict.md
+
+      - name: Rules-loaded smoke test (canary)
+        # Fails the build if Bob did not actually load the workspace rules. The
+        # canary lives in .bob/rules/00-engineering-constitution.md, so this also
+        # blocks any pull request that deletes the rules directory outright.
+        # Read-only: agent tool groups that can write are disabled.
+        run: |
+          set -eu
+          bob run \
+            --mode ask \
+            --format json \
+            --max-turns 2 \
+            --trust \
+            --accept-license \
+            --disable-mcp \
+            --disable-subagents \
+            --disable-tool-groups edit,command,browser,mcp,subagent \
+            "What is the governance canary token? Reply with only the token." \
+            > /tmp/canary.json 2>&1 || true
+          cat /tmp/canary.json
+          grep -q "$CANARY" /tmp/canary.json || {
+            echo "::error title=Rules did not load::Workspace rules did not load - refusing to audit without the Engineering Constitution."
+            exit 1
+          }
+          echo "Canary confirmed: the Engineering Constitution is loaded."
+
+      - name: Bob audit of the pull-request diff (fail closed)
+        # Read-only headless audit. No write tool group is enabled, so Bob cannot
+        # modify the workspace. The diff goes in on stdin (Bob Shell 2.0 merges
+        # stdin with the positional prompt); the pinned audit prompt is the
+        # prompt. An unparseable verdict is retried once and then fails closed; a
+        # real FAIL verdict is never retried.
+        run: |
+          set -eu
+          git diff "origin/${{ github.base_ref }}...HEAD" > /tmp/pr.diff
+          if [ ! -s /tmp/pr.diff ]; then
+            echo "Empty diff - nothing to audit."
+            echo '{"verdict": "PASS", "violations": []}' \
+              | python3 governance/parse-verdict.py /tmp/verdict.md
+            exit $?
+          fi
+          set +e
+          rc=3
+          for attempt in 1 2; do
+            bob run \
+              --mode ask \
+              --format json \
+              --max-turns 12 \
+              --max-cost 2 \
+              --trust \
+              --accept-license \
+              --disable-mcp \
+              --disable-subagents \
+              --disable-tool-groups edit,command,browser,mcp,subagent \
+              "$(cat governance/audit-prompt.md)" \
+              < /tmp/pr.diff > /tmp/audit-out.txt 2>&1
+            cat /tmp/audit-out.txt
+            python3 governance/parse-verdict.py /tmp/verdict.md < /tmp/audit-out.txt
+            rc=$?
+            [ "$rc" -ne 3 ] && break
+            echo "No parseable verdict (attempt $attempt) - retrying once."
+          done
+          exit "$rc"
+
+      - name: Post verdict as a pull-request comment
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          [ -f /tmp/verdict.md ] || printf '## Meridian - Engineering Governance: guardrail audit\n\n**Verdict: ERROR** - the audit job failed before producing a verdict.\n' > /tmp/verdict.md
+          python3 - <<'EOF'
+          import json, os, urllib.request
+          body = open("/tmp/verdict.md").read()
+          url = "{}/repos/{}/issues/{}/comments".format(
+              os.environ["GITHUB_API_URL"],
+              os.environ["GITHUB_REPOSITORY"],
+              os.environ["PR_NUMBER"],
+          )
+          req = urllib.request.Request(
+              url,
+              data=json.dumps({"body": body}).encode(),
+              headers={
+                  "Authorization": "token " + os.environ["GH_TOKEN"],
+                  "Accept": "application/vnd.github+json",
+              },
+          )
+          print("comment:", urllib.request.urlopen(req).status)
+          EOF
+
+      - name: Build the governance evidence record
+        # Produces (a) the enriched dashboard record and (b) one event matching
+        # the shared governance event schema. Runs the pinned script. Never
+        # blocks the gate.
+        if: always()
+        continue-on-error: true
+        env:
+          DB_ACTOR: ${{ github.event.pull_request.user.login }}
+          DB_TRIGGERED_BY: ${{ github.actor }}
+          DB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          DB_PR_TITLE: ${{ github.event.pull_request.title }}
+          DB_PR_URL: ${{ github.event.pull_request.html_url }}
+          DB_BRANCH: ${{ github.event.pull_request.head.ref }}
+          DB_BASE: ${{ github.event.pull_request.base.ref }}
+          DB_SHA: ${{ github.event.pull_request.head.sha }}
+          DB_REPO: ${{ github.repository }}
+          DB_PROJECT: ${{ vars.GOV_PROJECT || 'MERIDIAN-PAYMENT-OPS' }}
+          DB_RUN_ID: ${{ github.run_id }}
+          DB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -eu
+          export DB_COMMIT_MSG="$(git log -1 --pretty=%s "$DB_SHA" 2>/dev/null || echo '')"
+          export DB_TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "DB_COMMIT_MSG<<GOVEOF"  >> "$GITHUB_ENV"
+          echo "$DB_COMMIT_MSG"          >> "$GITHUB_ENV"
+          echo "GOVEOF"                  >> "$GITHUB_ENV"
+          echo "DB_TIMESTAMP=$DB_TIMESTAMP" >> "$GITHUB_ENV"
+          mkdir -p /tmp/evidence
+          echo '[]' > /tmp/evidence/violations.json
+          python3 governance/dashboard-record.py /tmp/evidence/violations.json
+          cp "$EVENT_JSON" /tmp/evidence/governance-event.json 2>/dev/null || true
+          echo "--- event ---"; cat "$EVENT_JSON" 2>/dev/null || echo "(no event written)"
+
+      - name: Upload the governance evidence artifact
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-evidence-${{ github.event.pull_request.number }}
+          path: /tmp/evidence/
+          if-no-files-found: warn
+
+      - name: Forward the event to the governance webhook
+        # Optional. Fires only when the MTGOV_CI_WEBHOOK secret is set, so the
+        # local governance dashboard can show CI gate outcomes alongside the
+        # hook-emitted events. Fail-open: never blocks the gate.
+        if: always()
+        continue-on-error: true
+        env:
+          MTGOV_CI_WEBHOOK: ${{ secrets.MTGOV_CI_WEBHOOK }}
+        run: |
+          if [ -z "${MTGOV_CI_WEBHOOK:-}" ]; then
+            echo "MTGOV_CI_WEBHOOK not set - skipping event forward."
+            exit 0
+          fi
+          if [ ! -f "$EVENT_JSON" ]; then
+            echo "No event file at $EVENT_JSON - nothing to forward."
+            exit 0
+          fi
+          curl -fsSL -X POST "$MTGOV_CI_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            --data-binary "@$EVENT_JSON" \
+            --max-time 20 \
+            && echo "event forwarded." || echo "webhook POST failed - continuing."
+
+      - name: Publish the evidence record to the gh-pages dashboard
+        # Append-only control-evidence feed read by the Pages dashboard. Runs the
+        # pinned dashboard-record.py, never the pull request's copy, because this
+        # step holds a write token. Never blocks the gate.
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DB_ACTOR: ${{ github.event.pull_request.user.login }}
+          DB_TRIGGERED_BY: ${{ github.actor }}
+          DB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          DB_PR_TITLE: ${{ github.event.pull_request.title }}
+          DB_PR_URL: ${{ github.event.pull_request.html_url }}
+          DB_BRANCH: ${{ github.event.pull_request.head.ref }}
+          DB_BASE: ${{ github.event.pull_request.base.ref }}
+          DB_SHA: ${{ github.event.pull_request.head.sha }}
+          DB_REPO: ${{ github.repository }}
+          DB_PROJECT: ${{ vars.GOV_PROJECT || 'MERIDIAN-PAYMENT-OPS' }}
+          DB_RUN_ID: ${{ github.run_id }}
+          DB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -eu
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          WORK="$(mktemp -d)"
+          if ! git clone --depth 1 --branch gh-pages "$REPO_URL" "$WORK" 2>/dev/null; then
+            git clone --depth 1 "$REPO_URL" "$WORK"
+            git -C "$WORK" checkout --orphan gh-pages
+            git -C "$WORK" rm -rf . >/dev/null 2>&1 || true
+          fi
+          git -C "$WORK" config user.name  "meridian-governance[bot]"
+          git -C "$WORK" config user.email "meridian-governance@users.noreply.github.com"
+          mkdir -p "$WORK/data"
+          [ -f "$WORK/data/violations.json" ] || echo '[]' > "$WORK/data/violations.json"
+          [ -f "$GITHUB_WORKSPACE/dashboard/index.html" ] \
+            && cp "$GITHUB_WORKSPACE/dashboard/index.html" "$WORK/index.html" || true
+          for attempt in 1 2 3 4 5; do
+            python3 "$GITHUB_WORKSPACE/governance/dashboard-record.py" "$WORK/data/violations.json"
+            git -C "$WORK" add -A
+            git -C "$WORK" commit -q -m "evidence: ${DB_ACTOR} PR #${DB_PR_NUMBER} - guardrail verdict" || true
+            if git -C "$WORK" push origin gh-pages 2>/dev/null; then
+              echo "dashboard updated (attempt $attempt)"; break
+            fi
+            echo "push rejected - syncing with remote and retrying ($attempt)"
+            git -C "$WORK" fetch -q origin gh-pages && git -C "$WORK" reset --hard origin/gh-pages
+            [ -f "$GITHUB_WORKSPACE/dashboard/index.html" ] \
+              && cp "$GITHUB_WORKSPACE/dashboard/index.html" "$WORK/index.html" || true
+          done
