@@ -1,0 +1,27 @@
+{
+  "_case": "rs-escalated-high-sepa",
+  "_endpoint": "/api/risk-score",
+  "_params": {
+    "ref": "MT-2026-08816"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.590Z",
+  "httpStatus": 200,
+  "body": {
+    "REF": "MT-2026-08816",
+    "INV": "INV-2026-4405",
+    "SCORE": "62",
+    "BAND": "MEDIUM",
+    "amt_cents": "7090482",
+    "ccy": "EUR",
+    "TYPE": "SEPA",
+    "ctry": "DE",
+    "age": "4",
+    "dup_suspect": "N",
+    "bank_chg_days": "116",
+    "over_limit": "Y",
+    "round_amt": "N",
+    "new_vend": "N",
+    "model": "APRSK01",
+    "retcode": "0000"
+  }
+}

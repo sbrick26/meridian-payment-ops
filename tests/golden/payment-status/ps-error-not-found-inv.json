@@ -1,0 +1,14 @@
+{
+  "_case": "ps-error-not-found-inv",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "invoice": "INV-DOES-NOT-EXIST"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.589Z",
+  "httpStatus": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "PaymentRef": "",
+    "InvoiceNo": "INV-DOES-NOT-EXIST"
+  }
+}

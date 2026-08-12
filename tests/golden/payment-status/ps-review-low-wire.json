@@ -1,0 +1,41 @@
+{
+  "_case": "ps-review-low-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08820"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.586Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08820",
+    "InvoiceNo": "INV-2026-4407",
+    "PO_NUM": "PO-40126",
+    "sts": "REVIEW",
+    "sts_desc": "Under review by an AP clerk",
+    "amt_cents": "126571",
+    "Amount_Formatted": "1,265.71",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Ardmore Textiles",
+    "vend_ctry": "MX",
+    "VendorNo": "V100325",
+    "remit_TO": "Ardmore Textiles - Accounts Receivable",
+    "BankBIC": "BNMXMXMM",
+    "rsn": "H21",
+    "rsnText": "Duplicate invoice suspected",
+    "age_days": "3",
+    "CreatedDate": "2026-07-29",
+    "invoice_dt": "2026-07-18",
+    "due_dt": "2026-08-17",
+    "expected_pay_dt": "2026-08-04",
+    "value_dt": "2026-07-30",
+    "PaymentRun": "PR-2026-118-ACH",
+    "risk": "LOW",
+    "Clerk": "ROK",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

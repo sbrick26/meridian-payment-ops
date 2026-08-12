@@ -1,0 +1,27 @@
+{
+  "_case": "rs-review-low-wire-h21",
+  "_endpoint": "/api/risk-score",
+  "_params": {
+    "ref": "MT-2026-08820"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.589Z",
+  "httpStatus": 200,
+  "body": {
+    "REF": "MT-2026-08820",
+    "INV": "INV-2026-4407",
+    "SCORE": "44",
+    "BAND": "MEDIUM",
+    "amt_cents": "126571",
+    "ccy": "USD",
+    "TYPE": "WIRE",
+    "ctry": "MX",
+    "age": "3",
+    "dup_suspect": "Y",
+    "bank_chg_days": "-1",
+    "over_limit": "N",
+    "round_amt": "N",
+    "new_vend": "Y",
+    "model": "APRSK01",
+    "retcode": "0000"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "_case": "ps-resolved-low-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-09439"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.587Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-09439",
+    "InvoiceNo": "INV-2026-5049",
+    "PO_NUM": "PO-41002",
+    "sts": "RESOLVED",
+    "sts_desc": "Closed - released or returned",
+    "amt_cents": "1273200",
+    "Amount_Formatted": "12,732.00",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Dunmore Packaging",
+    "vend_ctry": "GB",
+    "VendorNo": "V100597",
+    "remit_TO": "Dunmore Packaging - Accounts Receivable",
+    "BankBIC": "HSBCGB2L",
+    "rsn": "H21",
+    "rsnText": "Duplicate invoice suspected",
+    "age_days": "29",
+    "CreatedDate": "2026-07-03",
+    "invoice_dt": "2026-06-13",
+    "due_dt": "2026-07-13",
+    "expected_pay_dt": "2026-07-04",
+    "value_dt": "2026-07-04",
+    "PaymentRun": "PR-2026-105-ACH",
+    "risk": "LOW",
+    "Clerk": "ROK",
+    "resolved_dt": "2026-07-04",
+    "Resolution": "RETURNED",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

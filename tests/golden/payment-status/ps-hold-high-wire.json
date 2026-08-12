@@ -1,0 +1,41 @@
+{
+  "_case": "ps-hold-high-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08948"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.587Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08948",
+    "InvoiceNo": "INV-2026-4537",
+    "PO_NUM": "PO-40308",
+    "sts": "HOLD",
+    "sts_desc": "Held - awaiting vendor or goods receipt",
+    "amt_cents": "5118350",
+    "Amount_Formatted": "51,183.50",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Calder Industrial",
+    "vend_ctry": "GB",
+    "VendorNo": "V100257",
+    "remit_TO": "Calder Industrial - Remittance Desk",
+    "BankBIC": "WFBIUS6S",
+    "rsn": "H41",
+    "rsnText": "Over approval limit - second sign-off required",
+    "age_days": "7",
+    "CreatedDate": "2026-07-25",
+    "invoice_dt": "2026-07-11",
+    "due_dt": "2026-08-25",
+    "expected_pay_dt": "2026-08-09",
+    "value_dt": "2026-07-26",
+    "PaymentRun": "PR-2026-134-ACH",
+    "risk": "HIGH",
+    "Clerk": "DWH",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "Y",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

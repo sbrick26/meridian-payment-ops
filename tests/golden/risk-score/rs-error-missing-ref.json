@@ -1,0 +1,10 @@
+{
+  "_case": "rs-error-missing-ref",
+  "_endpoint": "/api/risk-score",
+  "_params": {},
+  "_capturedAt": "2026-08-12T18:07:46.591Z",
+  "httpStatus": 400,
+  "body": {
+    "ERR": "MISSING_REF"
+  }
+}

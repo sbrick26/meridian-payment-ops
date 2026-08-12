@@ -1,0 +1,27 @@
+{
+  "_case": "rs-hold-high-wire-h41",
+  "_endpoint": "/api/risk-score",
+  "_params": {
+    "ref": "MT-2026-08948"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.590Z",
+  "httpStatus": 200,
+  "body": {
+    "REF": "MT-2026-08948",
+    "INV": "INV-2026-4537",
+    "SCORE": "75",
+    "BAND": "HIGH",
+    "amt_cents": "5118350",
+    "ccy": "USD",
+    "TYPE": "WIRE",
+    "ctry": "GB",
+    "age": "7",
+    "dup_suspect": "N",
+    "bank_chg_days": "286",
+    "over_limit": "Y",
+    "round_amt": "N",
+    "new_vend": "N",
+    "model": "APRSK01",
+    "retcode": "0000"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "_case": "ps-resolved-high-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-09473"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.588Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-09473",
+    "InvoiceNo": "INV-2026-5073",
+    "PO_NUM": "PO-41049",
+    "sts": "RESOLVED",
+    "sts_desc": "Closed - released or returned",
+    "amt_cents": "1165906",
+    "Amount_Formatted": "11,659.06",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Gruner Landtechnik",
+    "vend_ctry": "DE",
+    "VendorNo": "V100869",
+    "remit_TO": "Gruner Landtechnik - Accounts Receivable",
+    "BankBIC": "CHASUS33",
+    "rsn": "H21",
+    "rsnText": "Duplicate invoice suspected",
+    "age_days": "21",
+    "CreatedDate": "2026-07-11",
+    "invoice_dt": "2026-07-08",
+    "due_dt": "2026-08-07",
+    "expected_pay_dt": "2026-07-17",
+    "value_dt": "2026-07-12",
+    "PaymentRun": "PR-2026-125-ACH",
+    "risk": "HIGH",
+    "Clerk": "LFO",
+    "resolved_dt": "2026-07-17",
+    "Resolution": "RETURNED",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "_case": "rs-error-not-found",
+  "_endpoint": "/api/risk-score",
+  "_params": {
+    "ref": "MT-DOES-NOT-EXIST"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.591Z",
+  "httpStatus": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "REF": "MT-DOES-NOT-EXIST"
+  }
+}
