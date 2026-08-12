@@ -1,1 +1,77 @@
-[]
+[
+  {
+    "id": "31567078089-aadc305",
+    "timestamp": "2026-08-12T05:36:50Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 9,
+    "violations": [
+      {
+        "file": "notify.js",
+        "rule": "01-secure-coding.md",
+        "detail": "SMTP_PASSWORD is hardcoded as a string literal 'meridian2026!' instead of being read from process.env.",
+        "severity": "critical"
+      },
+      {
+        "file": "notify.js",
+        "rule": "01-secure-coding.md",
+        "detail": "STATUS_API_KEY is hardcoded as a string literal 'meridian-status-api-key-2026' instead of being read from process.env.",
+        "severity": "critical"
+      },
+      {
+        "file": "notify.js",
+        "rule": "01-secure-coding.md",
+        "detail": "STATUS_API_BEARER is hardcoded as a string literal 'Bearer meridian-payops-notify-2026' instead of being read from process.env.",
+        "severity": "critical"
+      },
+      {
+        "file": "server.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The /exceptions/:id/notify route builds SQL by string concatenation of req.params.id instead of using a parameterized query with a bound ? placeholder.",
+        "severity": "critical"
+      },
+      {
+        "file": "server.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The /exceptions/:id/notify route uses req.params.id and req.query.to without any input validation before they reach the SQL query and the SMTP socket respectively.",
+        "severity": "critical"
+      },
+      {
+        "file": "notify.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "notify.js has no required compliance header carrying Function, Owner, Control (NIST 800-53 id plus SOX/PCI reference), and Reviewed date.",
+        "severity": "medium"
+      },
+      {
+        "file": "server.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "The new app.get('/exceptions/:id/notify') route handler has no required compliance header carrying Function, Owner, Control, and Reviewed date.",
+        "severity": "medium"
+      },
+      {
+        "file": "change-log/",
+        "rule": "03-audit-and-change-log.md",
+        "detail": "Application code was changed but no change-log entry was added in this diff (missing).",
+        "severity": "medium"
+      },
+      {
+        "file": "docs/modernization/",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "Application code was added with no traceable plan document under docs/modernization/<EPIC-KEY>/ present in the repository or added by this diff (missing plan).",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "1",
+    "pr_title": "Notify vendors when a payment is escalated",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/1",
+    "branch": "kai/vendor-email-notify-20260811-223550",
+    "base_ref": "main",
+    "sha": "aadc305",
+    "commit_message": "add vendor notification helper for escalated payments",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31567078089"
+  }
+]
