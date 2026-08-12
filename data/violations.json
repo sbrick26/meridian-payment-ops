@@ -1,5 +1,32 @@
 [
   {
+    "id": "31642338619-1315394",
+    "timestamp": "2026-08-12T21:24:37Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "docs/modernization/KAN-30/PLAN.md",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "The planning record is committed as a single PLAN.md rather than the three required separate files (01-assessment.md, 02-plan.md, and 03-decisions.md) that must exist under docs/modernization/KAN-30/.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "6",
+    "pr_title": "[KAN-30] Modernization plan: AP Payment Operations console Phase 1",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/6",
+    "branch": "docs/KAN-30-modernization-plan",
+    "base_ref": "demo-integration",
+    "sha": "1315394",
+    "commit_message": "[KAN-30] Modernization plan: AP Payment Operations console Phase 1",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31642338619"
+  },
+  {
     "id": "31641511704-cda381a",
     "timestamp": "2026-08-12T21:13:54Z",
     "verdict": "FAIL",
