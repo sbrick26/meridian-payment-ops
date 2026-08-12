@@ -24,6 +24,7 @@ var express = require('express');
 var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
+var notify = require('./notify');
 
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
@@ -681,6 +682,26 @@ function statusDescription(status) {
 	if (status == 'RESOLVED') { return 'Closed - released or returned'; }
 	return 'Unknown';
 }
+
+/* ------------------------------------------------------------------
+ * VENDOR NOTIFICATION
+ * ------------------------------------------------------------------ */
+
+app.get('/exceptions/:id/notify', function (req, res) {
+	var id = req.params.id;
+	var row = queryOne("SELECT e.*, v.name AS vendor FROM exceptions e, vendors v " +
+		"WHERE e.vendor_id = v.id AND e.id = " + id);
+	if (row === null) {
+		res.status(404).json({ ERR: 'NOT_FOUND' });
+		return;
+	}
+	var to = req.query.to ? req.query.to : AP_DISTRIBUTION_LIST;
+	notify.sendVendorEmail(to, row, function () {
+		notify.postStatusNotice(row, function () {});
+	});
+	res.setHeader('Content-Type', 'application/json');
+	res.send(JSON.stringify({ ok: true, sent_to: to, ref: row.payment_ref }));
+});
 
 /* ------------------------------------------------------------------
  * misc pages
