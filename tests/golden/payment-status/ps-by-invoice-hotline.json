@@ -1,0 +1,41 @@
+{
+  "_case": "ps-by-invoice-hotline",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "invoice": "INV-2026-4471"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.588Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08879",
+    "InvoiceNo": "INV-2026-4471",
+    "PO_NUM": "PO-40200",
+    "sts": "REVIEW",
+    "sts_desc": "Under review by an AP clerk",
+    "amt_cents": "431531",
+    "Amount_Formatted": "4,315.31",
+    "ccy": "EUR",
+    "Type": "SEPA",
+    "vendorName": "Sedgewick Plastics",
+    "vend_ctry": "GB",
+    "VendorNo": "V100903",
+    "remit_TO": "Sedgewick Plastics - Lockbox 7378",
+    "BankBIC": "CHASUS33",
+    "rsn": "H52",
+    "rsnText": "Vendor onboarding incomplete",
+    "age_days": "1",
+    "CreatedDate": "2026-07-31",
+    "invoice_dt": "2026-07-29",
+    "due_dt": "2026-09-27",
+    "expected_pay_dt": "2026-08-04",
+    "value_dt": "2026-08-01",
+    "PaymentRun": "PR-2026-114-WIRE",
+    "risk": "LOW",
+    "Clerk": "TNA",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

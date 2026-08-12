@@ -1,0 +1,41 @@
+{
+  "_case": "ps-hold-med-sepa",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08863"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.586Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08863",
+    "InvoiceNo": "INV-2026-4451",
+    "PO_NUM": "PO-40186",
+    "sts": "HOLD",
+    "sts_desc": "Held - awaiting vendor or goods receipt",
+    "amt_cents": "1046649",
+    "Amount_Formatted": "10,466.49",
+    "ccy": "EUR",
+    "Type": "SEPA",
+    "vendorName": "Corbin Rail Services",
+    "vend_ctry": "US",
+    "VendorNo": "V100920",
+    "remit_TO": "Corbin Rail Services - Accounts Receivable",
+    "BankBIC": "DEUTDEFF",
+    "rsn": "H63",
+    "rsnText": "Tax certificate expired",
+    "age_days": "9",
+    "CreatedDate": "2026-07-23",
+    "invoice_dt": "2026-07-07",
+    "due_dt": "2026-08-06",
+    "expected_pay_dt": "2026-08-09",
+    "value_dt": "2026-07-24",
+    "PaymentRun": "PR-2026-125-ACH",
+    "risk": "MED",
+    "Clerk": "GHO",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

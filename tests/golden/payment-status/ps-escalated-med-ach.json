@@ -1,0 +1,41 @@
+{
+  "_case": "ps-escalated-med-ach",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08987"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.587Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08987",
+    "InvoiceNo": "INV-2026-4576",
+    "PO_NUM": "PO-40362",
+    "sts": "ESCALATED",
+    "sts_desc": "Escalated to AP controls",
+    "amt_cents": "2655422",
+    "Amount_Formatted": "26,554.22",
+    "ccy": "USD",
+    "Type": "ACH",
+    "vendorName": "Redmond Circuit Works",
+    "vend_ctry": "US",
+    "VendorNo": "V101090",
+    "remit_TO": "Redmond Circuit Works - Accounts Receivable",
+    "BankBIC": "COBADEFF",
+    "rsn": "H14",
+    "rsnText": "Missing goods receipt - GR/IR not cleared",
+    "age_days": "0",
+    "CreatedDate": "2026-08-01",
+    "invoice_dt": "2026-07-30",
+    "due_dt": "2026-08-29",
+    "expected_pay_dt": "2026-08-12",
+    "value_dt": "2026-08-01",
+    "PaymentRun": "PR-2026-131-SEPA",
+    "risk": "MED",
+    "Clerk": "SBR",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

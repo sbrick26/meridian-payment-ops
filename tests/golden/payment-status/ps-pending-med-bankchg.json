@@ -1,0 +1,41 @@
+{
+  "_case": "ps-pending-med-bankchg",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08839"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.589Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08839",
+    "InvoiceNo": "INV-2026-4427",
+    "PO_NUM": "PO-40159",
+    "sts": "PENDING",
+    "sts_desc": "Awaiting first review",
+    "amt_cents": "1073658",
+    "Amount_Formatted": "10,736.58",
+    "ccy": "USD",
+    "Type": "ACH",
+    "vendorName": "Weissbach Optik",
+    "vend_ctry": "DE",
+    "VendorNo": "V100563",
+    "remit_TO": "Weissbach Optik - Lockbox 4870",
+    "BankBIC": "CHASUS33",
+    "rsn": "H26",
+    "rsnText": "Cost centre or GL coding missing",
+    "age_days": "15",
+    "CreatedDate": "2026-07-17",
+    "invoice_dt": "2026-07-01",
+    "due_dt": "2026-07-31",
+    "expected_pay_dt": "2026-08-12",
+    "value_dt": "2026-07-18",
+    "PaymentRun": "PR-2026-144-WIRE",
+    "risk": "MED",
+    "Clerk": "LFO",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

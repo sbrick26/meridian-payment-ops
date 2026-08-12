@@ -1,0 +1,41 @@
+{
+  "_case": "ps-review-med-sepa",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08901"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.585Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08901",
+    "InvoiceNo": "INV-2026-4495",
+    "PO_NUM": "PO-40238",
+    "sts": "REVIEW",
+    "sts_desc": "Under review by an AP clerk",
+    "amt_cents": "3155585",
+    "Amount_Formatted": "31,555.85",
+    "ccy": "EUR",
+    "Type": "SEPA",
+    "vendorName": "Loxley Chemicals",
+    "vend_ctry": "GB",
+    "VendorNo": "V100461",
+    "remit_TO": "Loxley Chemicals - Lockbox 5156",
+    "BankBIC": "COBADEFF",
+    "rsn": "H41",
+    "rsnText": "Over approval limit - second sign-off required",
+    "age_days": "4",
+    "CreatedDate": "2026-07-28",
+    "invoice_dt": "2026-07-10",
+    "due_dt": "2026-08-09",
+    "expected_pay_dt": "2026-08-13",
+    "value_dt": "2026-07-29",
+    "PaymentRun": "PR-2026-126-WIRE",
+    "risk": "MED",
+    "Clerk": "DWH",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

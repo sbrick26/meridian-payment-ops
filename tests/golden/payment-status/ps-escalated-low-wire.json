@@ -1,0 +1,41 @@
+{
+  "_case": "ps-escalated-low-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08834"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.587Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08834",
+    "InvoiceNo": "INV-2026-4423",
+    "PO_NUM": "PO-40151",
+    "sts": "ESCALATED",
+    "sts_desc": "Escalated to AP controls",
+    "amt_cents": "552097",
+    "Amount_Formatted": "5,520.97",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Serrano Produce",
+    "vend_ctry": "MX",
+    "VendorNo": "V100750",
+    "remit_TO": "Serrano Produce - Lockbox 2831",
+    "BankBIC": "WFBIUS6S",
+    "rsn": "H09",
+    "rsnText": "Vendor on payment block",
+    "age_days": "4",
+    "CreatedDate": "2026-07-28",
+    "invoice_dt": "2026-07-14",
+    "due_dt": "2026-08-28",
+    "expected_pay_dt": "2026-08-10",
+    "value_dt": "2026-07-29",
+    "PaymentRun": "PR-2026-140-SEPA",
+    "risk": "LOW",
+    "Clerk": "ROK",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

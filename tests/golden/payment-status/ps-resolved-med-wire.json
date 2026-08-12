@@ -1,0 +1,41 @@
+{
+  "_case": "ps-resolved-med-wire",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-09443"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.588Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-09443",
+    "InvoiceNo": "INV-2026-5050",
+    "PO_NUM": "PO-41006",
+    "sts": "RESOLVED",
+    "sts_desc": "Closed - released or returned",
+    "amt_cents": "506771",
+    "Amount_Formatted": "5,067.71",
+    "ccy": "USD",
+    "Type": "WIRE",
+    "vendorName": "Rheinbach Werke",
+    "vend_ctry": "DE",
+    "VendorNo": "V100342",
+    "remit_TO": "Rheinbach Werke - Remittance Desk",
+    "BankBIC": "COBADEFF",
+    "rsn": "H07",
+    "rsnText": "Bank details changed - verification required",
+    "age_days": "11",
+    "CreatedDate": "2026-07-21",
+    "invoice_dt": "2026-07-10",
+    "due_dt": "2026-08-09",
+    "expected_pay_dt": "2026-07-22",
+    "value_dt": "2026-07-22",
+    "PaymentRun": "PR-2026-117-ACH",
+    "risk": "MED",
+    "Clerk": "MCA",
+    "resolved_dt": "2026-07-22",
+    "Resolution": "CORRECTED",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

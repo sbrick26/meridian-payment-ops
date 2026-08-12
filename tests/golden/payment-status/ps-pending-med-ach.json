@@ -1,0 +1,41 @@
+{
+  "_case": "ps-pending-med-ach",
+  "_endpoint": "/api/payment-status",
+  "_params": {
+    "ref": "MT-2026-08832"
+  },
+  "_capturedAt": "2026-08-12T18:07:46.585Z",
+  "httpStatus": 200,
+  "body": {
+    "PaymentRef": "MT-2026-08832",
+    "InvoiceNo": "INV-2026-4419",
+    "PO_NUM": "PO-40145",
+    "sts": "PENDING",
+    "sts_desc": "Awaiting first review",
+    "amt_cents": "1497497",
+    "Amount_Formatted": "14,974.97",
+    "ccy": "USD",
+    "Type": "ACH",
+    "vendorName": "Yeo Heng Manufacturing",
+    "vend_ctry": "SG",
+    "VendorNo": "V100818",
+    "remit_TO": "Yeo Heng Manufacturing - Remittance Desk",
+    "BankBIC": "CITIUS33",
+    "rsn": "H14",
+    "rsnText": "Missing goods receipt - GR/IR not cleared",
+    "age_days": "6",
+    "CreatedDate": "2026-07-26",
+    "invoice_dt": "2026-07-23",
+    "due_dt": "2026-09-21",
+    "expected_pay_dt": "2026-08-09",
+    "value_dt": "2026-07-27",
+    "PaymentRun": "PR-2026-140-WIRE",
+    "risk": "MED",
+    "Clerk": "ROK",
+    "resolved_dt": "",
+    "Resolution": "",
+    "over_approval_limit": "N",
+    "retcode": "0000",
+    "asOfDate": "2026-08-01"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "_case": "ps-error-missing-ref",
+  "_endpoint": "/api/payment-status",
+  "_params": {},
+  "_capturedAt": "2026-08-12T18:07:46.588Z",
+  "httpStatus": 400,
+  "body": {
+    "ERR": "MISSING_REF",
+    "msg": "ref or invoice parameter is required"
+  }
+}
