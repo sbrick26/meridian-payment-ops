@@ -7,3 +7,6 @@ npm-debug.log
 # Local workspace configuration (never committed)
 .bob/mcp.json
 .env
+
+# local tool config
+.claude/
