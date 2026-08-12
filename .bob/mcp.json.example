@@ -48,7 +48,9 @@
         "figma_post_comment",
         "figma_get_comments",
         "figma_diagnose",
-        "figma_set_image_fill"
+        "figma_set_image_fill",
+        "figma_find_nodes",
+        "figma_export_frame"
       ]
     }
   }

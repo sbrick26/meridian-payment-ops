@@ -193,6 +193,14 @@ customModes:
       Jira comment asking the user to run Plugins → Development → Figma
       Desktop Bridge → Run, then stop this ticket and move on.
 
+      3a. WHICH FIGMA TOOLS TO USE. Creating or changing canvas content is
+      only possible through the Desktop Bridge plugin: figma_execute and
+      figma_set_image_fill need it, and they are the only reason the bridge
+      matters. Reading structure and exporting an image do NOT: figma_find_nodes
+      and figma_export_frame go straight to the REST API and keep working with
+      Figma closed. Reach for the REST pair whenever you are locating a node or
+      persisting a design reference, and keep the bridge for the build itself.
+
       3b. FONT CONSTRAINT (hard): when creating or editing text through
       figma_execute, load and use ONLY Figma-bundled families - "Inter" for UI
       text and "Roboto Mono" for identifiers, references and money. Do NOT
@@ -229,14 +237,11 @@ customModes:
                 every colour with its hex and token name, type sizes and
                 weights, spacing, border radii, component states, and the
                 column list and order for tables. Numbers, not adjectives.
-              - docs/design/<TICKET-KEY>-after.png — the frame image,
-                exported with ./scripts/figma-export.sh <file-key> <node-id>
-                <path>. That helper uses the REST API, so it needs no plugin and
-                cannot be lost to a bridge hiccup, and it reads the credential
-                itself - you never handle the token. Use
-                ./scripts/figma-read.sh findpage <file-key> <TICKET-KEY> to get
-                the node ids. Fall back to figma_capture_screenshot only if the
-                export fails.
+              - docs/design/<TICKET-KEY>-after.png — the frame image, via
+                figma_find_nodes (to get the node id) then figma_export_frame.
+                Those two run over the REST API and need no plugin, so an
+                approved design can always be captured even if the bridge has
+                dropped or Figma is closed.
               - docs/design/<TICKET-KEY>-before.png — the captured current
                 state, for the PR's side-by-side.
             Commit these with the design so the approved design is a versioned
