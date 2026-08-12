@@ -377,13 +377,44 @@ function applyFilters(){
   FIRST = false;
 }
 
+// On static hosting (GitHub Pages) there is no /events endpoint; the CI gate
+// appends per-PR records to data/violations.json instead. Map those records to
+// the event schema so one page serves both deployments.
+function recordToEvents(r){
+  const sev = (r.severity || (r.verdict === "PASS" ? "info" : "high")).toLowerCase();
+  const worst = (r.violations && r.violations[0]) || {};
+  return [{
+    ts: r.timestamp || r.ts || null,
+    source: "ci",
+    actor: r.actor || "ci",
+    event_type: r.verdict === "PASS" ? "gate_pass" : "gate_fail",
+    rule: worst.rule ? String(worst.rule).replace(/\.md$/, "") : null,
+    severity: sev,
+    detail: r.verdict === "PASS"
+      ? `Guardrail gate passed for PR #${r.pr_number ?? "?"} — ${r.pr_title || ""}`.trim()
+      : `Guardrail gate BLOCKED PR #${r.pr_number ?? "?"} (${r.violation_count ?? (r.violations||[]).length} violation(s)) — ${r.pr_title || ""}`.trim(),
+    tool: null,
+    session_id: r.id || null,
+    _link: r.pr_url || null,
+  }];
+}
+
 async function load(){
   try {
     // Relative on purpose: resolves to /events under serve-dashboard.py (which
     // serves this page at "/") and to <base>/events wherever else it is hosted.
-    const res = await fetch("events", {cache:"no-store"});
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+    let data = null;
+    try {
+      const res = await fetch("events", {cache:"no-store"});
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      data = await res.json();
+    } catch (_) {
+      // Static-hosting fallback: CI gate records.
+      const res2 = await fetch("data/violations.json", {cache:"no-store"});
+      if (!res2.ok) throw new Error("HTTP " + res2.status);
+      const records = await res2.json();
+      data = (Array.isArray(records) ? records : []).flatMap(recordToEvents);
+    }
     ALL = Array.isArray(data) ? data : [];
     ALL.sort((a,b) => new Date(b.ts||0) - new Date(a.ts||0));
     document.getElementById("status").textContent =
