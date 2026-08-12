@@ -202,16 +202,43 @@ customModes:
             spacing, components). The Figma design-language page is the source
             of truth for tokens - read it via figma tools, do not invent
             tokens. Verify it with figma_capture_screenshot.
-            BUILD IT IN STAGES, not in one call. Send the frame and its
-            header, then the filter bar, then the table header, then the rows,
-            then the pagination - a handful of figma_execute calls, each one
-            small enough to return quickly. One monolithic call is a single
-            point of failure: it is the one most likely to exceed the tool
-            timeout, and when it does the client restarts the MCP server,
-            which detaches the plugin and loses the whole frame. Staged calls
-            keep every completed piece on the canvas, and a failure costs one
-            stage instead of the design. Re-select the frame by id in each
-            call rather than relying on selection state carrying over.
+            BUILD IT WITH PARALLEL SUBAGENTS. Do not write the whole screen
+            in one figma_execute: that call is the one most likely to exceed
+            the tool timeout, and when it does the client restarts the MCP
+            server, the restart detaches the plugin, and the entire frame is
+            lost. Generating it turn by turn is also simply slow - the cost of
+            a run is model passes, not Figma calls.
+            Fan the drawing out instead:
+              i.   YOU create the AFTER frame yourself: one figma_execute that
+                   makes the empty 1440x920 frame and nothing else. Keep its
+                   node id.
+              ii.  YOU read the design tokens once, from the Meridian Design
+                   Language 3.0 page, and write them down as literal values.
+              iii. Spawn general subagents IN PARALLEL, one per band of the
+                   screen - typically: masthead and nav; page title and filter
+                   bar; table header and rows; pagination and footnote.
+                   Give each subagent, in its prompt: the frame node id, the
+                   token values verbatim, its own y-range, and the full width
+                   available. Tell each one to make exactly ONE figma_execute
+                   call appending its nodes to that frame by id, to position
+                   every node with absolute x/y inside its own band, and to
+                   report back only "done" plus any node ids the spec needs.
+                   Subagents have the Figma tools; this is verified.
+              iv.  Assign the y-ranges yourself and never let two subagents
+                   share one. They cannot see each other's work, so the only
+                   thing preventing a collision is the split you hand them.
+              v.   Wait for all of them, then take ONE figma_capture_screenshot
+                   and check the assembled frame before freezing the spec.
+            POSITION EVERYTHING EXPLICITLY. Give every text and container an
+            absolute x/y and a width, and set textAutoResize to 'NONE' with an
+            explicit width on any text that sits beside something else. Text
+            laid out by flow alone overlaps its neighbour - the wordmark ran
+            straight through the page title, and the breadcrumb rendered as
+            "Dashboard/Held Payments" with no gap. Leave at least 16px between
+            adjacent text nodes.
+            Keep the mock honest but not exhaustive: five table rows is a
+            design review, fifty is a data dump that costs turns and proves
+            nothing extra.
          h. FREEZE THE SPEC. Implementation must never depend on a live design
             tool, so capture everything the build needs while the bridge is up
             and commit it:
@@ -511,7 +538,18 @@ customModes:
       detaching everything downstream - branch, plan, design, pull request -
       from the ticket a human is actually watching.
 
-      11. Do not narrow a ticket query by status. Fetch what is assigned to
+      11. SPEND TURNS LIKE THEY COST SOMETHING - they do. Every tool call is a
+      full model pass over the whole conversation, and that conversation grows
+      all run; a fourteen-minute run was 173 of them, of which sixteen were the
+      same failing Jira call retried. So:
+         - Fetch each ticket's details ONCE and work from what you already
+           have. Re-reading a ticket you have already read buys nothing.
+         - Never repeat a call that just failed with the same arguments. Read
+           the error: these tools say when a retry cannot help.
+         - Do not re-read a file you have already read in this run.
+         - Batch related edits into one write rather than several.
+
+      12. Do not narrow a ticket query by status. Fetch what is assigned to
       you and read each ticket's own status field to classify it. A status
       filter encodes a guess about where work sits, and when the guess is
       wrong an empty result is indistinguishable from an empty board.
