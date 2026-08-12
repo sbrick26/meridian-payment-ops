@@ -27,7 +27,13 @@ import os
 import re
 import sys
 
-VERDICT_RE = re.compile(r"\{[^{}]*\"verdict\"(?:[^{}]|\{[^{}]*\})*\}")
+# Where a verdict object might start. Brace matching is done by the JSON
+# decoder rather than by a pattern: a regex cannot count nesting, and the audit
+# legitimately quotes offending source in its details — a finding about a
+# template literal contains ${...}, whose braces silently defeat any
+# fixed-depth expression. That produced an UNPARSEABLE gate on a run whose
+# verdict was perfectly well-formed.
+VERDICT_START_RE = re.compile(r"\{\s*\"verdict\"")
 
 
 def unwrap_bob_envelope(raw):
@@ -52,14 +58,23 @@ def unwrap_bob_envelope(raw):
 
 
 def find_verdict(raw):
+    """Last well-formed verdict object in the audit output, or None.
+
+    Scans every position where a verdict object could begin and lets
+    json.JSONDecoder.raw_decode consume exactly one value from there. The
+    decoder tracks nesting and string escaping properly, so quoted code in a
+    detail field cannot break extraction. The last valid object wins: the model
+    may reason aloud before committing to its answer.
+    """
+    decoder = json.JSONDecoder()
     for text in unwrap_bob_envelope(raw):
         verdict = None
-        for m in VERDICT_RE.finditer(text):
+        for m in VERDICT_START_RE.finditer(text):
             try:
-                candidate = json.loads(m.group(0))
-            except json.JSONDecodeError:
+                candidate, _ = decoder.raw_decode(text[m.start():])
+            except ValueError:
                 continue
-            if candidate.get("verdict") in ("PASS", "FAIL"):
+            if isinstance(candidate, dict) and candidate.get("verdict") in ("PASS", "FAIL"):
                 verdict = candidate
         if verdict is not None:
             return verdict
