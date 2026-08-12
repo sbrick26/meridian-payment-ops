@@ -186,7 +186,7 @@ jobs:
         if: always()
         continue-on-error: true
         env:
-          DB_ACTOR: ${{ github.event.pull_request.user.login }}
+          DB_ACTOR_FALLBACK: ${{ github.event.pull_request.user.login }}
           DB_TRIGGERED_BY: ${{ github.actor }}
           DB_PR_NUMBER: ${{ github.event.pull_request.number }}
           DB_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -200,6 +200,10 @@ jobs:
           DB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -eu
+          # Attribute the evidence to the commit author (the human persona who
+          # wrote the change), not the account that opened the PR.
+          export DB_ACTOR="$(git log -1 --pretty=%an "$DB_SHA" 2>/dev/null || true)"
+          [ -n "$DB_ACTOR" ] || DB_ACTOR="$DB_ACTOR_FALLBACK"
           export DB_COMMIT_MSG="$(git log -1 --pretty=%s "$DB_SHA" 2>/dev/null || echo '')"
           export DB_TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo "DB_COMMIT_MSG<<GOVEOF"  >> "$GITHUB_ENV"
@@ -252,7 +256,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DB_ACTOR: ${{ github.event.pull_request.user.login }}
+          DB_ACTOR_FALLBACK: ${{ github.event.pull_request.user.login }}
           DB_TRIGGERED_BY: ${{ github.actor }}
           DB_PR_NUMBER: ${{ github.event.pull_request.number }}
           DB_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -266,6 +270,8 @@ jobs:
           DB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -eu
+          export DB_ACTOR="$(git log -1 --pretty=%an "$DB_SHA" 2>/dev/null || true)"
+          [ -n "$DB_ACTOR" ] || DB_ACTOR="$DB_ACTOR_FALLBACK"
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           WORK="$(mktemp -d)"
           if ! git clone --depth 1 --branch gh-pages "$REPO_URL" "$WORK" 2>/dev/null; then

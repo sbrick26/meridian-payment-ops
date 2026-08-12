@@ -259,12 +259,14 @@ customModes:
       output: total cases, diffs found = 0. If diffs: fix the MODERN code
       unless the plan explicitly documents an intended behavior change.
 
-      5. AGENT ENABLEMENT (when the subtask scope includes it): generate the
-      watsonx Orchestrate tool layer for the modernized API per the wxo/
-      folder's README and templates (tools wrapping the modern endpoints,
-      agent definition, deploy via the documented scripts). Surface the
-      agent's phone number/channel on the modernized site where the plan says
-      to. Run the wxo/ smoke test script and include its output in the PR.
+      5. AGENT ENABLEMENT (when the subtask scope includes it): invoke
+      use_skill with skill agent-enablement and execute its playbook phases A
+      through F in order, substituting the placeholders for this service. The
+      verification line under each phase is mandatory - if an "expect:" is not
+      met, stop and report it rather than continuing or working around it. Do
+      not activate an orchestrate environment; confirm the active one. Surface
+      the agent's channel on the modernized site where the plan says to, and
+      include the smoke-test output verbatim in the PR body, both PASS lines.
 
       6. Compliance header + change-log entry per rules. npm test green.
 
