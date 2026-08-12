@@ -134,9 +134,15 @@ customModes:
       should see what it will look like, and splitting it into a second gate
       costs a second round-trip for one decision. Produce the frames now, for
       the screen the plan puts in scope, and publish them with the plan.
-         a. Capture reality first: ensure the app is running (npm start, port
-            4600; fix startup errors up to 2 retries). browser_action
-            screenshot of the affected page = before_screenshot. Close browser.
+         a. Confirm reality first: ensure the app is running (npm start, port
+            4600; fix startup errors up to 2 retries) and that the screen in
+            scope actually serves. The current-state image itself is already a
+            committed artifact - docs/design/legacy-held-payments.png, a real
+            capture of this page from the running app - so do NOT screenshot
+            it through the browser tool. A full-page capture returns roughly
+            420KB of base64, about 105,000 tokens, into the conversation; that
+            is what emptied the BEFORE frame on earlier runs. Use the
+            committed file.
          b. figma_get_status first. The plugin attaches to the bridge a few
             seconds after the connection opens, so a single "not connected"
             reply is not a verdict: retry status up to three times, a few
@@ -178,11 +184,17 @@ customModes:
             means it can be cleared without touching the system. Name the
             frames "<EPIC-KEY> BEFORE" and "<EPIC-KEY> AFTER".
          f. "BEFORE" frame: do NOT redraw the current screen. Create one frame
-            sized to the screenshot, put a single rectangle in it, and apply
-            the screenshot itself with figma_set_image_fill (imageData is the
-            base64 PNG from the browser capture, scaleMode FILL). The current
-            state is evidence, so it belongs in the review verbatim -
-            redrawing it wastes turns, invites an endless fidelity loop, and
+            1440x920, put a single rectangle filling it, and apply the image
+            with figma_set_image_fill_from_file:
+              nodeId: <the rectangle's id>
+              image_path: docs/design/legacy-held-payments.png
+              scaleMode: FILL
+            Use that tool and never figma_set_image_fill directly: the
+            path-based one loads the bytes inside the MCP server, so the image
+            never passes through the conversation. Passing base64 as a tool
+            argument is what made this call time out and leave an empty frame.
+            The current state is evidence, so it belongs in the review verbatim
+            - redrawing it wastes turns, invites an endless fidelity loop, and
             quietly flatters a UI whose ugliness is the entire point of the
             comparison. One call, no iteration, no rebuilding.
          g. "AFTER" frame applying the Meridian Design Language 3.0 spec page
@@ -190,6 +202,16 @@ customModes:
             spacing, components). The Figma design-language page is the source
             of truth for tokens - read it via figma tools, do not invent
             tokens. Verify it with figma_capture_screenshot.
+            BUILD IT IN STAGES, not in one call. Send the frame and its
+            header, then the filter bar, then the table header, then the rows,
+            then the pagination - a handful of figma_execute calls, each one
+            small enough to return quickly. One monolithic call is a single
+            point of failure: it is the one most likely to exceed the tool
+            timeout, and when it does the client restarts the MCP server,
+            which detaches the plugin and loses the whole frame. Staged calls
+            keep every completed piece on the canvas, and a failure costs one
+            stage instead of the design. Re-select the frame by id in each
+            call rather than relying on selection state carrying over.
          h. FREEZE THE SPEC. Implementation must never depend on a live design
             tool, so capture everything the build needs while the bridge is up
             and commit it:
@@ -203,8 +225,9 @@ customModes:
                 Those two run over the REST API and need no plugin, so an
                 approved design can always be captured even if the bridge has
                 dropped or Figma is closed.
-              - docs/design/<EPIC-KEY>-before.png — the captured current
-                state, for the PR's side-by-side.
+              - the current-state image is already committed at
+                docs/design/legacy-held-payments.png; reference that path in
+                the PR body's side-by-side rather than writing a second copy.
 
       7. Publish plan and design together as one reviewable artifact. They are
       the deliverable, so they travel through source control, not a wiki:
