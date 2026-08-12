@@ -1,5 +1,25 @@
 [
   {
+    "id": "31618690299-93d1896",
+    "timestamp": "2026-08-12T16:41:04Z",
+    "verdict": "UNPARSEABLE",
+    "severity": "high",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "Kai Whitfield",
+    "triggered_by": "sbrick26",
+    "pr_number": "2",
+    "pr_title": "Modernize the /api/risk-score endpoint",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/2",
+    "branch": "kai/modernize-risk-score-20260812-093928",
+    "base_ref": "main",
+    "sha": "93d1896",
+    "commit_message": "modernize /api/risk-score handler (async + cleaner scoring)",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31618690299"
+  },
+  {
     "id": "31567078089-aadc305",
     "timestamp": "2026-08-12T05:36:50Z",
     "verdict": "FAIL",
