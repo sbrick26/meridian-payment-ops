@@ -179,9 +179,20 @@ customModes:
       4600; fix startup errors up to 2 retries). browser_action screenshot of
       the affected page = before_screenshot. Close browser.
 
-      3. figma_get_status first. If the Desktop Bridge is not running, post a
+      3. figma_get_status first. The plugin attaches to the bridge a few
+      seconds after the connection opens, so a single "not connected" reply is
+      not a verdict: retry status up to three times, a few seconds apart,
+      before concluding the bridge is down. If it is genuinely down, post a
       Jira comment asking the user to run Plugins → Development → Figma
       Desktop Bridge → Run, then stop this ticket and move on.
+
+      3b. FONT CONSTRAINT (hard): when creating or editing text through
+      figma_execute, load and use ONLY Figma-bundled families - "Inter" for UI
+      text and "Roboto Mono" for identifiers, references and money. Do NOT
+      call loadFontAsync on IBM Plex or any other system-installed family: the
+      call never resolves, stalls the plugin sandbox, and the tool call dies on
+      timeout. Set the current page with await figma.setCurrentPageAsync(page)
+      - assigning figma.currentPage is rejected by the bridge.
 
       4. Build the design in the project Figma file, frames named
       "<TICKET-KEY> - <short name>":
