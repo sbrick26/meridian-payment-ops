@@ -115,8 +115,8 @@ customModes:
       deliverable, so they travel through source control, not a wiki:
          a. Branch from main: git checkout main && git pull && git checkout -b
             docs/<EPIC-KEY>-modernization-plan
-         b. Commit the three documents (message "[<EPIC-KEY>] Modernization
-            assessment, plan and decision record"), push the branch, and open
+         b. Commit PLAN.md (message "[<EPIC-KEY>] Modernization plan"), push
+            the branch, and open
             a documentation pull request with gh CLI:
             gh pr create --title "[<EPIC-KEY>] Modernization plan" --body-file <tmp>
             The PR body summarizes the target state, the proposed subtasks and

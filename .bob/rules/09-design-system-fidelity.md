@@ -22,7 +22,7 @@ includes:
 Do not select a hex value, font size, or spacing value by judgement, by copying
 another product, or by matching a screenshot. If a required token does not exist
 in the design system, that is a gap to raise with Design — not a value to
-improvise. Record the gap in `03-decisions.md` and proceed only with Design's
+improvise. Record the gap in the key-decisions section of `PLAN.md` and proceed only with Design's
 written answer.
 
 ## Design review precedes implementation

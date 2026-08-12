@@ -54,7 +54,7 @@ The pull request body must state:
 
 A modernization may deliberately change behavior — correcting a defect,
 tightening validation, changing a rounding rule. Such changes must be documented
-in `02-plan.md` before implementation, listed explicitly as excluded from the
+in `PLAN.md` before implementation, listed explicitly as excluded from the
 equivalence comparison, and referenced from the pull request body. An
 undocumented difference discovered at review is a failure of this rule
 regardless of whether the new behavior is better.

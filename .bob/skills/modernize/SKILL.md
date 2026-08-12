@@ -1,12 +1,12 @@
 ---
 name: modernize
 description: >-
-  Use when planning or executing an application modernization: producing an
-  assessment, modernization plan, decision record, or equivalence test strategy
-  for replacing legacy functionality. Applies when the request is to analyse a
-  legacy component, scope a migration, break an epic into subtasks with
-  acceptance criteria and dates, decide between modernization options, or work
-  out how to prove a replacement behaves like the system it replaces.
+  Use when planning or executing an application modernization: producing a
+  modernization plan for replacing legacy functionality. Applies when the
+  request is to analyse a legacy component, scope a migration, break an epic
+  into subtasks with acceptance criteria and dates, decide between
+  modernization options, or work out how to prove a replacement behaves like
+  the system it replaces.
 ---
 
 # Modernization workflow
@@ -19,44 +19,50 @@ The output of a modernization engagement is not a running branch. It is a
 planning record that a reviewer, an auditor, and the next engineer can all read
 and act on.
 
-## Where documents live
+## The document
 
-One directory per epic, keyed by the tracker key of the epic:
+**One document per epic, and only one:**
 
 ```
-docs/modernization/<EPIC-KEY>/
-    01-assessment.md      current state, grounded in the code
-    02-plan.md            target state, workstreams, subtasks, approval
-    03-decisions.md       decisions taken, with rationale
+docs/modernization/<EPIC-KEY>/PLAN.md
 ```
 
-Skeletons for each are in `templates/`. An equivalence strategy is a required
-section of `02-plan.md`; `templates/equivalence-strategy.md` expands that section
-when the surface being replaced is large enough to warrant its own document, in
-which case it is written as `04-equivalence-strategy.md` in the same directory
-and referenced from the plan.
+`templates/plan.md` is its skeleton. Do not split the assessment, the decision
+record, or the equivalence strategy into separate files — they are sections of
+this document. A reviewer who has to open four files to approve one plan will
+approve it without reading it.
 
-Create the directory if it does not exist. Once a document is committed it is
+Create the directory if it does not exist. Once the document is committed it is
 append-only: add a dated revision section rather than rewriting history.
 
-## The three documents
+## Length is a requirement, not a preference
 
-**01-assessment.md — what exists today.** Read the code before writing anything.
-Describe the current architecture, the data model, the request paths, the
-integrations, and the specific liabilities that justify the work: duplicated
-logic, unparameterized queries, missing validation, absent tests, unsupported
-dependencies, undocumented behaviour. Quantify where you can — route counts,
-file sizes, dependency versions and their support status.
+**A reviewer must be able to read PLAN.md in three minutes** — roughly two
+pages. The plan is a decision surface for an approver, not a report on the
+codebase. The approver already owns the system; they do not need it described
+back to them.
 
-**02-plan.md — what will change.** Target state, then workstreams, then a
-subtask table. Each subtask is independently deliverable and independently
-verifiable. State what is out of scope as explicitly as what is in scope; most
-modernization overruns are scope that was never written down as excluded.
+That budget forces the right behaviour in each section:
 
-**03-decisions.md — what was decided and why.** One entry per decision: the
-question, the options considered, the option chosen, the rationale, the date, and
-the decider. Include decisions to *not* do something. A decision that only exists
-in a chat log will be re-litigated.
+- **Current state** — the findings that change the plan, not an inventory.
+  Three to six of them, each citing a real file path. "Eleven of the fifteen
+  routes build SQL by concatenation (`server.js`)" beats fifteen bullet points
+  that each name one route.
+- **Target state and workstreams** — what the system becomes, and the two to
+  four streams that get it there.
+- **Subtask table** — name, scope, acceptance criteria, proposed due date. One
+  row per subtask, each independently deliverable and independently verifiable.
+- **Out of scope** — as explicit as what is in scope. Most modernization
+  overruns are scope that was never written down as excluded.
+- **Equivalence strategy** — required whenever existing behaviour is being
+  replaced (see below). Keep it to the shape of the proof, not the test list.
+- **Key decisions** — one line each: what was decided, and the alternative
+  rejected. Include decisions *not* to do something. A decision that only
+  exists in a chat log will be re-litigated.
+
+Do not pad, do not restate the codebase, and do not append appendices to get
+detail back in. Detail that does not fit belongs in the subtask that will do
+the work.
 
 ## Quality bar
 
@@ -77,33 +83,35 @@ in a chat log will be re-litigated.
 
 ## Equivalence strategy
 
-Any plan that replaces existing behaviour must contain an equivalence strategy
-covering:
+Any plan that replaces existing behaviour must contain an equivalence section
+that answers these six questions — briefly, one or two lines each:
 
-- **Surface inventory** — every endpoint, view, or business rule being replaced.
+- **Surface inventory** — which endpoints, views, or business rules are replaced.
 - **Input matrix** — the case classes to be exercised: nominal paths, boundary
-  values, error and rejection paths, authorization variants, and known data
-  quirks in production data.
+  values, error and rejection paths, authorization variants, known data quirks.
 - **Golden capture** — how and when responses from the current implementation
-  will be recorded, which must be before any modification, and where the
-  fixtures will be committed.
+  are recorded, which must be before any modification, and where the fixtures
+  are committed.
 - **Comparison method** — what is compared field by field: status codes, body
   contents, monetary precision and rounding, date and timestamp formatting,
-  error codes, and observable side effects.
-- **Intended differences** — every behaviour that will deliberately change,
-  listed here and excluded explicitly from the comparison.
+  error codes, observable side effects.
+- **Intended differences** — every behaviour that deliberately changes, listed
+  here and excluded explicitly from the comparison.
 - **Exit criteria** — the case count that must execute, zero unexplained
-  differences, and the conditions under which the legacy path is retired.
+  differences, and when the legacy path is retired.
+
+The case-by-case detail is produced by the subtask that builds the suite. This
+section commits to the shape of the proof, not its contents.
 
 ## Gate semantics
 
-Produce the documents, then stop.
+Produce the document, then stop.
 
 Implementation begins only after plan approval has been recorded on the epic in
 the tracker, by a named approver, with a date. Until that record exists, the
-correct output is planning artifacts — not code, not a branch, not a
-proof-of-concept. If asked to begin implementation without a recorded approval,
-say what is missing and offer to complete the plan instead.
+correct output is the plan — not code, not a branch, not a proof-of-concept. If
+asked to begin implementation without a recorded approval, say what is missing
+and offer to complete the plan instead.
 
-At the end of a run, list every document written and every item still flagged
-for a human decision.
+At the end of a run, state where PLAN.md was written and list every item still
+flagged for a human decision.
