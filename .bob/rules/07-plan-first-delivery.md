@@ -5,10 +5,7 @@ modifying code in this repository, the work must be planned, and the planning
 record must exist in the repository under:
 
 ```
-docs/modernization/<EPIC-KEY>/
-    01-assessment.md
-    02-plan.md
-    03-decisions.md
+docs/modernization/<EPIC-KEY>/PLAN.md
 ```
 
 `<EPIC-KEY>` is the tracker key of the epic the work belongs to. This applies to
@@ -16,18 +13,26 @@ docs/modernization/<EPIC-KEY>/
 modernization skill was invoked by name. If a request would add code without a
 plan, plan it first.
 
-## Required documents
+## What PLAN.md must contain
 
-- **01-assessment.md** — current-state analysis grounded in the codebase. Every
-  factual claim about existing behavior must cite a file path, and where useful
-  a line or function name. An assessment that describes the system in general
-  terms without file references is not an assessment and must be rejected.
-- **02-plan.md** — target state, workstreams, and a subtask table in which every
-  subtask has a name, a scope, **testable** acceptance criteria, and a due date.
-  Includes out-of-scope items, the equivalence strategy required by rule 08,
-  risks, and the approval record.
-- **03-decisions.md** — the decision record: each decision, the options
-  considered, the choice, the rationale, and the date.
+One document, not several. An approver reads one file or they read none.
+
+- **Current state** — grounded in the codebase. Every factual claim about
+  existing behavior must cite a file path, and where useful a line or function
+  name. A current-state section that describes the system in general terms
+  without file references is not analysis and must be rejected. Summarize
+  findings; an inventory of the codebase is not required and is not wanted.
+- **Target state and workstreams.**
+- **Subtask table** in which every subtask has a name, a scope, **testable**
+  acceptance criteria, and a due date.
+- **Out of scope**, stated explicitly.
+- **Equivalence strategy** as required by rule 08.
+- **Key decisions** — one line each: the decision and the alternative rejected.
+- **Approval record.**
+
+Separate assessment, decision-record or equivalence documents must not be
+created; those are sections of PLAN.md. The document is a decision surface for
+an approver, and is expected to be readable in about three minutes.
 
 ## Rules for the planning record
 

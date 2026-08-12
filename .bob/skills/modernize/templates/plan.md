@@ -1,70 +1,83 @@
-# Modernization plan — <component or capability>
+<!-- TEMPLATE: modernization plan -->
+<!-- Write to docs/modernization/<EPIC-KEY>/PLAN.md. This is the ONLY planning
+     document: no separate assessment, decision or equivalence files.
+     Target length is roughly two pages — a three-minute read.
+     Append-only once committed: add a dated revision section, do not rewrite. -->
 
-<!-- Write to docs/modernization/<EPIC-KEY>/02-plan.md. Append-only once committed. -->
+# <EPIC-KEY> — Modernization plan: <component>
 
-Epic: <EPIC-KEY>
-Date: <YYYY-MM-DD>
-Author: <name>
-Assessment: 01-assessment.md
+| | |
+|---|---|
+| **Epic** | <EPIC-KEY> |
+| **Author** | <author> |
+| **Date** | <YYYY-MM-DD> |
+| **Status** | Awaiting approval |
 
-## Objective
+## Current state
 
-<!-- One paragraph: the outcome this epic delivers and the business reason for it. -->
+<!-- 3-6 findings that change the plan. Each cites a real file path. Summarize,
+     do not inventory: group like problems into one line with a count. -->
+
+- <finding> (`<path>`)
+- <finding> (`<path>`)
+
+**Why this is worth doing now:** <one or two sentences of business consequence.>
 
 ## Target state
 
-<!-- The system as it will be when this epic completes: architecture, data access, interfaces, test posture. Describe the end state, not the journey. -->
+<!-- What the system looks like when this epic is done. 3-5 sentences. -->
 
-## Workstreams
+**Workstreams**
 
-<!-- Two to five streams of related work. One line each: name, what it covers, sequencing relative to the others. -->
-
-| Workstream | Covers | Depends on |
-|------------|--------|------------|
-|            |        |            |
+1. **<name>** — <one line>
+2. **<name>** — <one line>
 
 ## Subtasks
 
-<!-- Each subtask independently deliverable and independently verifiable. Acceptance criteria must be testable. Due dates are business days, counted from the real current date. -->
+| # | Subtask | Scope | Acceptance criteria | Due |
+|---|---------|-------|---------------------|-----|
+| 1 | <name> | <what it touches> | <observable, testable> | <YYYY-MM-DD> |
+| 2 | | | | |
 
-| Subtask | Scope | Acceptance criteria | Due date |
-|---------|-------|---------------------|----------|
-|         |       |                     |          |
+<!-- Business-day dates read from the system clock. No weekends. Dependent
+     subtasks cannot be due before their prerequisites. -->
 
 ## Out of scope
 
-<!-- Stated as explicitly as the scope. Anything a reader might reasonably assume is included but is not. -->
+- <excluded item> — <why, and where it goes instead>
 
 ## Equivalence strategy
 
-<!-- Required whenever existing behaviour is replaced. Surface inventory, input matrix, golden-capture approach and timing, comparison method, intended differences, exit criteria. Expand into 04-equivalence-strategy.md if the surface is large, and link it here. -->
+<!-- Required whenever existing behaviour is replaced. One or two lines each. -->
 
-## Design
+| | |
+|---|---|
+| **Surface replaced** | <endpoints / views / rules> |
+| **Input matrix** | <case classes: nominal, boundary, error, authz, data quirks> |
+| **Golden capture** | <how and when, before any modification; fixture location> |
+| **Comparison** | <fields compared: status, body, money precision, dates, errors> |
+| **Intended differences** | <deliberate changes, excluded from comparison> |
+| **Exit criteria** | <case count, zero unexplained diffs, legacy retirement> |
 
-<!-- User-visible changes: which screens, which design frames they derive from, the reviewing designer and review date. -->
+## Key decisions
 
-## Dependencies and approvals required
+| Decision | Alternative rejected | Why |
+|---|---|---|
+| <what was decided> | <what was not chosen> | <one line> |
 
-<!-- New libraries with their approval notes, environment or infrastructure changes, sign-offs needed from other teams. -->
+<!-- Include decisions NOT to do something. -->
 
-## Risks
+## Open items
 
-| Risk | Likelihood | Impact | Mitigation | Owner |
-|------|------------|--------|------------|-------|
-|      |            |        |            |       |
+<!-- `[BLOCKER]` marks anything that must be answered before approval.
+     A plan with an open blocker cannot be approved. Delete if none. -->
 
-## Rollback
+- [BLOCKER] <question> — <who must answer>
 
-<!-- How the change is reversed if it fails in production, per workstream. -->
+## Approval
 
-## Open blockers
-
-<!-- Mark [BLOCKER]. The plan cannot be approved while any remain open. -->
-
-## Approval record
-
-<!-- Filled in when approval is recorded on the epic. Implementation does not begin before this is complete. -->
-
-| Approver | Role | Date | Recorded on epic |
-|----------|------|------|------------------|
-|          |      |      |                  |
+| | |
+|---|---|
+| **Approver** | <name> |
+| **Date** | <YYYY-MM-DD> |
+| **Recorded on** | <EPIC-KEY> |
