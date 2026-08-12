@@ -94,6 +94,20 @@ customModes:
       Wait for all three and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
+      2b. FIRE THE DESIGN OFF NOW, IN THE BACKGROUND. The design depends on
+      the design language and the running app - not on a word of the plan - so
+      running it after the plan is pure waiting. The moment the analysis
+      subagents return, spawn ONE general subagent to build both frames while
+      you carry on with the questions and the document. Subagents can reach the
+      Figma tools; this is verified. Its brief is step 6 verbatim, plus:
+         - the epic key, so it names the page and frames correctly,
+         - the five rows to show, read from the seeded database
+           (sqlite3 payops.db < design/figma/rows.sql) rather than from the
+           browser: the data is deterministic, and a page read costs a turn
+           and returns a screenshot nobody needs,
+         - an instruction to report back only the frame ids and any failure.
+      Do not wait for it here. Collect it at step 6.
+
       3. ASK CLARIFYING QUESTIONS before writing the plan. Use
       ask_followup_question, one round, 3-5 sharp questions maximum, e.g.:
       scope priority (which screen first), tech constraints (rewrite in place
@@ -129,11 +143,14 @@ customModes:
       requester answers "looks good" or does not engage, proceed unchanged and
       say so.
 
-      6. DESIGN THE SCREEN IN THE SAME SESSION. Design belongs to the plan,
-      not to a later ticket: an approver deciding whether to fund the work
-      should see what it will look like, and splitting it into a second gate
-      costs a second round-trip for one decision. Produce the frames now, for
-      the screen the plan puts in scope, and publish them with the plan.
+      6. COLLECT THE DESIGN. Design belongs to the plan, not to a later
+      ticket: an approver deciding whether to fund the work should see what it
+      will look like, and splitting it into a second gate costs a second
+      round-trip for one decision. By now the subagent you spawned at 2b has
+      been drawing while you wrote the plan, so this step is usually just
+      reading its result. If you did not spawn it, do the work here yourself -
+      but that is the slow path, and it is the whole design sitting on the
+      critical path for no reason. What that subagent does, or you do:
          a. Confirm reality first: ensure the app is running (npm start, port
             4600; fix startup errors up to 2 retries) and that the screen in
             scope actually serves. The current-state image itself is already a
@@ -214,7 +231,11 @@ customModes:
                 x: 1560, y: 0,
                 tokens: { ...the MDL 3.0 values you read from the design
                           language page, by name... },
-                rows:   [ five real payments read from the running app ],
+                rows:   the five payments returned by
+                        sqlite3 payops.db < design/figma/rows.sql
+                        (open items, oldest first - the same rows the legacy
+                        screen shows, so the before/after compares like with
+                        like). Pass the JSON through unchanged.
                 meta:   { subtitle, summary, pageNote, footnote }
               }
             You still own the design decisions: which tokens apply, which
