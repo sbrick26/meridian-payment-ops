@@ -1,18 +1,11 @@
 [
   {
     "id": "31626396599-d65b4ea",
-    "timestamp": "2026-08-12T18:11:39Z",
-    "verdict": "FAIL",
-    "severity": "critical",
-    "violation_count": 1,
-    "violations": [
-      {
-        "file": ".github/workflows/guardrail-gate.yml",
-        "rule": "06-governance-protection.md",
-        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
-        "severity": "critical"
-      }
-    ],
+    "timestamp": "2026-08-12T18:18:38Z",
+    "verdict": "PASS",
+    "severity": "none",
+    "violation_count": 0,
+    "violations": [],
     "actor": "sbrick26",
     "triggered_by": "sbrick26",
     "pr_number": "4",
