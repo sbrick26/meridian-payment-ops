@@ -37,7 +37,7 @@
         "MCP_ALLOW_TOOLS": "figma_get_status,figma_execute,figma_capture_screenshot,figma_navigate,figma_reconnect,figma_get_component_for_development,figma_search_components,figma_post_comment,figma_get_comments,figma_diagnose,figma_set_image_fill",
         "FIGMA_WS_PORT": "9223"
       },
-      "timeout": 120,
+      "timeout": 240,
       "alwaysAllow": [
         "figma_get_status",
         "figma_execute",
@@ -51,7 +51,8 @@
         "figma_diagnose",
         "figma_set_image_fill",
         "figma_find_nodes",
-        "figma_export_frame"
+        "figma_export_frame",
+        "figma_set_image_fill_from_file"
       ]
     }
   }
