@@ -1,5 +1,32 @@
 [
   {
+    "id": "31641511704-cda381a",
+    "timestamp": "2026-08-12T21:13:54Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "docs/modernization/KAN-29/02-plan.md",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "The plan has an unfilled approval record marked to be completed later, so implementation is not backed by a recorded approver and date.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "5",
+    "pr_title": "[KAN-29] Modernization plan \u2014 AP Payment Operations console (Phase 1)",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/5",
+    "branch": "docs/KAN-29-modernization-plan",
+    "base_ref": "demo-integration",
+    "sha": "cda381a",
+    "commit_message": "[KAN-29] Modernization assessment, plan and decision record",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31641511704"
+  },
+  {
     "id": "31626396599-d65b4ea",
     "timestamp": "2026-08-12T18:18:38Z",
     "verdict": "PASS",
