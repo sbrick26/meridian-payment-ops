@@ -10,7 +10,9 @@ name: guardrail-gate
 
 on:
   pull_request:
-    branches: [main]
+    # Feature and docs branches target the demo integration branch; main is the
+    # protected trunk. Both are governed - a change is audited wherever it lands.
+    branches: [main, demo-integration]
 
 permissions:
   contents: write        # publish the evidence record to the gh-pages dashboard branch
