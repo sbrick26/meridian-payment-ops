@@ -1,11 +1,48 @@
 [
   {
     "id": "31618690299-93d1896",
-    "timestamp": "2026-08-12T16:41:04Z",
-    "verdict": "UNPARSEABLE",
-    "severity": "high",
-    "violation_count": 0,
-    "violations": [],
+    "timestamp": "2026-08-12T16:47:07Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 6,
+    "violations": [
+      {
+        "file": "server.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The rewritten /api/risk-score handler builds its SQL query by interpolating the user-supplied req.query.ref value directly into a template literal string instead of using a parameterized query with a bound ? placeholder.",
+        "severity": "critical"
+      },
+      {
+        "file": "server.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The req.query.ref value is passed to the SQL layer after only a truthiness check, with no type, length, or format validation at the route boundary via express-validator before it reaches the database.",
+        "severity": "critical"
+      },
+      {
+        "file": "server.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "The new computeRiskScore function and the rewritten app.get('/api/risk-score') route handler are both missing the required compliance header carrying Function, Owner, Control (NIST 800-53 id plus SOX/PCI reference), and Reviewed date.",
+        "severity": "medium"
+      },
+      {
+        "file": "change-log/",
+        "rule": "03-audit-and-change-log.md",
+        "detail": "Application code in server.js was changed but no change-log entry was added in this diff and no change-log directory exists in the repository (missing).",
+        "severity": "medium"
+      },
+      {
+        "file": "docs/modernization/",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "The diff modifies application code described as a modernisation but no plan documents (01-assessment.md, 02-plan.md, 03-decisions.md) exist in docs/modernization/ and none are added by this diff (missing plan).",
+        "severity": "high"
+      },
+      {
+        "file": "server.js",
+        "rule": "08-behavioral-equivalence.md",
+        "detail": "The /api/risk-score endpoint is rewritten with a changed scoring function and a different response shape (round_amt dropped, over_approval_limit renamed to over_limit) but no golden fixtures, no equivalence test suite, and no plan-document entries authorizing the behavior differences are present in the diff or the repository.",
+        "severity": "high"
+      }
+    ],
     "actor": "Kai Whitfield",
     "triggered_by": "sbrick26",
     "pr_number": "2",
