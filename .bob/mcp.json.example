@@ -23,25 +23,6 @@
         "jira_attach_file"
       ]
     },
-    "confluence": {
-      "command": "uvx",
-      "args": [
-        "mcp-atlassian>=0.22.1,<0.24"
-      ],
-      "env": {
-        "CONFLUENCE_URL": "${CONFLUENCE_URL}",
-        "CONFLUENCE_USERNAME": "${CONFLUENCE_USERNAME}",
-        "CONFLUENCE_API_TOKEN": "${CONFLUENCE_API_TOKEN}",
-        "TOOLSETS": "confluence",
-        "ENABLED_TOOLS": "confluence_create_page,confluence_update_page,confluence_get_page,confluence_search"
-      },
-      "alwaysAllow": [
-        "confluence_create_page",
-        "confluence_update_page",
-        "confluence_get_page",
-        "confluence_search"
-      ]
-    },
     "figma-console": {
       "command": "node",
       "args": [
