@@ -1,0 +1,142 @@
+<%- include('partials/header', { pageTitle: 'Held Payments' }) %>
+
+  <ul class="breadcrumb">
+    <li><a href="/">Dashboard</a> <span class="divider">/</span></li>
+    <li class="active">Held Payments</li>
+  </ul>
+
+  <div class="page-header">
+    <h1>Held Payments <small>vendor payment inquiries as at <%= asOf %></small></h1>
+  </div>
+
+  <div class="filter-bar no-print">
+    <form method="GET" action="/exceptions" id="filterForm" class="form-inline">
+      <input type="hidden" name="sort" id="sortField" value="<%= fSort %>">
+      <div class="field">
+        <label for="status">Status</label>
+        <select name="status" id="status">
+          <option value="">(open items)</option>
+          <option value="ALL"<% if (fStatus == 'ALL') { %> selected="selected"<% } %>>All including closed</option>
+          <option value="PENDING"<% if (fStatus == 'PENDING') { %> selected="selected"<% } %>>PENDING</option>
+          <option value="REVIEW"<% if (fStatus == 'REVIEW') { %> selected="selected"<% } %>>REVIEW</option>
+          <option value="HOLD"<% if (fStatus == 'HOLD') { %> selected="selected"<% } %>>HOLD</option>
+          <option value="ESCALATED"<% if (fStatus == 'ESCALATED') { %> selected="selected"<% } %>>ESCALATED</option>
+          <option value="RESOLVED"<% if (fStatus == 'RESOLVED') { %> selected="selected"<% } %>>RESOLVED</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="type">Method</label>
+        <select name="type" id="type">
+          <option value="">(all)</option>
+          <option value="WIRE"<% if (fType == 'WIRE') { %> selected="selected"<% } %>>WIRE</option>
+          <option value="ACH"<% if (fType == 'ACH') { %> selected="selected"<% } %>>ACH</option>
+          <option value="SEPA"<% if (fType == 'SEPA') { %> selected="selected"<% } %>>SEPA</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="q">Search</label>
+        <input type="text" name="q" id="q" class="input-xlarge" value="<%= fQuery %>"
+               maxlength="60" autocomplete="off">
+        <span class="muted">payment reference, vendor, invoice number, PO or hold code</span>
+      </div>
+      <div class="field">
+        <input type="submit" class="btn btn-primary" value="Search">
+        <input type="button" class="btn" value="Clear" onclick="return clearFilter();">
+        <input type="button" class="btn" value="Open selected" onclick="return openSelected();">
+        <input type="button" class="btn" value="Print" onclick="return printPage();">
+      </div>
+    </form>
+  </div>
+
+  <div class="result-summary clearfix">
+    <div class="pull-left">
+      <b><%= total %></b> item(s) matched &nbsp;&middot;&nbsp;
+      total value <b><%= u.money(filteredValue) %></b> &nbsp;&middot;&nbsp;
+      page <b><%= pageNo %></b> of <b><%= pages %></b>
+      &nbsp;&middot;&nbsp; selected: <span id="selected-ref">(none)</span>
+    </div>
+    <div class="pull-right no-print">
+      <a href="/reports/export.csv<%= u.qs({ status: fStatus }) %>">Export this list to CSV</a>
+      &nbsp;|&nbsp;
+      <a href="/api/exceptions.xml<%= u.qs({ status: fStatus }) %>">XML feed</a>
+    </div>
+  </div>
+
+  <table class="table table-bordered table-condensed table-striped exc-table" id="excTable">
+    <thead>
+      <tr>
+        <th><a href="#" onclick="return setSort('ref');">Reference</a></th>
+        <th><a href="#" onclick="return setSort('vendor');">Vendor</a></th>
+        <th><a href="#" onclick="return setSort('invoice');">Invoice no</a></th>
+        <th>PO</th>
+        <th class="num"><a href="#" onclick="return setSort('amount');">Amount</a></th>
+        <th>Ccy</th>
+        <th><a href="#" onclick="return setSort('status');">Status</a></th>
+        <th>Hold reason</th>
+        <th class="num">Age</th>
+        <th>Clerk</th>
+        <th class="no-print">&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% if (rows.length == 0) { %>
+      <tr><td colspan="11" class="muted">No items match the selection. Amend the filter and search again.</td></tr>
+    <% } %>
+    <% for (var i = 0; i < rows.length; i++) { var r = rows[i]; %>
+      <tr id="row-<%= r.id %>"<% if (r.risk_flag == 'HIGH') { %> class="row-high"<% } %>
+          onclick="selectRow(this, <%= r.id %>);" ondblclick="openRow(<%= r.id %>);">
+        <td class="ref" id="ref-<%= r.id %>"><a href="/exceptions/<%= r.id %>"><%= r.payment_ref %></a></td>
+        <td class="cust"><%= r.vendor %></td>
+        <td><%= r.invoice_no %></td>
+        <td><%= r.po_no %></td>
+        <td class="num"><%= u.money(r.amount_cents) %></td>
+        <td><%= r.currency %></td>
+        <td><%- u.statusLabel(r.status) %></td>
+        <td><b><%= r.reason_code %></b> <%= r.reason_text %></td>
+        <td class="num"><%- u.ageCell(r.age_days) %></td>
+        <td><%= r.clerk_initials %></td>
+        <td class="no-print"><a href="/exceptions/<%= r.id %>">detail</a></td>
+      </tr>
+    <% } %>
+    </tbody>
+  </table>
+
+  <div class="pagination no-print">
+    <ul>
+      <% if (pageNo > 1) { %>
+        <li><a href="/exceptions<%= u.qs({ status: fStatus, type: fType, q: fQuery, sort: fSort, page: 1 }) %>">&laquo; First</a></li>
+        <li><a href="/exceptions<%= u.qs({ status: fStatus, type: fType, q: fQuery, sort: fSort, page: pageNo - 1 }) %>">Prev</a></li>
+      <% } else { %>
+        <li class="disabled"><span>&laquo; First</span></li>
+        <li class="disabled"><span>Prev</span></li>
+      <% } %>
+      <%
+        var from = pageNo - 3; if (from < 1) { from = 1; }
+        var to = from + 6; if (to > pages) { to = pages; }
+        for (var p = from; p <= to; p++) {
+      %>
+        <% if (p == pageNo) { %>
+          <li class="active"><span><%= p %></span></li>
+        <% } else { %>
+          <li><a href="/exceptions<%= u.qs({ status: fStatus, type: fType, q: fQuery, sort: fSort, page: p }) %>"><%= p %></a></li>
+        <% } %>
+      <% } %>
+      <% if (pageNo < pages) { %>
+        <li><a href="/exceptions<%= u.qs({ status: fStatus, type: fType, q: fQuery, sort: fSort, page: pageNo + 1 }) %>">Next</a></li>
+        <li><a href="/exceptions<%= u.qs({ status: fStatus, type: fType, q: fQuery, sort: fSort, page: pages }) %>">Last &raquo;</a></li>
+      <% } else { %>
+        <li class="disabled"><span>Next</span></li>
+        <li class="disabled"><span>Last &raquo;</span></li>
+      <% } %>
+    </ul>
+    <span class="muted">&nbsp; <%= pageSize %> rows per page (set in server.js)</span>
+  </div>
+
+  <p class="muted">
+    Rows shaded red are flagged by the overnight ERP batch and must be referred to
+    AP controls before release. Invoices over <b>50,000.00</b> require a second
+    sign-off per procedure AP-114. If a vendor rings the hotline about an item,
+    add the call as a note so the next clerk can see it.
+  </p>
+
+<%- include('partials/footer') %>

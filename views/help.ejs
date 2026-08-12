@@ -1,0 +1,91 @@
+<%- include('partials/header', { pageTitle: 'Help' }) %>
+
+  <ul class="breadcrumb">
+    <li><a href="/">Dashboard</a> <span class="divider">/</span></li>
+    <li class="active">Help</li>
+  </ul>
+
+  <div class="page-header">
+    <h1>Support Notes <small>application code PAYOPS</small></h1>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="detail-box">
+        <h4>Using the held payments queue</h4>
+        <p>
+          The queue defaults to open items only. Use the status drop down to bring
+          back closed items. The search box matches on payment reference, vendor
+          name, invoice number, purchase order and hold code. The filter submits the
+          page again, so any selection you have made on screen is lost when you search.
+        </p>
+        <p>
+          Click a row to select it, double click to open it. Rows shaded red are
+          flagged by the overnight ERP batch.
+        </p>
+
+        <h4>Answering a vendor call</h4>
+        <p>
+          Vendors ring the AP hotline asking where their payment is and almost always
+          quote their own invoice number rather than our payment reference. Search the
+          queue on the invoice number, open the item and read back the hold reason and
+          the expected pay date. Log the call as a note against the item before you
+          hang up, otherwise the next clerk takes the same call again.
+        </p>
+        <p>
+          The hotline currently takes around <b>340 vendor status calls a week</b> and
+          roughly two thirds of them are answered from this screen. This is logged as a
+          known service issue &mdash; see <b>INC-0042</b> (AP inquiry call volume).
+        </p>
+
+        <h4>Working an item</h4>
+        <p>
+          Open the item, assign it to yourself, add a note and apply one of the
+          actions. Release and Return close the item. Hold, Review and Escalate
+          leave it open in the queue. Every action reloads the screen.
+        </p>
+
+        <h4>Known issues</h4>
+        <ul style="margin-left:16px">
+          <li>The age clock counts calendar days, not business days (INC-44192, open).</li>
+          <li>The clerk column is blank for items keyed by the batch user.</li>
+          <li>Printing from the queue only prints the current page of 25 rows.</li>
+          <li>Back button after a Release shows a stale screen &mdash; refresh the queue.</li>
+          <li>Vendor inquiry call volume, no self service for vendors (INC-0042, open).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="span4">
+      <div class="detail-box">
+        <h4>Interfaces</h4>
+        <table class="field-table">
+          <tr><th>Status by reference</th><td><code>/api/payment-status?ref=</code></td></tr>
+          <tr><th>Status by invoice</th><td><code>/api/payment-status?invoice=</code></td></tr>
+          <tr><th>Payment risk score</th><td><code>/api/risk-score?ref=</code></td></tr>
+          <tr><th>ERP extract</th><td><code>/api/exceptions.xml</code></td></tr>
+          <tr><th>Feed user</th><td><code><%= feedUser %></code></td></tr>
+          <tr><th>Mail relay</th><td><code><%= smtpHost %></code></td></tr>
+        </table>
+        <p class="muted">
+          The ERP extract is polled every 15 minutes. If the poll fails the
+          overnight payables reconciliation will break &mdash; call the service desk
+          on ext 4471 and ask for the finance applications on call.
+        </p>
+      </div>
+
+      <div class="detail-box">
+        <h4>Contacts</h4>
+        <table class="field-table">
+          <tr><th>Application</th><td>Finance Systems Team</td></tr>
+          <tr><th>Email</th><td>finance-apps@meridiancorp.example</td></tr>
+          <tr><th>Service desk</th><td>ext 4471</td></tr>
+          <tr><th>Business owner</th><td>Accounts Payable, 3rd floor</td></tr>
+          <tr><th>AP hotline</th><td>ext 4400 (vendor inquiries)</td></tr>
+          <tr><th>Procedure</th><td>AP-114 (held payment handling)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<%- include('partials/footer') %>

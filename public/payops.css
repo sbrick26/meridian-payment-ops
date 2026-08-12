@@ -1,0 +1,186 @@
+/* payops.css - AP Payment Operations Console local overrides
+ * IT Dept. Loaded after the intranet stylesheet.
+ * Anything in here overrides the intranet template on purpose.
+ */
+
+body {
+  background-color: #ece9e2;
+  background-image: -webkit-linear-gradient(top, #f4f2ec, #ece9e2 120px);
+  background-repeat: no-repeat;
+}
+
+/* --- masthead ---------------------------------------------------- */
+
+#masthead {
+  border-bottom: 2px solid #6d3d1f;
+  background-color: #f7f6f1;
+}
+#masthead .container { padding: 6px 0 4px; }
+#masthead .logo {
+  float: left;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: bold;
+  letter-spacing: -0.4px;
+  color: #6d3d1f;
+}
+#masthead .logo span { color: #3d5266; }
+#masthead .logo .divider { color: #c3bcae; font-weight: normal; padding: 0 6px; }
+#masthead .logo .appname { font-family: inherit; font-size: 12px; color: #55504a; font-weight: normal; }
+#masthead .whoami { float: right; padding-top: 8px; color: #6f6a60; text-align: right; }
+#masthead .whoami b { color: #40506a; }
+
+/* --- global layout ----------------------------------------------- */
+
+.wrap { padding-bottom: 18px; }
+.section-title {
+  margin: 0 0 6px 0;
+  padding: 3px 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #4b463d;
+  background-color: #ded9cc;
+  border: 1px solid #ccc6b7;
+}
+.spacer { height: 8px; clear: both; }
+
+/* --- dashboard tiles --------------------------------------------- */
+
+.tile {
+  height: 58px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  background-color: #ffffff;
+  border: 1px solid #ccc6b7;
+  border-top: 3px solid #3d5266;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.tile .tile-value {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  line-height: 32px;
+  color: #2f2b26;
+}
+.tile .tile-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7d776b;
+}
+.tile .tile-sub { display: block; font-size: 10px; color: #9a9384; }
+.tile-money { border-top-color: #4a7a2b; }
+.tile-age { border-top-color: #b07a25; }
+.tile-risk { border-top-color: #9d261d; }
+.tile-risk .tile-value { color: #9d261d; }
+
+/* --- exception queue table --------------------------------------- */
+
+.exc-table { font-size: 10px; }
+.exc-table th { font-size: 10px; padding: 3px 5px; }
+.exc-table td { padding: 2px 5px; white-space: nowrap; }
+.exc-table td.cust { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+.exc-table .num { text-align: right; font-family: Monaco, "Courier New", monospace; }
+.exc-table .ref { font-family: Monaco, "Courier New", monospace; }
+.exc-table tr.row-high td { background-color: #fbf0ee; }
+.exc-table tr.row-high:hover td { background-color: #f6e4e1; }
+.exc-table tr.row-selected td { background-color: #fdf8dd; }
+
+.risk-high { color: #9d261d; font-weight: bold; }
+.risk-med { color: #a47e3c; }
+.risk-low { color: #8a8578; }
+.age-old { color: #9d261d; font-weight: bold; }
+
+.filter-bar {
+  padding: 6px 8px 0 8px;
+  margin-bottom: 8px;
+  background-color: #f4f2ea;
+  border: 1px solid #dcd7c8;
+}
+.filter-bar label { display: inline-block; margin-right: 3px; font-weight: bold; }
+.filter-bar .field { display: inline-block; margin-right: 12px; }
+
+.result-summary {
+  padding: 3px 0;
+  color: #6f6a60;
+}
+.result-summary b { color: #333333; }
+
+/* --- detail screen ----------------------------------------------- */
+
+.detail-box {
+  background-color: #ffffff;
+  border: 1px solid #ccc6b7;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+.detail-box h4 { margin-top: 0; border-bottom: 1px solid #e2ddd0; padding-bottom: 3px; }
+.field-table { width: 100%; }
+.field-table th {
+  width: 120px;
+  text-align: right;
+  padding: 2px 6px 2px 0;
+  font-weight: bold;
+  color: #5c574d;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.field-table td { padding: 2px 0; vertical-align: top; }
+.bigamount {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  color: #2f2b26;
+}
+.note-item {
+  padding: 4px 0;
+  border-bottom: 1px dotted #d5d0c3;
+}
+.note-item .note-meta { color: #8a8578; }
+.note-item .note-body { color: #333333; }
+.score-box {
+  text-align: center;
+  padding: 6px;
+  border: 1px solid #ccc6b7;
+  background-color: #ffffff;
+}
+.score-box .score-value {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  line-height: 32px;
+}
+.score-HIGH .score-value { color: #9d261d; }
+.score-MEDIUM .score-value { color: #a47e3c; }
+.score-LOW .score-value { color: #4a7a2b; }
+
+/* --- reports ------------------------------------------------------ */
+
+.report-table { font-size: 10px; }
+.report-table td.num, .report-table th.num { text-align: right; font-family: Monaco, "Courier New", monospace; }
+.report-note { color: #8a8578; font-style: italic; }
+.bar {
+  display: inline-block;
+  height: 8px;
+  background-color: #7d9dbb;
+  vertical-align: middle;
+}
+
+/* --- footer ------------------------------------------------------- */
+
+#footer {
+  margin-top: 14px;
+  padding: 8px 0 20px 0;
+  border-top: 1px solid #d5d0c3;
+  color: #8a8578;
+  font-size: 10px;
+}
+#footer .container { text-align: center; }
+#footer a { color: #7d776b; text-decoration: underline; }
+
+/* print - the desk print the handover report every morning */
+@media print {
+  #masthead, .navbar, .filter-bar, #footer, .no-print { display: none; }
+  body { background: #ffffff; font-size: 9px; }
+  .container { width: auto; }
+}

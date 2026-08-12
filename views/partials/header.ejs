@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title><%= pageTitle %> :: <%= appName %> - Meridian Corp</title>
+<link rel="shortcut icon" href="/public/favicon.ico">
+<link rel="stylesheet" type="text/css" href="/public/vendor/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="/public/payops.css">
+<script type="text/javascript" src="/public/vendor/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/public/payops.js"></script>
+<meta name="author" content="Meridian Corp IT Dept">
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+
+<div id="masthead">
+  <div class="container clearfix">
+    <div class="logo">
+      MERIDIAN<span>CORP</span>
+      <span class="divider">|</span>
+      <span class="appname"><%= appName %></span>
+    </div>
+    <div class="whoami">
+      Signed in as <b>DWH01</b> (D. Whitaker, AP-DESK-1)&nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="/help">Help</a>&nbsp;|&nbsp;<a href="/">Sign out</a><br>
+      Environment <b><%= environment %></b>
+      &nbsp;&middot;&nbsp; As at <b><%= asOf %></b>
+      &nbsp;&middot;&nbsp; <span id="clock">--:--:--</span>
+    </div>
+  </div>
+</div>
+
+<div class="container wrap">
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="/">AP Payment Ops</a>
+      <ul class="nav">
+        <li<% if (page == 'dashboard') { %> class="active"<% } %>><a href="/">Dashboard</a></li>
+        <li<% if (page == 'exceptions') { %> class="active"<% } %>><a href="/exceptions">Held Payments</a></li>
+        <li<% if (page == 'reports') { %> class="active"<% } %>><a href="/reports">Reports</a></li>
+        <li<% if (page == 'help') { %> class="active"<% } %>><a href="/help">Help</a></li>
+      </ul>
+      <p class="navbar-text pull-right">
+        Open inquiries: <span class="badge badge-info"><%= counts.open %></span>
+        &nbsp; Escalated: <span class="badge badge-important"><%= counts.escalated %></span>
+      </p>
+    </div>
+  </div>

@@ -1,0 +1,163 @@
+<%- include('partials/header', { pageTitle: 'Dashboard' }) %>
+
+  <div class="page-header">
+    <h1>AP Payment Operations Dashboard <small>position as at close of business <%= asOf %></small></h1>
+  </div>
+
+  <div class="row">
+    <div class="span3">
+      <div class="tile">
+        <span class="tile-value"><%= tiles.open %></span>
+        <span class="tile-label">Open inquiries / held payments</span>
+        <span class="tile-sub">all AP desks, all currencies</span>
+      </div>
+    </div>
+    <div class="span3">
+      <div class="tile tile-money">
+        <span class="tile-value"><%= u.millions(tiles.heldCents) %></span>
+        <span class="tile-label">Payable held</span>
+        <span class="tile-sub">USD equivalent</span>
+      </div>
+    </div>
+    <div class="span3">
+      <div class="tile tile-age">
+        <span class="tile-value"><%= tiles.avgAge.toFixed(1) %>d</span>
+        <span class="tile-label">Average age</span>
+        <span class="tile-sub">target 2.0 days (SLA AP-114)</span>
+      </div>
+    </div>
+    <div class="span2">
+      <div class="tile tile-risk">
+        <span class="tile-value"><%= tiles.highRisk %></span>
+        <span class="tile-label">Flagged</span>
+        <span class="tile-sub">refer to AP controls</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span6">
+      <div class="section-title">Held payments by status</div>
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Description</th>
+            <th class="text-right">Items</th>
+            <th class="text-right">Value</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% for (var i = 0; i < byStatus.length; i++) { %>
+          <tr>
+            <td><%- u.statusLabel(byStatus[i].status) %></td>
+            <td class="muted">
+              <% if (byStatus[i].status == 'PENDING') { %>Awaiting first review<% } %>
+              <% if (byStatus[i].status == 'REVIEW') { %>Under review by an AP clerk<% } %>
+              <% if (byStatus[i].status == 'HOLD') { %>Held - vendor or goods receipt<% } %>
+              <% if (byStatus[i].status == 'ESCALATED') { %>With AP controls<% } %>
+            </td>
+            <td class="text-right"><%= byStatus[i].n %></td>
+            <td class="text-right"><%= u.money(byStatus[i].v) %></td>
+            <td><a href="/exceptions?status=<%= byStatus[i].status %>">view</a></td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="span5">
+      <div class="section-title">Held payments by payment method</div>
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th class="text-right">Items</th>
+            <th class="text-right">Value</th>
+            <th class="text-right">Share</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% for (var i = 0; i < byType.length; i++) { %>
+          <tr>
+            <td><b><%= byType[i].ptype %></b></td>
+            <td class="text-right"><%= byType[i].n %></td>
+            <td class="text-right"><%= u.money(byType[i].v) %></td>
+            <td class="text-right"><%= Math.round((byType[i].n / tiles.open) * 100) %>%</td>
+            <td><span class="bar" style="width: <%= Math.round((byType[i].n / tiles.open) * 90) %>px">&nbsp;</span></td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+
+      <div class="well well-small">
+        <b>Notices</b><br>
+        &middot; Cut-off for the same day USD run is 16:30 ET.<br>
+        &middot; ERP payables extract runs every 15 minutes (feed ERPBATCH01).<br>
+        &middot; The AP hotline is taking around 340 vendor status calls a week
+        &mdash; log every call against the item (INC-0042).
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span6">
+      <div class="section-title">Oldest held payments</div>
+      <table class="table table-bordered table-condensed table-striped exc-table">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Vendor</th>
+            <th>Invoice</th>
+            <th class="num">Amount</th>
+            <th>Status</th>
+            <th class="num">Age</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% for (var i = 0; i < oldest.length; i++) { %>
+          <tr>
+            <td class="ref"><a href="/exceptions/<%= oldest[i].id %>"><%= oldest[i].payment_ref %></a></td>
+            <td class="cust"><%= oldest[i].vendor %></td>
+            <td><%= oldest[i].invoice_no %></td>
+            <td class="num"><%= oldest[i].currency %> <%= u.money(oldest[i].amount_cents) %></td>
+            <td><%- u.statusLabel(oldest[i].status) %></td>
+            <td class="num"><%- u.ageCell(oldest[i].age_days) %></td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="span5">
+      <div class="section-title">Workload by AP clerk</div>
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Clerk</th>
+            <th>Team</th>
+            <th class="text-right">Items</th>
+            <th class="text-right">Value held</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% for (var i = 0; i < desk.length; i++) { %>
+          <tr>
+            <td><%= desk[i].clerk %></td>
+            <td class="muted"><%= desk[i].team %></td>
+            <td class="text-right"><%= desk[i].n %></td>
+            <td class="text-right"><%= u.money(desk[i].v) %></td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+      <p class="muted">
+        Figures are taken from the nightly ERP payables extract and do not include
+        invoices keyed after the close of business.
+      </p>
+    </div>
+  </div>
+
+<%- include('partials/footer') %>

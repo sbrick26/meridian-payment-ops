@@ -1,0 +1,164 @@
+<%- include('partials/header', { pageTitle: 'Held payment ' + row.payment_ref }) %>
+
+  <ul class="breadcrumb">
+    <li><a href="/">Dashboard</a> <span class="divider">/</span></li>
+    <li><a href="/exceptions">Held Payments</a> <span class="divider">/</span></li>
+    <li class="active"><%= row.payment_ref %></li>
+  </ul>
+
+  <% if (saved) { %>
+    <div class="alert alert-success">
+      <b>Update applied.</b> The item has been written back to the payables file.
+      The ERP feed will pick the change up at the next poll.
+    </div>
+  <% } %>
+
+  <div class="page-header">
+    <h1><%= row.payment_ref %>
+      <small><%= row.ptype %> &middot; <%= row.vendor %> &middot; invoice <%= row.invoice_no %> &middot; held since <%= row.created_date %></small>
+    </h1>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="detail-box">
+        <h4>Payment</h4>
+        <table class="field-table">
+          <tr><th>Reference</th><td><code><%= row.payment_ref %></code></td></tr>
+          <tr><th>Amount</th>
+              <td><span class="bigamount"><%= row.currency %> <%= u.money(row.amount_cents) %></span>
+                <% if (row.amount_cents >= approvalLimit) { %>
+                  &nbsp;<span class="label label-warning">OVER APPROVAL LIMIT</span>
+                <% } %>
+              </td></tr>
+          <tr><th>Method / source</th><td><%= row.ptype %> &middot; <%= row.channel %></td></tr>
+          <tr><th>Status</th><td><%- u.statusLabel(row.status) %></td></tr>
+          <tr><th>Flag</th><td><%- u.riskLabel(row.risk_flag) %></td></tr>
+          <tr><th>Age on queue</th><td><%- u.ageCell(row.age_days) %> (held since <%= row.created_date %>)</td></tr>
+          <tr><th>Payment run</th><td><code><%= row.payment_run_id %></code></td></tr>
+          <tr><th>Expected pay date</th><td><b><%= row.expected_pay_date %></b> <span class="muted">(quote this if the vendor rings)</span></td></tr>
+          <tr><th>Value date</th><td><%= row.value_date %></td></tr>
+          <tr><th>Hold reason</th><td><b><%= row.reason_code %></b> &mdash; <%= row.reason_text %></td></tr>
+          <tr><th>Remit to</th><td><%= row.remit_to %></td></tr>
+          <tr><th>Vendor bank</th><td><code><%= row.bank_bic %></code>
+              <% if (row.bank_chg_days >= 0 && row.bank_chg_days <= 90) { %>
+                &nbsp;<span class="label label-warning">BANK DETAILS CHANGED <%= row.bank_chg_days %>d AGO</span>
+              <% } %>
+              </td></tr>
+          <% if (row.resolution) { %>
+          <tr><th>Outcome</th><td><%= row.resolution %> on <%= row.resolved_date %></td></tr>
+          <% } %>
+        </table>
+      </div>
+
+      <div class="detail-box">
+        <h4>Invoice</h4>
+        <table class="field-table">
+          <tr><th>Invoice number</th><td><code><%= row.invoice_no %></code></td></tr>
+          <tr><th>Purchase order</th><td><code><%= row.po_no %></code></td></tr>
+          <tr><th>Invoice date</th><td><%= row.invoice_date %></td></tr>
+          <tr><th>Due date</th><td><%= row.due_date %></td></tr>
+        </table>
+      </div>
+
+      <div class="detail-box">
+        <h4>Vendor</h4>
+        <table class="field-table">
+          <tr><th>Name</th><td><%= row.vendor %></td></tr>
+          <tr><th>Vendor number</th><td><code><%= row.vendor_no %></code></td></tr>
+          <tr><th>Country</th><td><%= row.country %></td></tr>
+          <tr><th>Category</th><td><%= row.category %></td></tr>
+          <tr><th>New vendor</th><td><%= (row.new_vendor == 'Y' ? 'Yes - onboarded this year' : 'No') %></td></tr>
+          <tr><th>Assigned to</th>
+              <td><% if (row.clerk_name) { %><%= row.clerk_name %> (<%= row.clerk_initials %>, <%= row.clerk_team %>)<% } else { %><span class="muted">unassigned</span><% } %></td></tr>
+        </table>
+      </div>
+
+      <div class="detail-box no-print">
+        <h4>Action</h4>
+        <form method="POST" action="/exceptions/<%= row.id %>/resolve" id="resolveForm">
+          <input type="hidden" name="action" id="actionField" value="">
+          <label for="clerk">Assign to AP clerk</label>
+          <select name="clerk" id="clerk" class="input-large">
+            <% for (var i = 0; i < clerks.length; i++) { %>
+              <option value="<%= clerks[i].id %>"<% if (clerks[i].id == row.clerk_id) { %> selected="selected"<% } %>><%= clerks[i].name %> (<%= clerks[i].team %>)</option>
+            <% } %>
+          </select>
+          <br>
+          <label for="note">Note for the file (record vendor calls here)</label>
+          <textarea name="note" id="note" rows="3" maxlength="500"></textarea>
+          <div class="spacer"></div>
+          <input type="button" class="btn btn-primary" value="Release for payment" onclick="return confirmAction('RELEASE');">
+          <input type="button" class="btn btn-danger" value="Return invoice to vendor" onclick="return confirmAction('RETURN');">
+          <input type="button" class="btn btn-warning" value="Place on hold" onclick="return confirmAction('HOLD');">
+          <input type="button" class="btn" value="Send to review" onclick="return confirmAction('REVIEW');">
+          <input type="button" class="btn" value="Escalate" onclick="return confirmAction('ESCALATE');">
+          <p class="help-block">
+            Releasing an item writes it back to the payables file and picks it up on the
+            next payment run. There is no undo from this screen &mdash; corrections must
+            be raised with the service desk.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <div class="span4">
+      <div class="section-title">Payment risk assessment</div>
+      <div class="score-box score-<%= band %>">
+        <span class="score-value"><%= score %></span><br>
+        <b><%= band %></b><br>
+        <span class="muted">model APRSK01</span>
+      </div>
+      <p class="muted" style="margin-top:6px">
+        Score is recalculated on display from the invoice value, payment method,
+        vendor country, age, duplicate suspicion, bank change recency and the
+        round amount indicator. See
+        <a href="/api/risk-score?ref=<%= row.payment_ref %>">the score interface</a>
+        for the values passed to the vendor enquiry desk.
+      </p>
+
+      <div class="section-title">Interfaces</div>
+      <ul style="margin-left:16px">
+        <li><a href="/api/payment-status?ref=<%= row.payment_ref %>">Payment status enquiry by reference (JSON)</a></li>
+        <li><a href="/api/payment-status?invoice=<%= row.invoice_no %>">Payment status enquiry by invoice (JSON)</a></li>
+        <li><a href="/api/risk-score?ref=<%= row.payment_ref %>">Payment risk score (JSON)</a></li>
+        <li><a href="/api/exceptions.xml">ERP nightly extract (XML)</a></li>
+      </ul>
+
+      <div class="section-title">Notes (<%= notes.length %>)</div>
+      <div class="detail-box">
+        <% if (notes.length == 0) { %>
+          <span class="muted">No notes recorded against this item.</span>
+        <% } %>
+        <% for (var i = 0; i < notes.length; i++) { %>
+          <div class="note-item">
+            <div class="note-meta"><b><%= notes[i].author %></b> &middot; <%= notes[i].note_date %></div>
+            <div class="note-body"><%= notes[i].body %></div>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="section-title">Other items for this vendor</div>
+      <table class="table table-bordered table-condensed exc-table">
+        <tbody>
+        <% if (related.length == 0) { %>
+          <tr><td class="muted">None.</td></tr>
+        <% } %>
+        <% for (var i = 0; i < related.length; i++) { %>
+          <tr>
+            <td class="ref"><a href="/exceptions/<%= related[i].id %>"><%= related[i].payment_ref %></a></td>
+            <td><%= related[i].invoice_no %></td>
+            <td class="num"><%= u.money(related[i].amount_cents) %></td>
+            <td><%= related[i].currency %></td>
+            <td><%- u.statusLabel(related[i].status) %></td>
+            <td class="num"><%= related[i].age_days %>d</td>
+          </tr>
+        <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="no-print"><a href="/exceptions">&laquo; Back to held payments</a></p>
+
+<%- include('partials/footer') %>
