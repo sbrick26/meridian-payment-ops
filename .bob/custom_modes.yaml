@@ -185,7 +185,11 @@ customModes:
       3. figma_get_status first. The plugin attaches to the bridge a few
       seconds after the connection opens, so a single "not connected" reply is
       not a verdict: retry status up to three times, a few seconds apart,
-      before concluding the bridge is down. If it is genuinely down, post a
+      before concluding the bridge is down. Do NOT call figma_reconnect to
+      recover: every reconnect can raise another bridge server, the plugin
+      attaches to only one of them, and the extra instances are themselves the
+      usual cause of a connection that appears to keep dropping. If status
+      still reports unavailable after three checks, stop and report it. If it is genuinely down, post a
       Jira comment asking the user to run Plugins → Development → Figma
       Desktop Bridge → Run, then stop this ticket and move on.
 
@@ -203,14 +207,34 @@ customModes:
       keeping ticket work on its own page means it can be cleared without
       touching the system. Name the frames "<TICKET-KEY> BEFORE" and
       "<TICKET-KEY> AFTER":
-         a. "Before" frame matching before_screenshot faithfully. Verify with
-            figma_capture_screenshot; iterate until it matches.
+         a. "BEFORE" frame: do NOT redraw the current screen. Create one frame
+            sized to the screenshot, put a single rectangle in it, and apply
+            the screenshot itself with figma_set_image_fill (imageData is the
+            base64 PNG from the browser capture, scaleMode FILL). The current
+            state is evidence, so it belongs in the review verbatim - redrawing
+            it wastes turns, invites an endless fidelity loop, and quietly
+            flatters a UI whose ugliness is the entire point of the comparison.
+            One call, no iteration, no rebuilding.
          b. "After" frame applying the Meridian Design Language 3.0 spec page
             in the same Figma file (design tokens: colors, type scale,
             spacing, components). The Figma design-language page is the source
             of truth for tokens - read it via figma tools, do not invent
             tokens.
          c. Verify the after frame with figma_capture_screenshot.
+         d. FREEZE THE SPEC. Implementation must never depend on a live design
+            tool, so capture everything the build needs while the bridge is up
+            and commit it:
+              - docs/design/<TICKET-KEY>-spec.md — the exact values read from
+                the AFTER frame (figma_get_component_for_development on it):
+                every colour with its hex and token name, type sizes and
+                weights, spacing, border radii, component states, and the
+                column list and order for tables. Numbers, not adjectives.
+              - docs/design/<TICKET-KEY>-after.png — the frame screenshot,
+                saved from figma_capture_screenshot, as the visual reference.
+              - docs/design/<TICKET-KEY>-before.png — the captured current
+                state, for the PR's side-by-side.
+            Commit these with the design so the approved design is a versioned
+            artifact rather than a link that can rot.
 
       5. Subtask to In Review. Post the design comment:
          ```
@@ -236,15 +260,21 @@ customModes:
       2. Branch from main: git checkout main && git pull && git checkout -b
       feature/<TICKET-KEY>-<desc>.
 
-      3. Implement to match the approved Figma exactly. Add the compliance
-      header to changed files and write the change-log entry (per rules).
+      3. Implement from docs/design/<TICKET-KEY>-spec.md and the committed
+      -after.png, NOT from a live Figma session: the spec was frozen at
+      approval precisely so the build cannot be blocked by a design tool being
+      closed. Use the recorded values verbatim - never re-derive a colour or a
+      size by eye. Add the compliance header to changed files and write the
+      change-log entry (per rules).
 
-      4. FIDELITY CHECK (one pass, screenshot-based, fast): restart app,
-      browser_action screenshot the implemented page = after_screenshot;
-      figma_capture_screenshot of the approved After frame; compare colors,
-      spacing, type, layout, content. Fix CODE (never the approved Figma) and
-      re-compare, max 3 iterations; if still mismatched, post the
-      discrepancies to Jira and stop before PR.
+      4. FIDELITY CHECK (one pass, fast): restart the app, browser_action
+      screenshot the implemented page, and compare it against the committed
+      docs/design/<TICKET-KEY>-after.png - no Figma connection required. Check
+      colours, spacing, type, layout and content. Fix the CODE (never the
+      approved design), re-compare, at most 2 iterations; if it still differs
+      materially, post the specific discrepancies to Jira and stop before the
+      PR. Attach both screenshots to the PR body so a reviewer sees the
+      side-by-side without opening a design tool.
 
       5. Run the test suite (npm test). All green required.
 
