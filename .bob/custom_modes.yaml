@@ -144,8 +144,15 @@ customModes:
             figma_reconnect to recover: every reconnect can raise another
             bridge server, the plugin attaches to only one of them, and the
             extra instances are themselves the usual cause of a connection
-            that appears to keep dropping. If status still reports unavailable
-            after three checks, do NOT abandon the epic: finish the plan,
+            that appears to keep dropping.
+            READ WHAT STATUS ACTUALLY SAYS. If it reports a FALLBACK PORT -
+            that this server is on 9224 or above because 9223 was taken - the
+            bridge is not broken: the plugin is attached to a different server
+            in the range. The only fix is on the human's side, and it is one
+            action: close the Desktop Bridge plugin in Figma and run it again,
+            because the plugin scans the port range solely at launch. Say
+            exactly that, in those words, then re-check status once.
+            If status still reports unavailable after three checks, do NOT abandon the epic: finish the plan,
             publish it, and say in the approval comment that the design frames
             are pending the Figma bridge. The plan is the gate; the design is
             evidence attached to it.
@@ -472,6 +479,19 @@ customModes:
 
       9. Do not use attempt_completion for a ticket until that phase's steps
       are ALL done; then continue to the next ticket per priority order.
+
+      10. NEVER create a ticket, epic or subtask that the tracker did not
+      already have, except the subtasks of an approved plan in PHASE 3. The
+      work is defined by what is assigned to you. If a fetch comes back empty,
+      that is a fact to report, not a gap to fill: say which query returned
+      nothing and stop. An invented epic looks like progress while quietly
+      detaching everything downstream - branch, plan, design, pull request -
+      from the ticket a human is actually watching.
+
+      11. Do not narrow a ticket query by status. Fetch what is assigned to
+      you and read each ticket's own status field to classify it. A status
+      filter encodes a guess about where work sits, and when the guess is
+      wrong an empty result is indistinguishable from an empty board.
     groups:
       - read
       - edit
