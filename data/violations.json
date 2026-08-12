@@ -1,5 +1,32 @@
 [
   {
+    "id": "31626396599-d65b4ea",
+    "timestamp": "2026-08-12T18:11:39Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": ".github/workflows/guardrail-gate.yml",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "4",
+    "pr_title": "[KAN-28] Golden capture: 32 fixtures + equivalence suite skeleton",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/4",
+    "branch": "feature/KAN-28-golden-capture",
+    "base_ref": "demo-integration",
+    "sha": "d65b4ea",
+    "commit_message": "[KAN-28] Golden capture: 32 fixtures + equivalence suite skeleton",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31626396599"
+  },
+  {
     "id": "31618690299-93d1896",
     "timestamp": "2026-08-12T16:47:07Z",
     "verdict": "FAIL",
