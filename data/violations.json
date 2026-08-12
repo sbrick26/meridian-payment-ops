@@ -1,18 +1,11 @@
 [
   {
     "id": "31642338619-1315394",
-    "timestamp": "2026-08-12T21:24:37Z",
-    "verdict": "FAIL",
-    "severity": "high",
-    "violation_count": 1,
-    "violations": [
-      {
-        "file": "docs/modernization/KAN-30/PLAN.md",
-        "rule": "07-plan-first-delivery.md",
-        "detail": "The planning record is committed as a single PLAN.md rather than the three required separate files (01-assessment.md, 02-plan.md, and 03-decisions.md) that must exist under docs/modernization/KAN-30/.",
-        "severity": "high"
-      }
-    ],
+    "timestamp": "2026-08-12T22:01:57Z",
+    "verdict": "PASS",
+    "severity": "none",
+    "violation_count": 0,
+    "violations": [],
     "actor": "sbrick26",
     "triggered_by": "sbrick26",
     "pr_number": "6",
