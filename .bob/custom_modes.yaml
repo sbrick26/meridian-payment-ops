@@ -94,6 +94,20 @@ customModes:
       Wait for all three and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
+      2b. FIRE THE DESIGN OFF NOW, IN THE BACKGROUND. The design depends on
+      the design language and the running app - not on a word of the plan - so
+      running it after the plan is pure waiting. The moment the analysis
+      subagents return, spawn ONE general subagent to build both frames while
+      you carry on with the questions and the document. Subagents can reach the
+      Figma tools; this is verified. Its brief is step 6 verbatim, plus:
+         - the epic key, so it names the page and frames correctly,
+         - the five rows to show, read from the seeded database
+           (sqlite3 payops.db < design/figma/rows.sql) rather than from the
+           browser: the data is deterministic, and a page read costs a turn
+           and returns a screenshot nobody needs,
+         - an instruction to report back only the frame ids and any failure.
+      Do not wait for it here. Collect it at step 6.
+
       3. ASK CLARIFYING QUESTIONS before writing the plan. Use
       ask_followup_question, one round, 3-5 sharp questions maximum, e.g.:
       scope priority (which screen first), tech constraints (rewrite in place
@@ -129,11 +143,14 @@ customModes:
       requester answers "looks good" or does not engage, proceed unchanged and
       say so.
 
-      6. DESIGN THE SCREEN IN THE SAME SESSION. Design belongs to the plan,
-      not to a later ticket: an approver deciding whether to fund the work
-      should see what it will look like, and splitting it into a second gate
-      costs a second round-trip for one decision. Produce the frames now, for
-      the screen the plan puts in scope, and publish them with the plan.
+      6. COLLECT THE DESIGN. Design belongs to the plan, not to a later
+      ticket: an approver deciding whether to fund the work should see what it
+      will look like, and splitting it into a second gate costs a second
+      round-trip for one decision. By now the subagent you spawned at 2b has
+      been drawing while you wrote the plan, so this step is usually just
+      reading its result. If you did not spawn it, do the work here yourself -
+      but that is the slow path, and it is the whole design sitting on the
+      critical path for no reason. What that subagent does, or you do:
          a. Confirm reality first: ensure the app is running (npm start, port
             4600; fix startup errors up to 2 retries) and that the screen in
             scope actually serves. The current-state image itself is already a
@@ -202,43 +219,38 @@ customModes:
             spacing, components). The Figma design-language page is the source
             of truth for tokens - read it via figma tools, do not invent
             tokens. Verify it with figma_capture_screenshot.
-            BUILD IT WITH PARALLEL SUBAGENTS. Do not write the whole screen
-            in one figma_execute: that call is the one most likely to exceed
-            the tool timeout, and when it does the client restarts the MCP
-            server, the restart detaches the plugin, and the entire frame is
-            lost. Generating it turn by turn is also simply slow - the cost of
-            a run is model passes, not Figma calls.
-            Fan the drawing out instead:
-              i.   YOU create the AFTER frame yourself: one figma_execute that
-                   makes the empty 1440x920 frame and nothing else. Keep its
-                   node id.
-              ii.  YOU read the design tokens once, from the Meridian Design
-                   Language 3.0 page, and write them down as literal values.
-              iii. Spawn general subagents IN PARALLEL, one per band of the
-                   screen - typically: masthead and nav; page title and filter
-                   bar; table header and rows; pagination and footnote.
-                   Give each subagent, in its prompt: the frame node id, the
-                   token values verbatim, its own y-range, and the full width
-                   available. Tell each one to make exactly ONE figma_execute
-                   call appending its nodes to that frame by id, to position
-                   every node with absolute x/y inside its own band, and to
-                   report back only "done" plus any node ids the spec needs.
-                   Subagents have the Figma tools; this is verified.
-              iv.  Assign the y-ranges yourself and never let two subagents
-                   share one. They cannot see each other's work, so the only
-                   thing preventing a collision is the split you hand them.
-              v.   Wait for all of them, then take ONE figma_capture_screenshot
-                   and check the assembled frame before freezing the spec.
-            POSITION EVERYTHING EXPLICITLY. Give every text and container an
-            absolute x/y and a width, and set textAutoResize to 'NONE' with an
-            explicit width on any text that sits beside something else. Text
-            laid out by flow alone overlaps its neighbour - the wordmark ran
-            straight through the page title, and the breadcrumb rendered as
-            "Dashboard/Held Payments" with no gap. Leave at least 16px between
-            adjacent text nodes.
-            Keep the mock honest but not exhaustive: five table rows is a
-            design review, fifty is a data dump that costs turns and proves
-            nothing extra.
+            BUILD IT FROM THE COMMITTED SCRIPT, not from generated code.
+            design/figma/held-payments-after.js draws this screen. Call it with
+            figma_execute_file (an MCP tool like any other - the server reads
+            the file and forwards it to the bridge, so the drawing code never
+            crosses the conversation):
+              script_path: design/figma/held-payments-after.js
+              params: {
+                pageName:  "<EPIC-KEY> - Held Payments Modernization",
+                frameName: "<EPIC-KEY> AFTER",
+                x: 1560, y: 0,
+                tokens: { ...the MDL 3.0 values you read from the design
+                          language page, by name... },
+                rows:   the five payments returned by
+                        sqlite3 payops.db < design/figma/rows.sql
+                        (open items, oldest first - the same rows the legacy
+                        screen shows, so the before/after compares like with
+                        like). Pass the JSON through unchanged.
+                meta:   { subtitle, summary, pageNote, footnote }
+              }
+            You still own the design decisions: which tokens apply, which
+            columns matter, what the five rows say. The script owns pixel
+            placement, which is the part that must not vary between runs.
+            Writing this screen as inline figma_execute is forbidden. It costs
+            thousands of output tokens per attempt, it is the call most likely
+            to exceed the timeout - and when it does the client restarts the
+            MCP server, the restart detaches the plugin, and the frame is lost
+            - and it lays the screen out differently every time, which is how
+            the masthead came to sit on the page title and the filter bar under
+            the table header.
+            If the screen needs a change, edit the committed script and say so
+            in the plan; a design system that lives in a file can be reviewed,
+            and one that lives in a prompt cannot.
          h. FREEZE THE SPEC. Implementation must never depend on a live design
             tool, so capture everything the build needs while the bridge is up
             and commit it:
