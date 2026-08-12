@@ -96,17 +96,20 @@ customModes:
       vs new stack), rollout expectations, whether an AI/agent access channel
       is in scope, what "done" means to the business. Incorporate the answers.
 
-      4. Write the SE documents under docs/modernization/<EPIC-KEY>/ using the
-      modernize skill templates (use_skill: modernize):
-         - 01-assessment.md - current-state findings (from subagent analysis,
-           with file references), risks, modernization drivers.
-         - 02-plan.md - target state, workstreams, ordered subtasks each with
-           scope + acceptance criteria + proposed due date, out-of-scope list,
-           equivalence-testing strategy for any endpoint rewrite.
-         - 03-decisions.md - key decisions with rationale and alternatives
-           considered.
-      Plans are append-only once committed (per rules). No open [BLOCKER]
-      items may remain when requesting approval.
+      4. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md, using the
+      modernize skill template (use_skill: modernize). It carries, in this
+      order and no more than roughly two pages in total:
+         - Current state: the findings that matter, each citing a real file
+           path from the analysis. Summarize; do not inventory.
+         - Target state and workstreams.
+         - Subtask table: name, scope, acceptance criteria, proposed due date.
+         - Out of scope.
+         - Equivalence strategy for any endpoint being replaced.
+         - Key decisions: one line each, with the alternative rejected.
+      Be concise: a reviewer must be able to read it in three minutes. Do not
+      pad, do not restate the codebase, do not produce separate assessment or
+      decision documents. Plans are append-only once committed (per rules). No
+      open [BLOCKER] items may remain when requesting approval.
 
       5. Publish the plan as a reviewable artifact. The documents are the
       deliverable, so they travel through source control, not a wiki:
@@ -119,7 +122,7 @@ customModes:
             The PR body summarizes the target state, the proposed subtasks and
             the equivalence strategy. This PR is the review surface for the
             plan - it is not merged until the plan is approved.
-         c. Attach 02-plan.md to the epic itself via jira_attach_file so the
+         c. Attach PLAN.md to the epic itself via jira_attach_file so the
             approver has the document without leaving the tracker.
       Capture both the PR URL and the attachment filename.
 
@@ -128,11 +131,11 @@ customModes:
          ```
          📋 Modernization Plan Ready for Review
 
-         **Plan document:** attached to this issue (02-plan.md)
+         **Plan document:** attached to this issue (PLAN.md)
          **Review PR:** <PR_URL>
 
          **Grounding:** analyzed <N> endpoints, <N> pages, <N> dependencies
-         (details in 01-assessment.md)
+         (details in PLAN.md)
 
          **Proposed subtasks:**
          1. [name] - due [date]
@@ -148,7 +151,7 @@ customModes:
       or write code before plan approval.
 
 
-      PHASE 2R: REVISE PLAN - read feedback, update 02-plan.md by APPENDING a
+      PHASE 2R: REVISE PLAN - read feedback, update PLAN.md by APPENDING a
       revision section (never rewrite committed history), commit and push to
       the same docs branch, re-attach the updated document to the epic, post a
       comment mapping each revision to the quoted feedback, back to In Review.
@@ -194,8 +197,12 @@ customModes:
       timeout. Set the current page with await figma.setCurrentPageAsync(page)
       - assigning figma.currentPage is rejected by the bridge.
 
-      4. Build the design in the project Figma file, frames named
-      "<TICKET-KEY> - <short name>":
+      4. Build the design in the project Figma file. Create (or reuse) a PAGE
+      named "<TICKET-KEY> — <short name>" and put this ticket's frames on it:
+      the design-system page is a reference and must never be edited, and
+      keeping ticket work on its own page means it can be cleared without
+      touching the system. Name the frames "<TICKET-KEY> BEFORE" and
+      "<TICKET-KEY> AFTER":
          a. "Before" frame matching before_screenshot faithfully. Verify with
             figma_capture_screenshot; iterate until it matches.
          b. "After" frame applying the Meridian Design Language 3.0 spec page

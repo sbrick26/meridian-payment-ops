@@ -1,0 +1,39 @@
+# Runtime configuration for meridian-ap-api.
+#
+# Copy to `.ce-env` and fill in the real values. `.ce-env` holds credentials and
+# is ignored by version control; deploy-service.sh reads it and passes each line
+# to the application as an environment variable.
+#
+#   cp .ce-env.example .ce-env
+#   ../../staging-kit/skills/agent-enablement/templates/deploy-service.sh \
+#       meridian-ap-api reference/modern-api 8080
+
+# --- identity ---------------------------------------------------------------
+# The identity provider the service asks "who is this caller?".
+VAULT_ADDR=https://meridian-vault.<region-host>/
+
+# The service's OWN token, used only to read the identity-status key that says
+# which identities the control plane has suspended. It is not the caller's
+# token and it is never used to authorise a request. Set it to the token whose
+# policy matches the deployment: the read-only inquiry token for an inquiry
+# deployment, the operations token where write routes are served.
+VAULT_TOKEN=<vault-token-for-this-deployment>
+
+# Standing is re-read this often. Short on purpose: a suspension is an incident
+# response and has to take effect in seconds, not minutes.
+VAULT_STATUS_CACHE_MS=5000
+VAULT_SCOPE_CACHE_MS=15000
+
+# --- governance events ------------------------------------------------------
+# Every allow and every deny is reported here, fire-and-forget. Both variables
+# are optional: with them unset the service runs unchanged and emits nothing.
+GOV_INGEST_URL=https://gov-analytics.<region-host>
+GOV_INGEST_TOKEN=<ingest-bearer-token>
+GOV_PROJECT=meridian-payment-ops
+
+# --- service ----------------------------------------------------------------
+# Do NOT set PORT here. The platform reserves it, injects it from the `--port`
+# argument the deploy script passes, and rejects the whole deployment if the
+# application tries to set it — the failure surfaces as an admission-webhook
+# error at create time, not as a warning.
+DB_PATH=/app/payops.db
