@@ -52,7 +52,8 @@
         "figma_set_image_fill",
         "figma_find_nodes",
         "figma_export_frame",
-        "figma_set_image_fill_from_file"
+        "figma_set_image_fill_from_file",
+        "figma_execute_file"
       ]
     }
   }

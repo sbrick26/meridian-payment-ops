@@ -1,0 +1,186 @@
+// Meridian Design Language 3.0 — Held Payments, target state.
+//
+// This is the drawing code for the AFTER frame, committed rather than
+// generated. An agent writing a screen's worth of plugin JavaScript spends
+// thousands of output tokens per attempt and lays it out slightly differently
+// every time - which is how the masthead ended up over the page title and the
+// filter bar under the table header. Authored once, it renders identically on
+// every run and costs one tool call.
+//
+// Run it with figma_execute_file, which injects PARAMS:
+//   { pageName, frameName, x, y, tokens: {...}, rows: [...] , meta: {...} }
+// Every value it draws comes from PARAMS, so the design system stays the
+// source of truth and this file stays layout only.
+
+const T = PARAMS.tokens || {};
+const hex = (h) => {
+  const s = String(h || '#000000').replace('#', '');
+  return { r: parseInt(s.slice(0, 2), 16) / 255, g: parseInt(s.slice(2, 4), 16) / 255, b: parseInt(s.slice(4, 6), 16) / 255 };
+};
+const solid = (h) => [{ type: 'SOLID', color: hex(h) }];
+
+const C = {
+  action: T.action || '#1f5fd6',
+  navy: T.navy900 || '#101827',
+  surface: T.surface || '#ffffff',
+  subdued: T.surfaceSubdued || '#edeff3',
+  canvas: T.canvas || '#f7f8fa',
+  border: T.border || '#d6dae2',
+  text: T.textPrimary || '#10151f',
+  muted: T.textSecondary || '#5a6577',
+  inverse: T.textInverse || '#ffffff',
+  success: T.success || '#1e7a52',
+  warning: T.warning || '#a66a0a',
+  critical: T.critical || '#b3261e',
+};
+
+(async () => {
+  await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+  await figma.loadFontAsync({ family: 'Inter', style: 'Medium' });
+  await figma.loadFontAsync({ family: 'Inter', style: 'Semi Bold' });
+  await figma.loadFontAsync({ family: 'Roboto Mono', style: 'Regular' });
+
+  // Reuse the page the caller names so a re-run replaces its own work rather
+  // than stacking a second copy beside it.
+  let page = figma.root.children.find((p) => p.name === PARAMS.pageName);
+  if (!page) { page = figma.createPage(); page.name = PARAMS.pageName; }
+  await figma.setCurrentPageAsync(page);
+
+  const existing = page.findChild((n) => n.name === PARAMS.frameName);
+  if (existing) existing.remove();
+
+  const W = 1440, H = 920, PAD = 32;
+  const frame = figma.createFrame();
+  frame.name = PARAMS.frameName;
+  frame.resize(W, H);
+  frame.x = PARAMS.x || 0;
+  frame.y = PARAMS.y || 0;
+  frame.fills = solid(C.canvas);
+  page.appendChild(frame);
+
+  // Every node is placed at an absolute x/y with an explicit width. Nothing is
+  // laid out by flow, because flow is what makes neighbours collide.
+  const text = (s, o) => {
+    const t = figma.createText();
+    t.fontName = { family: o.mono ? 'Roboto Mono' : 'Inter', style: o.style || 'Regular' };
+    t.fontSize = o.size || 13;
+    t.characters = String(s);
+    t.textAutoResize = 'NONE';
+    t.resize(o.w, o.h || (o.size || 13) * 1.6);
+    t.x = o.x; t.y = o.y;
+    t.fills = solid(o.color || C.text);
+    if (o.align) t.textAlignHorizontal = o.align;
+    t.textAlignVertical = 'CENTER';
+    if (o.spacing) t.letterSpacing = { unit: 'PIXELS', value: o.spacing };
+    frame.appendChild(t);
+    return t;
+  };
+  const rect = (o) => {
+    const r = figma.createRectangle();
+    r.x = o.x; r.y = o.y; r.resize(o.w, o.h);
+    r.fills = solid(o.fill);
+    if (o.radius) r.cornerRadius = o.radius;
+    if (o.stroke) { r.strokes = solid(o.stroke); r.strokeWeight = o.strokeWeight || 1; }
+    r.name = o.name || 'Rectangle';
+    frame.appendChild(r);
+    return r;
+  };
+  const chip = (label, x, y, tone) => {
+    const map = { hold: C.warning, review: C.action, escalated: C.critical, pending: C.muted,
+                  high: C.critical, med: C.warning, low: C.success };
+    const col = map[String(tone || label).toLowerCase()] || C.muted;
+    const w = Math.max(52, String(label).length * 7 + 18);
+    rect({ x, y, w, h: 20, fill: col, radius: 10, name: `chip ${label}` }).opacity = 0.12;
+    text(label, { x, y, w, h: 20, size: 10, style: 'Semi Bold', color: col, align: 'CENTER', spacing: 0.4 });
+  };
+
+  // ---- masthead -----------------------------------------------------------
+  rect({ x: 0, y: 0, w: W, h: 56, fill: C.navy, name: 'masthead' });
+  text('MERIDIAN PAYMENT OPS', { x: PAD, y: 18, w: 240, size: 12, style: 'Semi Bold', color: C.inverse, spacing: 1.1, mono: true });
+  // Nav sits in its own reserved band on the right; the wordmark owns the left.
+  const nav = [['Dashboard', 900], ['Held Payments', 1000], ['Reports', 1132], ['Help', 1216]];
+  nav.forEach(([label, x], i) => {
+    const active = i === 1;
+    text(label, { x, y: 18, w: 120, size: 13, style: active ? 'Semi Bold' : 'Regular',
+                  color: active ? C.inverse : '#c7cdd8' });
+    if (active) rect({ x, y: 44, w: 100, h: 2, fill: C.action, name: 'nav active' });
+  });
+  rect({ x: 1300, y: 16, w: 108, h: 24, fill: '#1e2532', radius: 4, name: 'user chip' });
+  text('D. WHITAKER', { x: 1300, y: 16, w: 108, h: 24, size: 10, color: '#c7cdd8', align: 'CENTER', mono: true });
+
+  // ---- breadcrumb + title -------------------------------------------------
+  rect({ x: 0, y: 56, w: W, h: 94, fill: C.surface, name: 'title band' });
+  text('Dashboard  /  Held Payments', { x: PAD, y: 70, w: 400, size: 11, color: C.muted });
+  text('Held Payments', { x: PAD, y: 92, w: 260, size: 26, style: 'Semi Bold' });
+  // 16px clear of the title's 260px box, so the two can never touch.
+  text(PARAMS.meta?.subtitle || 'vendor payment inquiries', { x: PAD + 276, y: 100, w: 420, size: 13, color: C.muted });
+
+  // ---- filter bar ---------------------------------------------------------
+  const fy = 150;
+  rect({ x: 0, y: fy, w: W, h: 76, fill: C.subdued, name: 'filter bar' });
+  const field = (label, value, x, w) => {
+    text(label, { x, y: fy + 12, w, size: 10, style: 'Semi Bold', color: C.muted, spacing: 0.6 });
+    rect({ x, y: fy + 30, w, h: 34, fill: C.surface, radius: 4, stroke: C.border, name: `field ${label}` });
+    text(value, { x: x + 10, y: fy + 30, w: w - 20, h: 34, size: 13, color: C.text });
+  };
+  field('STATUS', 'Open items', PAD, 180);
+  field('TYPE', 'All types', PAD + 196, 160);
+  field('SEARCH', 'payment ref, vendor, invoice…', PAD + 372, 420);
+  rect({ x: PAD + 808, y: fy + 30, w: 96, h: 34, fill: C.action, radius: 4, name: 'Search button' });
+  text('Search', { x: PAD + 808, y: fy + 30, w: 96, h: 34, size: 13, style: 'Semi Bold', color: C.inverse, align: 'CENTER' });
+  text('Clear', { x: PAD + 916, y: fy + 30, w: 60, h: 34, size: 13, color: C.action });
+  text('Export CSV', { x: W - PAD - 110, y: fy + 30, w: 110, h: 34, size: 12, color: C.action, align: 'RIGHT' });
+
+  // ---- result meta --------------------------------------------------------
+  const my = fy + 76;
+  text(PARAMS.meta?.summary || '', { x: PAD, y: my + 10, w: 700, size: 12, color: C.muted });
+
+  // ---- table --------------------------------------------------------------
+  const cols = [
+    { k: 'ref', label: 'REFERENCE', x: PAD, w: 140, mono: true },
+    { k: 'vendor', label: 'VENDOR', x: 190, w: 210 },
+    { k: 'invoice', label: 'INVOICE NO', x: 410, w: 140, mono: true },
+    { k: 'amount', label: 'AMOUNT', x: 560, w: 120, align: 'RIGHT', mono: true },
+    { k: 'ccy', label: 'CCY', x: 692, w: 44 },
+    { k: 'status', label: 'STATUS', x: 748, w: 100, chip: true },
+    { k: 'reason', label: 'HOLD REASON', x: 860, w: 330 },
+    { k: 'age', label: 'AGE', x: 1200, w: 50, align: 'RIGHT' },
+    { k: 'risk', label: 'RISK', x: 1264, w: 80, chip: true },
+    { k: 'detail', label: '', x: 1356, w: 52, align: 'RIGHT' },
+  ];
+  const ty = my + 40, ROW = 52;
+  rect({ x: PAD, y: ty, w: W - PAD * 2, h: 40, fill: C.subdued, radius: 4, name: 'table header' });
+  cols.forEach((c) => {
+    if (!c.label) return;
+    text(c.label, { x: c.x + (c.align === 'RIGHT' ? 0 : 10), y: ty, w: c.w, h: 40,
+                    size: 10, style: 'Semi Bold', color: C.muted, spacing: 0.6, align: c.align });
+  });
+
+  (PARAMS.rows || []).forEach((row, i) => {
+    const y = ty + 40 + i * ROW;
+    rect({ x: PAD, y, w: W - PAD * 2, h: ROW, fill: i % 2 ? C.canvas : C.surface, name: `row ${i + 1}` });
+    rect({ x: PAD, y: y + ROW - 1, w: W - PAD * 2, h: 1, fill: C.border, name: 'row rule' });
+    cols.forEach((c) => {
+      const v = row[c.k];
+      if (v === undefined || v === '') return;
+      if (c.chip) { chip(v, c.x + 10, y + (ROW - 20) / 2, v); return; }
+      text(v, { x: c.x + (c.align === 'RIGHT' ? 0 : 10), y, w: c.w, h: ROW,
+                size: 13, mono: c.mono, align: c.align,
+                color: c.k === 'ref' ? C.action : (c.k === 'age' ? C.critical : C.text) });
+    });
+  });
+
+  // ---- pagination + footnote ---------------------------------------------
+  const py = ty + 40 + (PARAMS.rows || []).length * ROW + 20;
+  ['1', '2', '3', '4', '5'].forEach((n, i) => {
+    const x = PAD + i * 40;
+    rect({ x, y: py, w: 32, h: 32, fill: i === 0 ? C.action : C.surface, radius: 4,
+           stroke: i === 0 ? undefined : C.border, name: `page ${n}` });
+    text(n, { x, y: py, w: 32, h: 32, size: 12, color: i === 0 ? C.inverse : C.text, align: 'CENTER' });
+  });
+  text(PARAMS.meta?.pageNote || '', { x: PAD + 220, y: py, w: 400, h: 32, size: 12, color: C.muted });
+  text(PARAMS.meta?.footnote || '', { x: PAD, y: py + 52, w: W - PAD * 2, size: 11, color: C.muted });
+
+  figma.currentPage.selection = [frame];
+  console.log(JSON.stringify({ ok: true, frameId: frame.id, page: page.name, rows: (PARAMS.rows || []).length }));
+})();
