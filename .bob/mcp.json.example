@@ -1,0 +1,69 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "node",
+      "args": [
+        "/Users/swayambarik/Documents/CE/align-sf-modernization/mcp-servers/jira-server/src/index.js"
+      ],
+      "env": {
+        "JIRA_HOST": "${JIRA_HOST}",
+        "JIRA_EMAIL": "${JIRA_EMAIL}",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}",
+        "JIRA_PROJECT_KEY": "${JIRA_PROJECT_KEY}",
+        "JIRA_ASSIGNEE": "${JIRA_ASSIGNEE}",
+        "JIRA_SUBTASK_TYPE": "${JIRA_SUBTASK_TYPE}"
+      },
+      "alwaysAllow": [
+        "jira_get_assigned_tickets",
+        "jira_get_ticket_details",
+        "jira_update_status",
+        "jira_add_comment",
+        "jira_create_subtask",
+        "jira_get_subtasks",
+        "jira_attach_file"
+      ]
+    },
+    "confluence": {
+      "command": "uvx",
+      "args": [
+        "mcp-atlassian>=0.22.1,<0.24"
+      ],
+      "env": {
+        "CONFLUENCE_URL": "${CONFLUENCE_URL}",
+        "CONFLUENCE_USERNAME": "${CONFLUENCE_USERNAME}",
+        "CONFLUENCE_API_TOKEN": "${CONFLUENCE_API_TOKEN}",
+        "TOOLSETS": "confluence",
+        "ENABLED_TOOLS": "confluence_create_page,confluence_update_page,confluence_get_page,confluence_search"
+      },
+      "alwaysAllow": [
+        "confluence_create_page",
+        "confluence_update_page",
+        "confluence_get_page",
+        "confluence_search"
+      ]
+    },
+    "figma-console": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-console-mcp@latest"
+      ],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}",
+        "ENABLE_MCP_APPS": "true"
+      },
+      "alwaysAllow": [
+        "figma_get_status",
+        "figma_execute",
+        "figma_capture_screenshot",
+        "figma_take_screenshot",
+        "figma_navigate",
+        "figma_reconnect",
+        "figma_get_component_for_development",
+        "figma_search_components",
+        "figma_post_comment",
+        "figma_get_comments"
+      ]
+    }
+  }
+}

@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meridian — Engineering Governance</title>
+<!--
+  Data sources — one page, two feeds:
+
+  1. Local live feed (this page as served by serve-dashboard.py): the poller
+     below fetches the relative path `events`, which the server answers from
+     ~/.mtgov/events.jsonl (+ ~/.mtgov/ci-events.json) as a JSON array of
+     governance events: {ts, source, actor, event_type, rule, severity, detail,
+     tool, session_id}.
+
+  2. CI / gh-pages evidence: governance/dashboard-record.py writes a DIFFERENT
+     shape to a static file (data/violations.json style) — an array of per-run
+     gate RECORDS ({id, timestamp, verdict, violations[], pr_number, sha, ...}),
+     not events. It also emits a single matching governance event to $EVENT_JSON
+     when that variable is set, which is the schema this page consumes.
+
+  So a gh-pages deployment needs either (a) the workflow to publish the
+  $EVENT_JSON events as an `events` JSON array next to this file, or (b) a small
+  adapter in this page that maps records -> events. Not wired up yet; noted here
+  so the mismatch is not rediscovered. Deliberately unchanged for now.
+-->
+
+<style>
+  /* ---- Carbon-flavored tokens. No external fonts or CDNs: IBM Plex is used
+         only if it is already installed locally, otherwise the system stack. ---- */
+  :root{
+    --bg:#f4f4f4; --layer:#ffffff; --layer-hover:#f0f0f0; --field:#ffffff;
+    --border:#e0e0e0; --border-strong:#c6c6c6;
+    --text:#161616; --text-2:#525252; --text-3:#6f6f6f;
+    --blue:#0f62fe; --blue-2:#4589ff; --teal:#007d79;
+    --ok:#24a148; --fail:#da1e28;
+    --crit:#da1e28; --high:#ff832b; --med:#f1c21b; --info:#0f62fe;
+    --mono:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#161616; --layer:#262626; --layer-hover:#333333; --field:#262626;
+      --border:#393939; --border-strong:#525252;
+      --text:#f4f4f4; --text-2:#c6c6c6; --text-3:#a8a8a8;
+      --blue:#4589ff; --blue-2:#78a9ff; --teal:#3ddbd9;
+      --ok:#42be65; --fail:#fa4d56;
+      --crit:#fa4d56; --high:#ff832b; --med:#f1c21b; --info:#4589ff;
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 20px 64px;}
+  .mono{font-family:var(--mono);}
+
+  /* ---- masthead ---- */
+  header.top{border-bottom:1px solid var(--border);background:var(--layer);}
+  .top-in{max-width:1320px;margin:0 auto;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+  .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:5px;}
+  h1{font-size:23px;font-weight:400;margin:0;letter-spacing:-.01em;}
+  h1 b{font-weight:600;}
+  .live{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-3);font-family:var(--mono);}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:p 2.4s infinite;}
+  @keyframes p{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent);}70%{box-shadow:0 0 0 7px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+  @media (prefers-reduced-motion:reduce){.pulse{animation:none;}}
+
+  /* ---- KPI strip ---- */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:24px;}
+  @media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--layer);padding:16px 18px 18px;position:relative;}
+  .kpi .lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);}
+  .kpi .val{font-size:34px;font-weight:600;font-family:var(--mono);margin-top:8px;letter-spacing:-.03em;line-height:1;}
+  .kpi .val .to{font-size:20px;font-weight:400;color:var(--text-3);margin:0 6px;vertical-align:2px;}
+  .kpi .val .blk{color:var(--fail);}
+  .kpi .val .blk.zero{color:var(--ok);}
+  .kpi .sub{font-size:11px;color:var(--text-3);margin-top:6px;font-family:var(--mono);}
+  .kpi.pass .val{color:var(--ok);} .kpi.fail .val{color:var(--fail);} .kpi.warn .val{color:var(--high);}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;}
+  .kpi.pass::before{background:var(--ok);} .kpi.fail::before{background:var(--fail);}
+  .kpi.warn::before{background:var(--high);} .kpi.accent::before{background:var(--blue);}
+
+  /* ---- panels ---- */
+  .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-top:16px;}
+  @media (max-width:900px){.cols{grid-template-columns:1fr;}}
+  .panel{background:var(--layer);border:1px solid var(--border);}
+  .panel > h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);font-weight:600;margin:0;padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+  .panel > h2 span{color:var(--text-3);font-weight:400;letter-spacing:0;text-transform:none;font-family:var(--mono);}
+  .panel .body{padding:8px 16px 14px;}
+
+  /* rule bars */
+  .rule-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--border);}
+  .rule-row:last-child{border-bottom:none;}
+  .rule-name{font-weight:500;} .rule-name small{color:var(--text-3);font-family:var(--mono);font-weight:400;margin-right:6px;}
+  .rule-count{font-family:var(--mono);color:var(--text-2);font-weight:500;}
+  .rule-bar{grid-column:1/-1;height:6px;background:var(--bg);margin-top:3px;}
+  .rule-bar > span{display:block;height:100%;background:var(--blue);transition:width .4s ease;}
+  .rule-bar > span.critical{background:var(--crit);} .rule-bar > span.high{background:var(--high);}
+  .rule-bar > span.medium{background:var(--med);}
+
+  /* by-actor table */
+  table.who{width:100%;border-collapse:collapse;}
+  table.who th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3);font-weight:600;text-align:left;padding:8px;border-bottom:1px solid var(--border);}
+  table.who td{padding:9px 8px;border-bottom:1px solid var(--border);}
+  table.who tr:last-child td{border-bottom:none;}
+  table.who td.num{font-family:var(--mono);text-align:right;}
+  .who-name{display:flex;align-items:center;gap:9px;font-weight:500;}
+  .avatar{width:24px;height:24px;background:var(--blue);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:var(--mono);flex:0 0 auto;}
+  .avatar.ci{background:var(--teal);color:#000;}
+  .chip-fail{color:var(--fail);font-family:var(--mono);} .chip-pass{color:var(--ok);font-family:var(--mono);}
+
+  /* ---- controls ---- */
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:26px 0 12px;}
+  select,input[type=search]{font-family:var(--sans);font-size:13px;background:var(--field);color:var(--text);border:1px solid var(--border-strong);border-bottom:1px solid var(--text-3);border-radius:0;padding:8px 10px;}
+  input[type=search]{flex:1;min-width:200px;}
+  select:focus,input:focus{outline:2px solid var(--blue);outline-offset:-2px;}
+  .seg{display:inline-flex;border:1px solid var(--border-strong);}
+  .seg button{font-family:var(--sans);font-size:12px;font-weight:500;background:var(--field);color:var(--text-2);border:none;padding:8px 14px;cursor:pointer;}
+  .seg button + button{border-left:1px solid var(--border-strong);}
+  .seg button[aria-pressed="true"]{background:var(--blue);color:#fff;}
+  .count-note{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--text-3);}
+
+  /* ---- event feed ---- */
+  .feed{border:1px solid var(--border);border-bottom:none;}
+  .evt{display:grid;grid-template-columns:104px 86px 1fr 190px;gap:0 14px;align-items:baseline;background:var(--layer);border-bottom:1px solid var(--border);border-left:3px solid var(--border-strong);padding:11px 16px;}
+  .evt:hover{background:var(--layer-hover);}
+  .evt.s-critical{border-left-color:var(--crit);} .evt.s-high{border-left-color:var(--high);}
+  .evt.s-medium{border-left-color:var(--med);} .evt.s-info{border-left-color:var(--info);}
+  .evt.fresh{animation:in .5s ease;}
+  @keyframes in{from{background:color-mix(in srgb,var(--blue) 14%,transparent);}to{background:var(--layer);}}
+  @media (prefers-reduced-motion:reduce){.evt.fresh{animation:none;}}
+  .e-time{font-family:var(--mono);font-size:12px;color:var(--text-3);white-space:nowrap;}
+  .sev{font-size:10px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;color:#161616;display:inline-block;}
+  .sev.critical{background:var(--crit);color:#fff;} .sev.high{background:var(--high);}
+  .sev.medium{background:var(--med);} .sev.info{background:var(--info);color:#fff;}
+  .e-main{min-width:0;}
+  .e-type{font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--text-3);text-transform:uppercase;}
+  .e-detail{margin-top:2px;word-break:break-word;}
+  .e-side{text-align:right;font-size:12px;color:var(--text-3);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .e-side b{color:var(--text-2);font-weight:500;}
+  .e-rule{color:var(--blue);}
+  @media (max-width:820px){
+    .evt{grid-template-columns:1fr;gap:4px;}
+    .e-side{text-align:left;}
+  }
+  .empty{text-align:center;color:var(--text-3);padding:60px 20px;border:1px dashed var(--border-strong);background:var(--layer);}
+  footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--border);color:var(--text-3);font-size:12px;}
+  footer .mono{color:var(--text-2);}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div>
+      <div class="eyebrow">Salesforce modernization · lifecycle-hook governance</div>
+      <h1>Meridian — <b>Engineering Governance</b></h1>
+    </div>
+    <div class="live"><span class="pulse" id="pulse"></span><span id="status">connecting…</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="kpis" id="kpis"></section>
+
+  <div class="cols">
+    <div class="panel"><h2>Violations by rule <span id="ruleTotal"></span></h2><div class="body" id="byRule"></div></div>
+    <div class="panel"><h2>By actor <span id="actorTotal"></span></h2><div class="body" style="padding:0 16px 6px" id="byActor"></div></div>
+  </div>
+
+  <div class="controls">
+    <select id="fSeverity">
+      <option value="">All severities</option>
+      <option value="critical">critical</option>
+      <option value="high">high</option>
+      <option value="medium">medium</option>
+      <option value="info">info</option>
+    </select>
+    <select id="fType"><option value="">All event types</option></select>
+    <select id="fActor"><option value="">All actors</option></select>
+    <input type="search" id="fSearch" placeholder="Search detail, rule, tool, session…" />
+    <div class="seg" role="group" aria-label="Feed contents">
+      <button id="bSignal" aria-pressed="true" title="Governance decisions only">Decisions</button>
+      <button id="bAll" aria-pressed="false" title="Include screened prompts, sessions and routine activity">All&nbsp;traffic</button>
+    </div>
+    <div class="seg" role="group" aria-label="Auto refresh">
+      <button id="bLive" aria-pressed="true">Live</button>
+      <button id="bPause" aria-pressed="false">Paused</button>
+    </div>
+    <span class="count-note" id="countNote"></span>
+  </div>
+
+  <div id="feed"></div>
+
+  <footer>
+    Enforced in-session by Bob lifecycle hooks · source
+    <span class="mono">~/.mtgov/events.jsonl</span> via <span class="mono">/events</span> ·
+    polls every 3s · prompts and tool payloads are never stored verbatim, only
+    sanitized one-line summaries.
+  </footer>
+</div>
+
+<script>
+const POLL_MS = 3000;
+const SEV_RANK = {critical:3, high:2, medium:1, info:0};
+const TYPE_LABEL = {
+  prompt_violation:"prompt violation", prompt_screened:"prompt screened",
+  tool_blocked:"tool blocked", session_start:"session start",
+  gate_pass:"gate passed", gate_fail:"gate failed",
+  task_stop:"task stop", activity:"activity", hook_error:"hook error"
+};
+// Routine telemetry. Counted in every KPI, but hidden from the feed by default
+// so a demo session of clean prompts cannot bury the governance decisions.
+const NOISE_TYPES = new Set(["prompt_screened","session_start","task_stop","activity"]);
+let ALL = [], LIVE = true, SEEN = new Set(), FIRST = true, SHOW_NOISE = false;
+
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const initials = n => (n||"?").replace(/@.*/,"").split(/[.\-_ ]/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("") || "?";
+function ago(ts){
+  const d = (Date.now() - new Date(ts).getTime())/1000;
+  if (isNaN(d)) return "—";
+  if (d < 45) return "just now";
+  if (d < 3600) return Math.floor(d/60) + "m ago";
+  if (d < 86400) return Math.floor(d/3600) + "h ago";
+  return Math.floor(d/86400) + "d ago";
+}
+function ruleParts(r){
+  const m = String(r||"").replace(/\.md$/,"").match(/^(\d+)-(.+)$/);
+  return m ? {id:m[1], name:m[2].replace(/-/g," ")} : {id:"", name:String(r||"unattributed")};
+}
+const key = e => [e.ts, e.event_type, e.detail, e.session_id].join("|");
+function kpi(lab, val, sub, cls){
+  return `<div class="kpi ${cls||''}"><div class="lab">${lab}</div><div class="val">${val}</div>`
+       + `<div class="sub">${sub||"&nbsp;"}</div></div>`;
+}
+// Two-part value: everything screened, then how many of those were refused.
+function kpiRatio(lab, screened, blocked, sub, cls){
+  const val = `${screened}<span class="to">→</span>`
+            + `<span class="blk${blocked ? "" : " zero"}">${blocked}</span>`;
+  return kpi(lab, val, sub, cls);
+}
+
+function render(){
+  const d = ALL;
+  const n = t => d.filter(e => e.event_type === t).length;
+  const sessions   = new Set(d.filter(e => e.session_id && e.session_id !== "unknown")
+                              .map(e => e.session_id)).size || n("session_start");
+  const promptViol = n("prompt_violation");
+  // Every prompt reaching the screen is counted, whether it passed or not.
+  const screened   = n("prompt_screened") + promptViol;
+  const blocked    = n("tool_blocked");
+  const gatePass   = n("gate_pass");
+  const gateFail   = n("gate_fail");
+  const crit       = d.filter(e => e.severity === "critical").length;
+
+  document.getElementById("kpis").innerHTML =
+      kpi("Sessions", sessions, "under governance", "accent")
+    + kpiRatio("Prompts screened → blocked", screened, promptViol,
+               "refused at submit", promptViol ? "warn" : "")
+    + kpi("Tool calls blocked", blocked, "PreToolUse guard", blocked ? "fail" : "")
+    + kpi("Gates passed", gatePass, "CI + equivalence", "pass")
+    + kpi("Gates failed", gateFail, "CI + equivalence", gateFail ? "fail" : "")
+    + kpi("Critical events", crit, "all sources", crit ? "fail" : "pass");
+
+  // violations by rule — hooks + CI, bar tinted by worst severity seen
+  const rc = {};
+  d.filter(e => ["prompt_violation","tool_blocked","gate_fail"].includes(e.event_type))
+   .forEach(e => {
+     const k = e.rule || "unattributed";
+     rc[k] = rc[k] || {n:0, sev:"info"};
+     rc[k].n++;
+     if (SEV_RANK[e.severity] > SEV_RANK[rc[k].sev]) rc[k].sev = e.severity;
+   });
+  const re = Object.entries(rc).sort((a,b) => b[1].n - a[1].n);
+  const rmax = re.length ? re[0][1].n : 1;
+  const rsum = re.reduce((s,[,v]) => s + v.n, 0);
+  document.getElementById("ruleTotal").textContent = rsum ? rsum + " total" : "";
+  document.getElementById("byRule").innerHTML = re.length
+    ? re.map(([k,v]) => {
+        const p = ruleParts(k);
+        return `<div class="rule-row"><span class="rule-name">`
+             + (p.id ? `<small>${esc(p.id)}</small>` : "")
+             + `${esc(p.name)}</span><span class="rule-count">${v.n}</span>`
+             + `<span class="rule-bar"><span class="${esc(v.sev)}" style="width:${Math.max(3, v.n/rmax*100)}%"></span></span></div>`;
+      }).join("")
+    : `<div class="rule-row"><span class="rule-name" style="color:var(--text-3)">No policy violations recorded.</span></div>`;
+
+  // by actor
+  const by = {};
+  d.forEach(e => {
+    const k = e.actor || "unknown";
+    by[k] = by[k] || {events:0, blocked:0, crit:0, passed:0, source:e.source};
+    by[k].events++;
+    if (e.event_type === "prompt_violation" || e.event_type === "tool_blocked") by[k].blocked++;
+    if (e.event_type === "gate_pass") by[k].passed++;
+    if (e.severity === "critical") by[k].crit++;
+  });
+  const ae = Object.entries(by).sort((a,b) => b[1].blocked - a[1].blocked || b[1].events - a[1].events);
+  document.getElementById("actorTotal").textContent = ae.length ? ae.length + " active" : "";
+  document.getElementById("byActor").innerHTML = ae.length
+    ? `<table class="who"><thead><tr><th>Actor</th><th style="text-align:right">Events</th>`
+      + `<th style="text-align:right">Blocked</th><th style="text-align:right">Gates&nbsp;passed</th>`
+      + `<th style="text-align:right">Critical</th></tr></thead><tbody>`
+      + ae.map(([u,s]) => `<tr><td><span class="who-name">`
+          + `<span class="avatar${u==="ci"?" ci":""}">${esc(initials(u))}</span>${esc(u)}</span></td>`
+          + `<td class="num">${s.events}</td><td class="num chip-fail">${s.blocked||"—"}</td>`
+          + `<td class="num chip-pass">${s.passed||"—"}</td><td class="num">${s.crit||"—"}</td></tr>`).join("")
+      + `</tbody></table>`
+    : `<div style="padding:14px 0;color:var(--text-3)">No activity yet.</div>`;
+
+  // filter options, preserving the current selection
+  syncOptions("fType", [...new Set(d.map(e => e.event_type))].sort(),
+              v => TYPE_LABEL[v] || v, "All event types");
+  syncOptions("fActor", [...new Set(d.map(e => e.actor || "unknown"))].sort(),
+              v => v, "All actors");
+  applyFilters();
+}
+
+function syncOptions(id, values, label, allLabel){
+  const sel = document.getElementById(id), cur = sel.value;
+  sel.innerHTML = `<option value="">${allLabel}</option>`
+    + values.map(v => `<option value="${esc(v)}">${esc(label(v))}</option>`).join("");
+  sel.value = values.includes(cur) ? cur : "";
+}
+
+function row(e){
+  const sev = SEV_RANK[e.severity] === undefined ? "info" : e.severity;
+  const fresh = !FIRST && !SEEN.has(key(e)) ? " fresh" : "";
+  const side = [
+    e.rule ? `<span class="e-rule">${esc(String(e.rule).replace(/\.md$/,""))}</span>` : "",
+    e.tool ? `<b>${esc(e.tool)}</b>` : "",
+    esc(e.actor || "unknown"),
+    esc(e.source || "hook")
+  ].filter(Boolean).join(" · ");
+  return `<div class="evt s-${esc(sev)}${fresh}">
+    <span class="e-time" title="${esc(e.ts)}">${esc(ago(e.ts))}</span>
+    <span><span class="sev ${esc(sev)}">${esc(sev)}</span></span>
+    <span class="e-main"><span class="e-type">${esc(TYPE_LABEL[e.event_type] || e.event_type)}</span>
+      <div class="e-detail">${esc(e.detail || "—")}</div></span>
+    <span class="e-side" title="${esc(side.replace(/<[^>]*>/g,""))}">${side}</span>
+  </div>`;
+}
+
+function applyFilters(){
+  const fs = document.getElementById("fSeverity").value;
+  const ft = document.getElementById("fType").value;
+  const fa = document.getElementById("fActor").value;
+  const q  = document.getElementById("fSearch").value.toLowerCase().trim();
+  const rows = ALL.filter(e => {
+    // Routine telemetry is hidden until asked for — either by switching to
+    // "All traffic" or by selecting that exact type in the type filter.
+    if (!SHOW_NOISE && !ft && NOISE_TYPES.has(e.event_type)) return false;
+    if (fs && e.severity !== fs) return false;
+    if (ft && e.event_type !== ft) return false;
+    if (fa && (e.actor || "unknown") !== fa) return false;
+    if (q) {
+      const hay = [e.detail, e.rule, e.tool, e.actor, e.event_type, e.session_id, e.source]
+        .join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  const hiddenNoise = (!SHOW_NOISE && !ft)
+    ? ALL.filter(e => NOISE_TYPES.has(e.event_type)).length : 0;
+  document.getElementById("countNote").textContent =
+    `${rows.length} of ${ALL.length} event${ALL.length === 1 ? "" : "s"}`
+    + (hiddenNoise ? ` · ${hiddenNoise} routine hidden` : "");
+  const feed = document.getElementById("feed");
+  feed.innerHTML = rows.length
+    ? `<div class="feed">${rows.map(row).join("")}</div>`
+    : `<div class="empty">No matching governance decisions.<br>`
+      + (hiddenNoise
+          ? `${hiddenNoise} routine event${hiddenNoise === 1 ? "" : "s"} screened cleanly — switch to <b>All traffic</b> to see them.`
+          : `Start a session, or run <span class="mono">emit-event.sh</span>, to populate the board.`)
+      + `</div>`;
+  ALL.forEach(e => SEEN.add(key(e)));
+  FIRST = false;
+}
+
+async function load(){
+  try {
+    // Relative on purpose: resolves to /events under serve-dashboard.py (which
+    // serves this page at "/") and to <base>/events wherever else it is hosted.
+    const res = await fetch("events", {cache:"no-store"});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    ALL = Array.isArray(data) ? data : [];
+    ALL.sort((a,b) => new Date(b.ts||0) - new Date(a.ts||0));
+    document.getElementById("status").textContent =
+      `${ALL.length} events · ${new Date().toLocaleTimeString()}`;
+    document.getElementById("pulse").style.background = "var(--ok)";
+  } catch (err) {
+    document.getElementById("status").textContent = "feed unavailable — is serve-dashboard.py running?";
+    document.getElementById("pulse").style.background = "var(--med)";
+  }
+  render();
+}
+
+function setLive(v){
+  LIVE = v;
+  document.getElementById("bLive").setAttribute("aria-pressed", String(v));
+  document.getElementById("bPause").setAttribute("aria-pressed", String(!v));
+}
+document.getElementById("bLive").onclick = () => { setLive(true); load(); };
+document.getElementById("bPause").onclick = () => setLive(false);
+
+function setNoise(v){
+  SHOW_NOISE = v;
+  document.getElementById("bAll").setAttribute("aria-pressed", String(v));
+  document.getElementById("bSignal").setAttribute("aria-pressed", String(!v));
+  applyFilters();
+}
+document.getElementById("bSignal").onclick = () => setNoise(false);
+document.getElementById("bAll").onclick = () => setNoise(true);
+["fSeverity","fType","fActor","fSearch"].forEach(id =>
+  document.getElementById(id).addEventListener("input", applyFilters));
+
+load();
+setInterval(() => { if (LIVE && !document.hidden) load(); }, POLL_MS);
+</script>
+</body>
+</html>

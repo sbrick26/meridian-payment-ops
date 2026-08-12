@@ -1,0 +1,17 @@
+# Meridian - Engineering Governance
+#
+# Separation of duties (rule 06-governance-protection.md, SOX 404): the team
+# that writes code does not own the controls. Every path below requires the
+# governance owner's review, enforced by branch protection on `main` and on the
+# immutable `governance` branch.
+
+# Default owner - everything, unless overridden below.
+*                       @sbrick26
+
+# The control environment. Changes here travel on the `governance` branch,
+# reviewed separately, never folded into a feature pull request.
+/.bob/                  @sbrick26
+/.bobignore             @sbrick26
+/.github/               @sbrick26
+/governance/            @sbrick26
+/dashboard/             @sbrick26

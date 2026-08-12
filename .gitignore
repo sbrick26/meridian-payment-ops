@@ -3,3 +3,7 @@ node_modules
 *.db-journal
 npm-debug.log
 .DS_Store
+
+# Local workspace configuration (never committed)
+.bob/mcp.json
+.env
