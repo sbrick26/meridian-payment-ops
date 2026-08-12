@@ -229,13 +229,14 @@ customModes:
                 every colour with its hex and token name, type sizes and
                 weights, spacing, border radii, component states, and the
                 column list and order for tables. Numbers, not adjectives.
-              - docs/design/<TICKET-KEY>-after.png — the frame image. Prefer
-                the REST export, which needs no plugin and therefore cannot be
-                lost to a bridge hiccup:
-                  curl -s -H "X-Figma-Token: $FIGMA_ACCESS_TOKEN" \
-                    "https://api.figma.com/v1/images/<FILE_KEY>?ids=<NODE_ID>&format=png&scale=2"
-                then download the returned URL. Fall back to
-                figma_capture_screenshot only if the export fails.
+              - docs/design/<TICKET-KEY>-after.png — the frame image,
+                exported with ./scripts/figma-export.sh <file-key> <node-id>
+                <path>. That helper uses the REST API, so it needs no plugin and
+                cannot be lost to a bridge hiccup, and it reads the credential
+                itself - you never handle the token. Use
+                ./scripts/figma-read.sh findpage <file-key> <TICKET-KEY> to get
+                the node ids. Fall back to figma_capture_screenshot only if the
+                export fails.
               - docs/design/<TICKET-KEY>-before.png — the captured current
                 state, for the PR's side-by-side.
             Commit these with the design so the approved design is a versioned
