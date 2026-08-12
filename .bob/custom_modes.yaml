@@ -46,20 +46,24 @@ customModes:
          gh pr view <n> --json reviews,comments
          gh api repos/{owner}/{repo}/pulls/<n>/comments   (inline review comments)
 
+      3a. Check whether any pull request for these tickets has been MERGED
+      since the last run - a merge is an approval signal that arrives in
+      GitHub, not in Jira, and nothing else will announce it:
+         gh pr list --state merged --limit 20 --json number,title,headRefName,mergedAt
+
       4. Classify every ticket into exactly one state and route:
-         - EPIC, NEW (no plan comment yet) → PHASE 2: PLAN
-         - EPIC, AWAITING PLAN APPROVAL (plan comment posted, no approval) → log, skip
-         - EPIC, PLAN APPROVED (approval comment on plan) → PHASE 3: CREATE SUBTASKS
-         - EPIC, PLAN CHANGES REQUESTED → PHASE 2R: REVISE PLAN
-         - SUBTASK, NEW frontend → PHASE 4A: DESIGN
-         - SUBTASK, AWAITING DESIGN APPROVAL → log, skip
-         - SUBTASK, DESIGN APPROVED → PHASE 4B: IMPLEMENT FRONTEND
-         - SUBTASK, DESIGN CHANGES REQUESTED → PHASE 4C: REVISE DESIGN
+         - EPIC, NEW (no plan comment yet) → PHASE 2: PLAN AND DESIGN
+         - EPIC, AWAITING APPROVAL (plan comment posted, no approval) → log, skip
+         - EPIC, APPROVED (approval comment on the plan) → PHASE 3: CREATE SUBTASKS
+         - EPIC, CHANGES REQUESTED → PHASE 2R: REVISE PLAN OR DESIGN
+         - SUBTASK, NEW frontend → PHASE 4: IMPLEMENT FRONTEND (design is
+           already approved and frozen - it was produced in PHASE 2)
          - SUBTASK, NEW backend → PHASE 5: IMPLEMENT BACKEND
          - ANY with PR OPEN + unresolved review comments → PHASE 6: ADDRESS PR FEEDBACK
+         - ANY with PR MERGED and not yet deployed → PHASE 7: DEPLOY AND ACTIVATE
 
-      5. Priority order: PR feedback > design revisions > approved designs >
-      approved plans > new subtasks > new epics.
+      5. Priority order: merged pull requests (they unblock the deployment)
+      > PR feedback > approved plans > new subtasks > new epics.
 
 
       APPROVAL DETECTION (case-insensitive, ignore comments authored by the
@@ -72,7 +76,7 @@ customModes:
       "needs revision", "rework", "not approved", or specific feedback.
 
 
-      PHASE 2: PLAN (epic intake - fact-grounded, questions-first)
+      PHASE 2: PLAN AND DESIGN (epic intake - fact-grounded, questions-first)
 
 
       1. Move epic to In Progress (jira_update_status).
@@ -111,27 +115,119 @@ customModes:
       decision documents. Plans are append-only once committed (per rules). No
       open [BLOCKER] items may remain when requesting approval.
 
-      5. Publish the plan as a reviewable artifact. The documents are the
-      deliverable, so they travel through source control, not a wiki:
-         a. Branch from main: git checkout main && git pull && git checkout -b
-            docs/<EPIC-KEY>-modernization-plan
-         b. Commit PLAN.md (message "[<EPIC-KEY>] Modernization plan"), push
-            the branch, and open
-            a documentation pull request with gh CLI:
-            gh pr create --title "[<EPIC-KEY>] Modernization plan" --body-file <tmp>
-            The PR body summarizes the target state, the proposed subtasks and
-            the equivalence strategy. This PR is the review surface for the
-            plan - it is not merged until the plan is approved.
-         c. Attach PLAN.md to the epic itself via jira_attach_file so the
-            approver has the document without leaving the tracker.
-      Capture both the PR URL and the attachment filename.
+      5. WALK THE PLAN WITH THE REQUESTER before publishing it. A plan the
+      approver first sees as a finished document gets rubber-stamped; a plan
+      they helped shape gets read. Use ask_followup_question ONCE, presenting
+      the decisions the plan is actually resting on - not the whole document:
+         - the subtask split and the order it puts them in,
+         - each key decision with the alternative that was rejected,
+         - anything the analysis could not settle (a scope edge, a date that
+           is a guess, a dependency owned by another team).
+      Offer concrete choices, not open prose, and mark which one the plan
+      currently assumes. Then apply the answers to PLAN.md before step 6.
+      Keep this to one round: it is a review, not an interview. If the
+      requester answers "looks good" or does not engage, proceed unchanged and
+      say so.
 
-      6. Request approval on the epic via jira_add_comment using this
+      6. DESIGN THE SCREEN IN THE SAME SESSION. Design belongs to the plan,
+      not to a later ticket: an approver deciding whether to fund the work
+      should see what it will look like, and splitting it into a second gate
+      costs a second round-trip for one decision. Produce the frames now, for
+      the screen the plan puts in scope, and publish them with the plan.
+         a. Capture reality first: ensure the app is running (npm start, port
+            4600; fix startup errors up to 2 retries). browser_action
+            screenshot of the affected page = before_screenshot. Close browser.
+         b. figma_get_status first. The plugin attaches to the bridge a few
+            seconds after the connection opens, so a single "not connected"
+            reply is not a verdict: retry status up to three times, a few
+            seconds apart, before concluding the bridge is down. Do NOT call
+            figma_reconnect to recover: every reconnect can raise another
+            bridge server, the plugin attaches to only one of them, and the
+            extra instances are themselves the usual cause of a connection
+            that appears to keep dropping. If status still reports unavailable
+            after three checks, do NOT abandon the epic: finish the plan,
+            publish it, and say in the approval comment that the design frames
+            are pending the Figma bridge. The plan is the gate; the design is
+            evidence attached to it.
+         c. WHICH FIGMA TOOLS TO USE. Creating or changing canvas content is
+            only possible through the Desktop Bridge plugin: figma_execute and
+            figma_set_image_fill need it, and they are the only reason the
+            bridge matters. Reading structure and exporting an image do NOT:
+            figma_find_nodes and figma_export_frame go straight to the REST
+            API and keep working with Figma closed. Reach for the REST pair
+            whenever you are locating a node or persisting a design reference,
+            and keep the bridge for the build itself.
+         d. FONT CONSTRAINT (hard): when creating or editing text through
+            figma_execute, load and use ONLY Figma-bundled families - "Inter"
+            for UI text and "Roboto Mono" for identifiers, references and
+            money. Do NOT call loadFontAsync on IBM Plex or any other
+            system-installed family: the call never resolves, stalls the
+            plugin sandbox, and the tool call dies on timeout. Set the current
+            page with await figma.setCurrentPageAsync(page) - assigning
+            figma.currentPage is rejected by the bridge.
+         e. Create (or reuse) a PAGE named "<EPIC-KEY> — <short name>" and put
+            this epic's frames on it: the design-system page is a reference
+            and must never be edited, and keeping ticket work on its own page
+            means it can be cleared without touching the system. Name the
+            frames "<EPIC-KEY> BEFORE" and "<EPIC-KEY> AFTER".
+         f. "BEFORE" frame: do NOT redraw the current screen. Create one frame
+            sized to the screenshot, put a single rectangle in it, and apply
+            the screenshot itself with figma_set_image_fill (imageData is the
+            base64 PNG from the browser capture, scaleMode FILL). The current
+            state is evidence, so it belongs in the review verbatim -
+            redrawing it wastes turns, invites an endless fidelity loop, and
+            quietly flatters a UI whose ugliness is the entire point of the
+            comparison. One call, no iteration, no rebuilding.
+         g. "AFTER" frame applying the Meridian Design Language 3.0 spec page
+            in the same Figma file (design tokens: colors, type scale,
+            spacing, components). The Figma design-language page is the source
+            of truth for tokens - read it via figma tools, do not invent
+            tokens. Verify it with figma_capture_screenshot.
+         h. FREEZE THE SPEC. Implementation must never depend on a live design
+            tool, so capture everything the build needs while the bridge is up
+            and commit it:
+              - docs/design/<EPIC-KEY>-spec.md — the exact values read from
+                the AFTER frame (figma_get_component_for_development on it):
+                every colour with its hex and token name, type sizes and
+                weights, spacing, border radii, component states, and the
+                column list and order for tables. Numbers, not adjectives.
+              - docs/design/<EPIC-KEY>-after.png — the frame image, via
+                figma_find_nodes (to get the node id) then figma_export_frame.
+                Those two run over the REST API and need no plugin, so an
+                approved design can always be captured even if the bridge has
+                dropped or Figma is closed.
+              - docs/design/<EPIC-KEY>-before.png — the captured current
+                state, for the PR's side-by-side.
+
+      7. Publish plan and design together as one reviewable artifact. They are
+      the deliverable, so they travel through source control, not a wiki:
+         a. Branch from the integration trunk, never from main:
+            git checkout demo-integration && git pull && git checkout -b
+            docs/<EPIC-KEY>-modernization-plan
+            Pull requests target demo-integration, so branching anywhere else
+            makes the PR diff carry every commit the two branches differ by -
+            work nobody in this ticket did.
+         b. Commit PLAN.md together with the design spec and both PNGs
+            (message "[<EPIC-KEY>] Modernization plan and design"), push the
+            branch, and open a documentation pull request with gh CLI:
+            gh pr create --title "[<EPIC-KEY>] Modernization plan and design"
+            --body-file <tmp>
+            The PR body summarizes the target state, the proposed subtasks,
+            the equivalence strategy, and embeds the before/after images so
+            the design is reviewable in the PR itself. This PR is the review
+            surface - it is not merged until the plan is approved.
+         c. Attach PLAN.md to the epic itself via jira_attach_file so the
+            approver has the document without leaving the tracker. Attach
+            <EPIC-KEY>-after.png as well.
+      Capture the PR URL, the Figma page URL and the attachment filenames.
+
+      8. Request approval on the epic via jira_add_comment using this
       structure:
          ```
-         📋 Modernization Plan Ready for Review
+         📋 Modernization Plan and Design Ready for Review
 
          **Plan document:** attached to this issue (PLAN.md)
+         **Design:** <FIGMA_URL> (before/after frames; after-frame attached)
          **Review PR:** <PR_URL>
 
          **Grounding:** analyzed <N> endpoints, <N> pages, <N> dependencies
@@ -143,19 +239,26 @@ customModes:
 
          **Key decisions:** [1-3 bullets]
 
-         Reply "plan approved" to create the subtasks and begin, or leave
-         feedback to revise.
+         **Shaped with the requester:** [what changed after the walk-through,
+         or "no changes requested"]
+
+         Reply "approved" to create the subtasks and begin, or leave feedback
+         to revise.
          ```
 
-      7. Move epic to In Review. STOP for this ticket. Do NOT create subtasks
-      or write code before plan approval.
+      9. Move epic to In Review. STOP for this ticket. Do NOT create subtasks
+      or write code before approval.
 
 
-      PHASE 2R: REVISE PLAN - read feedback, update PLAN.md by APPENDING a
-      revision section (never rewrite committed history), commit and push to
-      the same docs branch, re-attach the updated document to the epic, post a
-      comment mapping each revision to the quoted feedback, back to In Review.
-      STOP.
+      PHASE 2R: REVISE PLAN OR DESIGN - read the feedback and decide what it
+      touches. For the plan: update PLAN.md by APPENDING a revision section
+      (never rewrite committed history). For the design: update the EXISTING
+      frames on the epic's Figma page rather than creating a second set - a
+      review is against a moving artifact, not a gallery - then re-freeze the
+      spec and re-export the AFTER png. Either way, commit and push to the
+      same docs branch, re-attach the updated artifacts to the epic, post a
+      comment mapping each revision to the quoted feedback, and move back to
+      In Review. STOP.
 
 
       PHASE 3: CREATE SUBTASKS (only after plan approval)
@@ -173,106 +276,21 @@ customModes:
       Progress. Then route the first subtask per PHASE 1 classification.
 
 
-      PHASE 4A: FRONTEND DESIGN (design always precedes frontend code)
+      PHASE 4: IMPLEMENT FRONTEND (design was approved in PHASE 2)
 
 
-      1. Subtask to In Progress.
-
-      2. Capture reality first: ensure the app is running (npm start, port
-      4600; fix startup errors up to 2 retries). browser_action screenshot of
-      the affected page = before_screenshot. Close browser.
-
-      3. figma_get_status first. The plugin attaches to the bridge a few
-      seconds after the connection opens, so a single "not connected" reply is
-      not a verdict: retry status up to three times, a few seconds apart,
-      before concluding the bridge is down. Do NOT call figma_reconnect to
-      recover: every reconnect can raise another bridge server, the plugin
-      attaches to only one of them, and the extra instances are themselves the
-      usual cause of a connection that appears to keep dropping. If status
-      still reports unavailable after three checks, stop and report it. If it is genuinely down, post a
-      Jira comment asking the user to run Plugins → Development → Figma
-      Desktop Bridge → Run, then stop this ticket and move on.
-
-      3a. WHICH FIGMA TOOLS TO USE. Creating or changing canvas content is
-      only possible through the Desktop Bridge plugin: figma_execute and
-      figma_set_image_fill need it, and they are the only reason the bridge
-      matters. Reading structure and exporting an image do NOT: figma_find_nodes
-      and figma_export_frame go straight to the REST API and keep working with
-      Figma closed. Reach for the REST pair whenever you are locating a node or
-      persisting a design reference, and keep the bridge for the build itself.
-
-      3b. FONT CONSTRAINT (hard): when creating or editing text through
-      figma_execute, load and use ONLY Figma-bundled families - "Inter" for UI
-      text and "Roboto Mono" for identifiers, references and money. Do NOT
-      call loadFontAsync on IBM Plex or any other system-installed family: the
-      call never resolves, stalls the plugin sandbox, and the tool call dies on
-      timeout. Set the current page with await figma.setCurrentPageAsync(page)
-      - assigning figma.currentPage is rejected by the bridge.
-
-      4. Build the design in the project Figma file. Create (or reuse) a PAGE
-      named "<TICKET-KEY> — <short name>" and put this ticket's frames on it:
-      the design-system page is a reference and must never be edited, and
-      keeping ticket work on its own page means it can be cleared without
-      touching the system. Name the frames "<TICKET-KEY> BEFORE" and
-      "<TICKET-KEY> AFTER":
-         a. "BEFORE" frame: do NOT redraw the current screen. Create one frame
-            sized to the screenshot, put a single rectangle in it, and apply
-            the screenshot itself with figma_set_image_fill (imageData is the
-            base64 PNG from the browser capture, scaleMode FILL). The current
-            state is evidence, so it belongs in the review verbatim - redrawing
-            it wastes turns, invites an endless fidelity loop, and quietly
-            flatters a UI whose ugliness is the entire point of the comparison.
-            One call, no iteration, no rebuilding.
-         b. "After" frame applying the Meridian Design Language 3.0 spec page
-            in the same Figma file (design tokens: colors, type scale,
-            spacing, components). The Figma design-language page is the source
-            of truth for tokens - read it via figma tools, do not invent
-            tokens.
-         c. Verify the after frame with figma_capture_screenshot.
-         d. FREEZE THE SPEC. Implementation must never depend on a live design
-            tool, so capture everything the build needs while the bridge is up
-            and commit it:
-              - docs/design/<TICKET-KEY>-spec.md — the exact values read from
-                the AFTER frame (figma_get_component_for_development on it):
-                every colour with its hex and token name, type sizes and
-                weights, spacing, border radii, component states, and the
-                column list and order for tables. Numbers, not adjectives.
-              - docs/design/<TICKET-KEY>-after.png — the frame image, via
-                figma_find_nodes (to get the node id) then figma_export_frame.
-                Those two run over the REST API and need no plugin, so an
-                approved design can always be captured even if the bridge has
-                dropped or Figma is closed.
-              - docs/design/<TICKET-KEY>-before.png — the captured current
-                state, for the PR's side-by-side.
-            Commit these with the design so the approved design is a versioned
-            artifact rather than a link that can rot.
-
-      5. Subtask to In Review. Post the design comment:
-         ```
-         🎨 Design Proposal Ready for Review
-
-         **Figma:** <URL>
-
-         **Proposed changes:** [bullets]
-
-         **Design tokens applied:** [which Meridian DL 3.0 tokens]
-
-         Reply "approved" to proceed, or leave feedback.
-         ```
-      STOP for this ticket.
-
-
-      PHASE 4B: IMPLEMENT FRONTEND (after design approval)
-
-
-      1. Subtask to In Progress; comment "Design approved - implementing.
+      1. Subtask to In Progress; comment "Implementing the approved design.
       Branch: feature/<TICKET-KEY>-<desc>".
 
-      2. Branch from main: git checkout main && git pull && git checkout -b
+      2. Branch from the integration trunk (PRs target it, so branching
+      elsewhere pollutes the diff): git checkout demo-integration && git pull
+      && git checkout -b
       feature/<TICKET-KEY>-<desc>.
 
-      3. Implement from docs/design/<TICKET-KEY>-spec.md and the committed
-      -after.png, NOT from a live Figma session: the spec was frozen at
+      3. Implement from docs/design/<EPIC-KEY>-spec.md and the committed
+      docs/design/<EPIC-KEY>-after.png, NOT from a live Figma session (the
+      EPIC key, because the design was frozen at plan approval, before this
+      subtask existed): the spec was frozen at
       approval precisely so the build cannot be blocked by a design tool being
       closed. Use the recorded values verbatim - never re-derive a colour or a
       size by eye. Add the compliance header to changed files and write the
@@ -280,7 +298,7 @@ customModes:
 
       4. FIDELITY CHECK (one pass, fast): restart the app, browser_action
       screenshot the implemented page, and compare it against the committed
-      docs/design/<TICKET-KEY>-after.png - no Figma connection required. Check
+      docs/design/<EPIC-KEY>-after.png - no Figma connection required. Check
       colours, spacing, type, layout and content. Fix the CODE (never the
       approved design), re-compare, at most 2 iterations; if it still differs
       materially, post the specific discrepancies to Jira and stop before the
@@ -301,15 +319,11 @@ customModes:
       8. Subtask to In Review; Jira comment with PR URL.
 
 
-      PHASE 4C: REVISE DESIGN - update the EXISTING frames per feedback,
-      verify via screenshot, back to In Review with a comment mapping
-      revisions to quoted feedback. STOP.
-
-
       PHASE 5: IMPLEMENT BACKEND (equivalence-proven modernization)
 
 
-      1. Subtask to In Progress; branch feature/<TICKET-KEY>-<desc> from main.
+      1. Subtask to In Progress; branch feature/<TICKET-KEY>-<desc> from
+      demo-integration (the trunk every PR targets), not from main.
 
       2. GOLDEN TESTS FIRST - before touching the legacy code:
          a. Start the legacy app. For every endpoint in scope, capture golden
@@ -366,10 +380,69 @@ customModes:
       conversations yourself.
 
 
+      PHASE 7: DEPLOY AND ACTIVATE (a merged pull request is the go signal)
+
+
+      Merging is the approval that matters: it means the change passed the
+      guardrail gate and a human accepted it. Nothing announces it in Jira, so
+      PHASE 1 looks for it in GitHub. When a ticket's PR is merged and the
+      work is not yet deployed:
+
+      1. Confirm the merge from gh, never from memory:
+         gh pr view <n> --json state,mergedAt,mergeCommit
+      state must be MERGED. If it is CLOSED without a merge, comment on the
+      ticket and stop - a closed PR is a rejection, not a release.
+
+      2. Sync the trunk: git checkout demo-integration && git pull. Everything
+      below deploys from this branch, so that the thing running is provably
+      the thing that was reviewed.
+
+      3. Run the full suite (npm test) and, for backend work, the equivalence
+      suite. A merge is not a substitute for a green build on the merged
+      result. If either fails, stop, comment the failure on the ticket, and do
+      not deploy.
+
+      4. Bring up the modernized console so a human can see it:
+         - restart the app on port 4600 from demo-integration,
+         - confirm it serves (curl the affected page, expect HTTP 200),
+         - browser_action screenshot the modernized screen as evidence.
+      The point of the whole exercise is a working screen, so the run is not
+      finished until one is actually reachable.
+
+      5. Deploy the agent-facing service (use_skill: agent-enablement):
+         - build and push the MCP/API service image,
+         - deploy it and capture the public URL,
+         - health-check that URL and quote the response,
+         - register or update the toolkit on watsonx Orchestrate so the
+           existing agent - and the phone number already bound to it - now
+           answers from the modernized service,
+         - verify the identity boundary still holds: one authorized read that
+           succeeds, one write attempt that is refused. Quote both. A
+           deployment that cannot demonstrate the refusal is not finished.
+
+      6. Comment the result on the ticket with jira_add_comment:
+         ```
+         🚀 Deployed
+
+         **Merged PR:** <PR_URL> (<merge-commit>)
+         **Console:** http://localhost:4600<path> (screenshot attached)
+         **Service:** <public-url> — health: <quoted response>
+         **Agent:** <agent name> updated; voice line unchanged
+         **Identity check:** read OK / write refused ("<quoted refusal>")
+         **Tests:** <N> passing · equivalence <N> cases, 0 diffs
+         ```
+      Attach the screenshot of the modernized screen.
+
+      7. Move the subtask to Done ONLY if the reviewer has already accepted
+      the work by merging; otherwise leave it In Review and say why. Then
+      return to PHASE 1 and pick up the next ticket.
+
+
       CRITICAL RULES:
 
-      1. NEVER write code before the epic's plan is approved; NEVER write
-      frontend code before its design is approved.
+      1. NEVER write code before the epic's plan is approved. Plan and design
+      are approved together, at one gate, in PHASE 2 - there is no separate
+      design approval and no frontend code before that single approval.
 
       2. NEVER rewrite a backend endpoint without golden equivalence tests
       captured from the legacy behavior FIRST, and never open a backend PR
@@ -377,7 +450,8 @@ customModes:
 
       3. Plans and designs are grounded in reality: subagent analysis with
       file references; before-frames from live screenshots, never from
-      imagination.
+      imagination. Deployment claims are grounded the same way: quote the
+      health check and the refusal, never assert that a service is up.
 
       4. All GitHub operations use the gh CLI. Never invent PR/issue state -
       quote gh output.
