@@ -22,6 +22,9 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var Database = require('better-sqlite3');
+var helmet = require('helmet');
+var pino = require('pino');
+var { query, validationResult } = require('express-validator');
 var utils = require('./utils');
 var seed = require('./seed');
 
@@ -41,12 +44,12 @@ var AS_OF_DATE = '2026-08-01';
 var SMTP_HOST = 'smtprelay.meridiancorp.internal';
 var SMTP_PORT = 25;
 var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
+var SMTP_PASS = process.env.SMTP_PASSWORD;          /* Rule 01: secret from env — export SMTP_PASSWORD */
 var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
 var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
+var ERP_FEED_KEY = process.env.ERP_POLL_KEY;        /* Rule 01: secret from env — export ERP_POLL_KEY */
 var ERP_FEED_ROWS = 200;
 
 /* the approval limit above which an item must be second-checked */
@@ -57,8 +60,12 @@ var app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(helmet());
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+/* structured request logging — pino (rule 04 approved) */
+var logger = pino({ level: 'info' });
 
 /* ------------------------------------------------------------------
  * database
@@ -522,33 +529,73 @@ function scoreRow(row) {
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
  * ------------------------------------------------------------------ */
 
-app.get('/api/payment-status', function (req, res) {
-	var ref = req.query.ref;
-	var invoice = req.query.invoice;
+/* ---------------------------------------------------------------------------
+ * Function: GET /api/payment-status
+ * Owner:    payments-platform-team
+ * Control:  SI-10, AC-3   (SOX/PCI: PCI Req. 6.5.1, PCI Req. 7; SOX ITGC)
+ * Reviewed: 2026-08-12
+ *
+ * KAN-26 — Hardened replacement for the legacy SQL-concatenation handler.
+ * Accepts ?ref=<payment_ref> or ?invoice=<invoice_no>.
+ * All SQL is parameterized; inputs are validated at the route boundary.
+ * Legacy handler removed; this is the sole handler for this path.
+ * --------------------------------------------------------------------------- */
+var VALID_REF_RE = /^[A-Za-z0-9\-]{1,40}$/;
+
+var paymentStatusValidation = [
+	query('ref')
+		.optional()
+		.matches(VALID_REF_RE).withMessage('ref must be alphanumeric with hyphens, max 40 chars'),
+	query('invoice')
+		.optional()
+		.matches(VALID_REF_RE).withMessage('invoice must be alphanumeric with hyphens, max 40 chars')
+];
+
+app.get('/api/payment-status', paymentStatusValidation, function (req, res) {
+	/* log every inbound API request */
+	logger.info({ endpoint: 'payment-status', ref: req.query.ref, invoice: req.query.invoice }, 'request');
+
+	/* (1) validate inputs */
+	var errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ ERR: 'INVALID_INPUT', msg: errors.array()[0].msg });
+	}
+
+	var ref = req.query.ref || null;
+	var invoice = req.query.invoice || null;
 	if (!ref && !invoice) {
-		res.status(400).json({ ERR: 'MISSING_REF', msg: 'ref or invoice parameter is required' });
-		return;
+		return res.status(400).json({ ERR: 'MISSING_REF', msg: 'ref or invoice parameter is required' });
 	}
 
-	/* the enquiry desk pass the payment reference, the vendors on the
-	   phone only ever have their own invoice number */
-	var lookup = " AND e.payment_ref = '" + ref + "' ";
-	if (!ref) {
-		lookup = " AND e.invoice_no = '" + invoice + "' ";
+	/* (2) parameterized lookup — no string concatenation (rule 01) */
+	var row;
+	if (ref) {
+		row = db.prepare(
+			'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
+			'k.initials AS clerk_initials FROM exceptions e ' +
+			'JOIN vendors v ON v.id = e.vendor_id ' +
+			'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
+			'WHERE e.payment_ref = ?'
+		).get(ref);
+	} else {
+		row = db.prepare(
+			'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
+			'k.initials AS clerk_initials FROM exceptions e ' +
+			'JOIN vendors v ON v.id = e.vendor_id ' +
+			'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
+			'WHERE e.invoice_no = ?'
+		).get(invoice);
 	}
 
-	var row = queryOne(
-		"SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, " +
-		"k.initials AS clerk_initials FROM exceptions e, vendors v " +
-		"LEFT JOIN ap_clerks k ON k.id = e.clerk_id " +
-		"WHERE e.vendor_id = v.id " + lookup
-	);
-
-	if (row === null) {
-		res.status(404).json({ ERR: 'NOT_FOUND', PaymentRef: (ref ? ref : ''), InvoiceNo: (invoice ? invoice : '') });
-		return;
+	if (!row) {
+		return res.status(404).json({
+			ERR: 'NOT_FOUND',
+			PaymentRef: ref || '',
+			InvoiceNo: invoice || ''
+		});
 	}
 
+	/* (3) typed-JSON response — field names preserved from legacy (equivalence requirement) */
 	var out = {};
 	out.PaymentRef = row.payment_ref;
 	out.InvoiceNo = row.invoice_no;
@@ -581,26 +628,50 @@ app.get('/api/payment-status', function (req, res) {
 	out.retcode = '0000';
 	out.asOfDate = AS_OF_DATE;
 
-	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(out));
+	res.json(out);
 });
 
-app.get('/api/risk-score', function (req, res) {
+/* ---------------------------------------------------------------------------
+ * Function: GET /api/risk-score
+ * Owner:    payments-platform-team
+ * Control:  SI-10, AC-3   (SOX/PCI: PCI Req. 6.5.1, PCI Req. 7; SOX ITGC)
+ * Reviewed: 2026-08-12
+ *
+ * KAN-26 — Hardened replacement for the legacy SQL-concatenation handler.
+ * Accepts ?ref=<payment_ref>.  All SQL is parameterized; ref is validated.
+ * Legacy handler removed; this is the sole handler for this path.
+ * --------------------------------------------------------------------------- */
+var riskScoreValidation = [
+	query('ref')
+		.notEmpty().withMessage('ref parameter is required')
+		.matches(VALID_REF_RE).withMessage('ref must be alphanumeric with hyphens, max 40 chars')
+];
+
+app.get('/api/risk-score', riskScoreValidation, function (req, res) {
+	logger.info({ endpoint: 'risk-score', ref: req.query.ref }, 'request');
+
+	/* (1) validate */
+	var errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		/* preserve legacy 400 shape: { ERR: 'MISSING_REF' } */
+		return res.status(400).json({ ERR: 'MISSING_REF' });
+	}
+
 	var ref = req.query.ref;
-	if (!ref) {
-		res.status(400).json({ ERR: 'MISSING_REF' });
-		return;
+
+	/* (2) parameterized lookup */
+	var row = db.prepare(
+		'SELECT e.*, v.country AS country, v.new_vendor AS new_vendor ' +
+		'FROM exceptions e ' +
+		'JOIN vendors v ON v.id = e.vendor_id ' +
+		'WHERE e.payment_ref = ?'
+	).get(ref);
+
+	if (!row) {
+		return res.status(404).json({ ERR: 'NOT_FOUND', REF: ref });
 	}
 
-	var row = queryOne(
-		"SELECT e.*, v.country AS country, v.new_vendor AS new_vendor FROM exceptions e, vendors v " +
-		"WHERE e.vendor_id = v.id AND e.payment_ref = '" + ref + "'"
-	);
-	if (row === null) {
-		res.status(404).json({ ERR: 'NOT_FOUND', REF: ref });
-		return;
-	}
-
+	/* (3) score and respond — field names preserved from legacy */
 	var scored = scoreRow(row);
 	var out = {};
 	out.REF = row.payment_ref;
@@ -620,8 +691,7 @@ app.get('/api/risk-score', function (req, res) {
 	out.model = 'APRSK01';
 	out.retcode = '0000';
 
-	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(out));
+	res.json(out);
 });
 
 /* the ERP batch bridge cannot consume JSON so this stays XML */
