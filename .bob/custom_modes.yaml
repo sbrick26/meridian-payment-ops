@@ -196,15 +196,19 @@ customModes:
       reading its result. If you did not spawn it, do the work here yourself -
       but that is the slow path, and it is the whole design sitting on the
       critical path for no reason. What that subagent does, or you do:
-         a. Confirm reality first: ensure the app is running (npm start, port
-            4600; fix startup errors up to 2 retries) and that the screen in
-            scope actually serves. The current-state image itself is already a
-            committed artifact - docs/design/legacy-held-payments.png, a real
-            capture of this page from the running app - so do NOT screenshot
-            it through the browser tool. A full-page capture returns roughly
-            420KB of base64, about 105,000 tokens, into the conversation; that
-            is what emptied the BEFORE frame on earlier runs. Use the
-            committed file.
+         a. THE DESIGN NEEDS NOTHING RUNNING. Do not start the app, do not
+            call ops_start_console, do not check port 4600 - none of it is a
+            prerequisite for drawing. The current-state image is the committed
+            fixture docs/design/legacy-held-payments.png, and the render call
+            loads it automatically even if you omit the parameter. A run that
+            decided the app "needed to run and be captured" spent its design
+            step on console restarts, npx installs and approval prompts, and
+            still shipped a page with no BEFORE frame.
+            NEVER capture the legacy screenshot live - not with the browser
+            tool, not with npx capture-website-cli, not with anything. If the
+            fixture is missing the render call fails with a message that says
+            so: report that as a setup failure and stop the design. A missing
+            committed file is restored with git, not re-photographed.
          b. DO NOT CHECK THE BRIDGE FIRST - just draw. figma_get_status is a
             snapshot, the plugin takes six to ten seconds to attach after a
             server starts, and a single early check reports "not connected"
