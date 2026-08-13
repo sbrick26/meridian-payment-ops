@@ -1,4 +1,10 @@
-// Meridian Design Language 3.0 — Held Payments, target state.
+// Meridian Design Language 3.0 — screen renderer for Figma.
+//
+// Renders a data-table screen from MDL 3.0 tokens: masthead and nav, page
+// header, filter bar, table with status and risk chips, pagination, footnote.
+// What it draws comes entirely from its parameters - the tokens read from the
+// design-language page, the rows, and the copy - so it is the design system
+// expressed once as code rather than a picture of one screen.
 //
 // This is the drawing code for the AFTER frame, committed rather than
 // generated. An agent writing a screen's worth of plugin JavaScript spends

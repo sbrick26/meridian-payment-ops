@@ -66,7 +66,7 @@ globalThis.PARAMS = {
   meta: { subtitle: 's', summary: 'q', pageNote: 'p', footnote: 'f' },
 };
 
-const src = readFileSync(path.join(HERE, 'held-payments-after.js'), 'utf8');
+const src = readFileSync(path.join(HERE, 'render-screen.js'), 'utf8');
 let failed = false;
 process.on('unhandledRejection', (e) => { console.error('FAIL:', e.message); failed = true; });
 
