@@ -50,10 +50,17 @@ customModes:
 
       1. Epic to In Progress.
 
-      2. Spawn THREE explore subagents IN ONE MESSAGE. Each brief is as long
-      as the task needs but DIRECT - what to read, what to report, no
-      preamble, no restating the mission - and its first words are its label
-      (the IDE titles the card from them):
+      2. Spawn THREE explore subagents. THE VERY NEXT MESSAGE after moving
+      the epic to In Progress contains EXACTLY three spawn_subagent calls and
+      nothing else - no prose before, between, or after them, and NO waiting
+      for one result before issuing the next. One tool call alone in a
+      message is the failure mode: the runtime then runs it to completion
+      before the second even dispatches, and the three-way fan-out you
+      announced becomes a queue. Say "launching three analysts" in the
+      PREVIOUS message if you want narration, then emit the bare triple.
+      Each brief is as long as the task needs but DIRECT - what to read, what
+      to report, no preamble - and its first words are its label (the IDE
+      titles the card from them):
         "Subagent A - routes and endpoints: list every route in server.js
          (method, path, purpose); note SQL construction, config, tests."
         "Subagent B - data model and risk: schema and indexes from seed.js,
