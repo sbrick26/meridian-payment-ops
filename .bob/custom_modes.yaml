@@ -215,6 +215,10 @@ customModes:
               nodeId: <the rectangle's id>
               image_path: docs/design/legacy-held-payments.png
               scaleMode: FILL
+            Apply it to the RECTANGLE inside the BEFORE frame and to nothing
+            else. Applying an image fill to a frame makes it that frame's
+            background: done to the AFTER frame it puts the old screen behind
+            the new design, and the two render on top of each other.
             Use that tool and never figma_set_image_fill directly: the
             path-based one loads the bytes inside the MCP server, so the image
             never passes through the conversation. Passing base64 as a tool
@@ -352,7 +356,22 @@ customModes:
       backend +4d, later workstreams +1-2 weeks).
 
       3. Comment on the epic listing created subtask keys. Move epic to In
-      Progress. Then route the first subtask per PHASE 1 classification.
+      Progress.
+
+      4. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. The subtasks of an epic
+      touch different files - backend in routes/api-v2/, agent enablement in
+      routes/mcp-endpoint.js and vault/, frontend in views/ and public/ - so
+      they can be written at the same time. Spawn one subagent per slice with
+      its own file scope, and keep server.js for yourself: it is the only file
+      two slices both need, and the parent editing it is what stops them
+      overwriting each other.
+      One branch, one pull request, one gate for the epic's implementation.
+      Three branches would need three worktrees, and three pull requests means
+      three gate runs and three merges to answer one question - is this epic's
+      work good. Name the branch feature/<EPIC-KEY>-implementation and cite
+      every subtask key in the pull request body, so each ticket still traces
+      to the change.
+      Move each subtask to In Review as its slice lands, and route per PHASE 1.
 
 
       PHASE 4: IMPLEMENT FRONTEND (design was approved in PHASE 2)
@@ -366,7 +385,22 @@ customModes:
       && git checkout -b
       feature/<TICKET-KEY>-<desc>.
 
-      3. Implement from docs/design/<EPIC-KEY>-spec.md and the committed
+      3. START FROM THE COMMITTED STYLESHEET. public/mdl-3.css is Meridian
+      Design Language 3.0 as CSS, carrying the same values the Figma script
+      draws, so the frame and the screen cannot drift. Applying it is:
+         - link it in views/partials/header.ejs AFTER payops.css (it overrides
+           deliberately),
+         - make the small markup edits the spec calls for - the status and risk
+           chips in particular, because the legacy screen encodes risk as row
+           colour alone and that has to become a labelled chip,
+         - delete the Bootstrap 2 and jQuery 1.9.1 tags from this view.
+      Do not author a stylesheet. Writing several hundred lines of CSS from the
+      spec costs minutes of generation, comes out slightly different every run,
+      and produces a diff no reviewer will read. If the spec needs something
+      the stylesheet lacks, add it to public/mdl-3.css and say so - a design
+      system in a file can be reviewed; one improvised per run cannot.
+
+      3b. Implement from docs/design/<EPIC-KEY>-spec.md and the committed
       docs/design/<EPIC-KEY>-after.png, NOT from a live Figma session (the
       EPIC key, because the design was frozen at plan approval, before this
       subtask existed): the spec was frozen at

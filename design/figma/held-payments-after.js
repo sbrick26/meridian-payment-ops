@@ -24,7 +24,7 @@ const C = {
   navy: T.navy900 || '#101827',
   surface: T.surface || '#ffffff',
   subdued: T.surfaceSubdued || '#edeff3',
-  canvas: T.canvas || '#f7f8fa',
+  canvas: T.canvas || '#ffffff',
   border: T.border || '#d6dae2',
   text: T.textPrimary || '#10151f',
   muted: T.textSecondary || '#5a6577',
@@ -65,6 +65,11 @@ const C = {
   frame.resize(W, H);
   frame.x = PARAMS.x || 0;
   frame.y = PARAMS.y || 0;
+  // Set the fill explicitly every run. A previous run left the legacy
+  // screenshot as this frame's own background - an image fill applied to the
+  // frame instead of to the BEFORE rectangle - so the modern design rendered
+  // on top of the old screen and the two read as one overlapping mess.
+  // Assigning a solid fill here clears whatever was there.
   frame.fills = solid(C.canvas);
   page.appendChild(frame);
 

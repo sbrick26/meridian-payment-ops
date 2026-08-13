@@ -1,0 +1,188 @@
+/* Meridian Design Language 3.0 — Held Payments
+ *
+ * The design system as a stylesheet, committed rather than generated. The
+ * values here are the ones frozen in docs/design/<EPIC-KEY>-spec.md and drawn
+ * by design/figma/held-payments-after.js, so the Figma frame and the running
+ * screen cannot drift apart: both read the same numbers.
+ *
+ * It restyles the existing markup rather than replacing it. The legacy view
+ * already carries the right class names - .filter-bar, .result-summary,
+ * .page-header, .ref, .num, .cust - so applying MDL 3.0 is a stylesheet swap
+ * plus the small markup edits the spec calls for, not a rewrite. That keeps
+ * the change reviewable: a diff a person can read in a minute.
+ *
+ * Load it AFTER payops.css; it deliberately overrides.
+ */
+
+:root {
+  --mdl-action:          #1f5fd6;
+  --mdl-action-pressed:  #17489f;
+  --mdl-navy-900:        #101827;
+  --mdl-charcoal-800:    #1e2532;
+  --mdl-surface:         #ffffff;
+  --mdl-surface-subdued: #edeff3;
+  --mdl-canvas:          #f7f8fa;
+  --mdl-border:          #d6dae2;
+  --mdl-border-strong:   #a7b0bf;
+  --mdl-text:            #10151f;
+  --mdl-text-secondary:  #5a6577;
+  --mdl-text-inverse:    #ffffff;
+  --mdl-success:         #1e7a52;
+  --mdl-warning:         #a66a0a;
+  --mdl-critical:        #b3261e;
+
+  --mdl-radius:   4px;
+  --mdl-space-1:  4px;
+  --mdl-space-2:  8px;
+  --mdl-space-3: 16px;
+  --mdl-space-4: 24px;
+  --mdl-space-5: 32px;
+
+  --mdl-font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  --mdl-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* --- page ---------------------------------------------------------- */
+body {
+  background: var(--mdl-canvas) !important;
+  background-image: none !important;
+  font-family: var(--mdl-font);
+  /* 10px body text is the single loudest accessibility problem on the legacy
+     screen; 14px is the smallest size the spec allows for data. */
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mdl-text);
+}
+.container { max-width: 1440px; }
+
+/* --- masthead ------------------------------------------------------ */
+.navbar, .navbar-inner {
+  background: var(--mdl-navy-900) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: 56px;
+}
+.navbar .brand, .navbar .nav > li > a {
+  color: #c7cdd8 !important;
+  text-shadow: none !important;
+  font-size: 13px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+.navbar .brand { font-family: var(--mdl-mono); letter-spacing: 1.1px; font-size: 12px; }
+.navbar .nav > .active > a {
+  color: var(--mdl-text-inverse) !important;
+  background: transparent !important;
+  box-shadow: inset 0 -2px 0 var(--mdl-action);
+  font-weight: 600;
+}
+
+/* --- page header --------------------------------------------------- */
+.breadcrumb {
+  background: transparent; padding: var(--mdl-space-3) 0 0 0; margin: 0;
+  font-size: 11px; color: var(--mdl-text-secondary); border-radius: 0;
+}
+.breadcrumb > li + li:before { content: "/"; padding: 0 var(--mdl-space-2); color: var(--mdl-border-strong); }
+.page-header {
+  border-bottom: 0; margin: var(--mdl-space-2) 0 var(--mdl-space-3);
+  padding-bottom: 0;
+}
+.page-header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.2px; color: var(--mdl-text); }
+.page-header small { font-size: 13px; color: var(--mdl-text-secondary); margin-left: var(--mdl-space-3); }
+
+/* --- filter bar ---------------------------------------------------- */
+.filter-bar {
+  background: var(--mdl-surface-subdued);
+  border: 1px solid var(--mdl-border);
+  border-radius: var(--mdl-radius);
+  padding: var(--mdl-space-3);
+  margin-bottom: var(--mdl-space-3);
+}
+.filter-bar .field { display: inline-block; margin-right: var(--mdl-space-3); vertical-align: bottom; }
+.filter-bar label {
+  display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--mdl-text-secondary); margin-bottom: var(--mdl-space-1);
+}
+.filter-bar input[type="text"], .filter-bar select {
+  height: 34px; border: 1px solid var(--mdl-border); border-radius: var(--mdl-radius);
+  background: var(--mdl-surface); color: var(--mdl-text); font-size: 13px;
+  padding: 0 var(--mdl-space-2); box-shadow: none; margin: 0;
+}
+.filter-bar input[type="text"]:focus, .filter-bar select:focus {
+  border-color: var(--mdl-action); outline: 2px solid rgba(31,95,214,0.25); outline-offset: 0;
+}
+
+/* --- buttons ------------------------------------------------------- */
+.btn {
+  height: 34px; padding: 0 var(--mdl-space-3); border-radius: var(--mdl-radius);
+  border: 1px solid var(--mdl-border); background: var(--mdl-surface);
+  background-image: none; box-shadow: none; text-shadow: none;
+  font-size: 13px; color: var(--mdl-text); line-height: 32px;
+}
+.btn:hover { background: var(--mdl-surface-subdued); }
+.btn-primary {
+  background: var(--mdl-action) !important; background-image: none !important;
+  border-color: var(--mdl-action); color: var(--mdl-text-inverse); font-weight: 600;
+}
+.btn-primary:hover { background: var(--mdl-action-pressed) !important; }
+.btn:focus-visible { outline: 2px solid var(--mdl-action); outline-offset: 2px; }
+
+/* --- results summary ----------------------------------------------- */
+.result-summary { font-size: 12px; color: var(--mdl-text-secondary); margin-bottom: var(--mdl-space-2); }
+
+/* --- table --------------------------------------------------------- */
+table.table {
+  background: var(--mdl-surface); border: 1px solid var(--mdl-border);
+  border-radius: var(--mdl-radius); border-collapse: separate; border-spacing: 0;
+  font-size: 13px;
+}
+table.table th {
+  background: var(--mdl-surface-subdued); color: var(--mdl-text-secondary);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase;
+  padding: var(--mdl-space-2) var(--mdl-space-3); border-bottom: 1px solid var(--mdl-border);
+}
+table.table td {
+  padding: var(--mdl-space-3); border-top: 1px solid var(--mdl-border);
+  vertical-align: middle; color: var(--mdl-text);
+}
+table.table tbody tr:nth-child(even) { background: var(--mdl-canvas); }
+table.table tbody tr:hover { background: #eef3fc; }
+.ref, .num, td.num { font-family: var(--mdl-mono); font-variant-numeric: tabular-nums; }
+.ref a, a.ref { color: var(--mdl-action); text-decoration: none; }
+.ref a:hover { text-decoration: underline; }
+.num { text-align: right; }
+
+/* Risk and status must not be colour-only: the legacy screen shaded whole rows
+   red, which fails WCAG 1.4.1 and disappears in monochrome. Each state gets a
+   labelled chip, so the text carries the meaning and the colour reinforces it. */
+.chip {
+  display: inline-block; padding: 2px var(--mdl-space-2); border-radius: 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;
+}
+.chip-pending   { background: rgba(90,101,119,0.12);  color: var(--mdl-text-secondary); }
+.chip-review    { background: rgba(31,95,214,0.12);   color: var(--mdl-action); }
+.chip-hold      { background: rgba(166,106,10,0.12);  color: var(--mdl-warning); }
+.chip-escalated { background: rgba(179,38,30,0.12);   color: var(--mdl-critical); }
+.chip-low       { background: rgba(30,122,82,0.12);   color: var(--mdl-success); }
+.chip-med       { background: rgba(166,106,10,0.12);  color: var(--mdl-warning); }
+.chip-high      { background: rgba(179,38,30,0.12);   color: var(--mdl-critical); }
+tr.risk-high, tr.risk-HIGH, tr.escalated { background: var(--mdl-surface) !important; }
+
+/* --- pagination ---------------------------------------------------- */
+.pagination ul { box-shadow: none; }
+.pagination ul > li > a {
+  border: 1px solid var(--mdl-border); border-radius: var(--mdl-radius) !important;
+  margin-right: var(--mdl-space-1); color: var(--mdl-text); font-size: 12px;
+}
+.pagination ul > .active > a, .pagination ul > .active > span {
+  background: var(--mdl-action); border-color: var(--mdl-action); color: var(--mdl-text-inverse);
+}
+
+/* --- footer -------------------------------------------------------- */
+.footer, .footnote { font-size: 11px; color: var(--mdl-text-secondary); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn, table.table tbody tr { transition: background-color 120ms ease; }
+}
