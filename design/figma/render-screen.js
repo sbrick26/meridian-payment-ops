@@ -249,10 +249,16 @@ const C = {
 
   figma.currentPage.selection = [frame];
   const beforeFrame = page.findChild((n) => n.name === PARAMS.beforeFrameName);
-  console.log(JSON.stringify({
+  const result = {
     ok: true, page: page.name,
     beforeFrameId: beforeFrame ? beforeFrame.id : null,
     afterFrameId: frame.id,
     rows: (PARAMS.rows || []).length,
-  }));
+  };
+  console.log(JSON.stringify(result));
+  // RETURN the result as well: the execute tool reports the resolved value of
+  // this script, and a run that only logged it got `undefined` back - then
+  // spent three more bridge calls re-discovering the frame ids it had just
+  // created.
+  return result;
 })();
