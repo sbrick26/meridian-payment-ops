@@ -1,6 +1,10 @@
 /* ==================================================================
- * AP Payment Operations Console
- * Meridian Corp - Internal Applications - IT Dept
+ * ---------------------------------------------------------------------------
+ * Function: AP Payment Operations Console — main server
+ * Owner:    payments-platform-team
+ * Control:  AC-3, SI-10   (SOX ITGC; PCI Req. 6.5, 7, 10)
+ * Reviewed: 2026-08-13
+ * ---------------------------------------------------------------------------
  *
  * server.js - main application. Serves the AP screens, the CSV
  * extract, the JSON lookups used by the vendor enquiry desk and the
@@ -13,6 +17,8 @@
  *   2.3.0  CSV extract on the reports screen
  *   2.4.0  filter + paging on the held payments screen
  *   2.4.1  fix for the blank clerk column
+ *   2.5.0  KAN-51: v2 API routes (parameterized SQL), MCP agent endpoint,
+ *           credentials moved to process.env, MDL 3.0 frontend
  *
  * Contact: finance-apps@meridiancorp.example  (ext 4471)
  * ================================================================== */
@@ -23,7 +29,15 @@ var path = require('path');
 var express = require('express');
 var Database = require('better-sqlite3');
 var utils = require('./utils');
+var utilsServer = require('./utils-server');
 var seed = require('./seed');
+
+/* v2 routes (KAN-51 / KAN-54) */
+var paymentStatusV2 = require('./routes/api-v2/payment-status');
+var riskScoreV2     = require('./routes/api-v2/risk-score');
+
+/* MCP agent endpoint (KAN-51 / KAN-52) */
+var mcpEndpoint = require('./routes/mcp-endpoint');
 
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
@@ -38,16 +52,16 @@ var PAGE_SIZE = 25;
 var AS_OF_DATE = '2026-08-01';
 
 /* mail relay - used by the overnight vendor chaser job, not by the screens */
-var SMTP_HOST = 'smtprelay.meridiancorp.internal';
-var SMTP_PORT = 25;
-var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
-var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
+var SMTP_HOST = process.env.SMTP_HOST || 'smtprelay.meridiancorp.internal';
+var SMTP_PORT = parseInt(process.env.SMTP_PORT, 10) || 25;
+var SMTP_USER = process.env.SMTP_USER || 'svc_payops';
+var SMTP_PASS = process.env.SMTP_PASS; /* required from env - no hardcoded fallback */
+var AP_DISTRIBUTION_LIST = process.env.AP_DISTRIBUTION_LIST || 'ap-desk@meridiancorp.example';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
-var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
-var ERP_FEED_ROWS = 200;
+var ERP_FEED_USER = process.env.ERP_FEED_USER || 'ERPBATCH01';
+var ERP_FEED_KEY = process.env.ERP_FEED_KEY; /* required from env - no hardcoded fallback */
+var ERP_FEED_ROWS = parseInt(process.env.ERP_FEED_ROWS, 10) || 200;
 
 /* the approval limit above which an item must be second-checked */
 var APPROVAL_LIMIT_CENTS = 5000000;
@@ -70,6 +84,8 @@ function openDatabase() {
 		seed.build();
 	}
 	db = new Database(DB_FILE);
+	/* expose to v2 routes and MCP endpoint via req.app.locals.db */
+	app.locals.db = db;
 }
 
 function queryAll(sql) {
@@ -516,7 +532,19 @@ function scoreRow(row) {
 }
 
 /* ------------------------------------------------------------------
- * INTERFACES
+ * INTERFACES v2 (KAN-51/KAN-54) - parameterized, validated
+ * /api/v2/payment-status
+ * /api/v2/risk-score
+ * MCP agent endpoint (KAN-51/KAN-52)
+ * /mcp
+ * ------------------------------------------------------------------ */
+
+app.get('/api/v2/payment-status', paymentStatusV2.validate, paymentStatusV2.handler);
+app.get('/api/v2/risk-score',     riskScoreV2.validate,     riskScoreV2.handler);
+app.use('/mcp', mcpEndpoint);
+
+/* ------------------------------------------------------------------
+ * INTERFACES (legacy - deprecated, kept for downstream consumers)
  * /api/payment-status  - vendor payment enquiry (ref or invoice)
  * /api/risk-score      - vendor enquiry desk traffic light
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
@@ -674,12 +702,7 @@ app.get('/api/exceptions.xml', function (req, res) {
 });
 
 function statusDescription(status) {
-	if (status == 'PENDING') { return 'Awaiting first review'; }
-	if (status == 'REVIEW') { return 'Under review by an AP clerk'; }
-	if (status == 'HOLD') { return 'Held - awaiting vendor or goods receipt'; }
-	if (status == 'ESCALATED') { return 'Escalated to AP controls'; }
-	if (status == 'RESOLVED') { return 'Closed - released or returned'; }
-	return 'Unknown';
+	return utilsServer.statusDescription(status);
 }
 
 /* ------------------------------------------------------------------
@@ -719,12 +742,18 @@ app.use(function (req, res) {
 
 openDatabase();
 
-http.createServer(app).listen(PORT, function () {
-	console.log('====================================================');
-	console.log(' ' + APP_NAME + ' v' + APP_VERSION);
-	console.log(' Meridian Corp - IT Dept - Internal Use Only');
-	console.log(' Environment : ' + ENVIRONMENT);
-	console.log(' Listening   : http://localhost:' + PORT + '/');
-	console.log(' Database    : ' + DB_FILE);
-	console.log('====================================================');
-});
+/* When required by the test suite, export app without starting the server.
+   require.main === module is true only when node executes this file directly. */
+if (require.main === module) {
+	http.createServer(app).listen(PORT, function () {
+		console.log('====================================================');
+		console.log(' ' + APP_NAME + ' v' + APP_VERSION);
+		console.log(' Meridian Corp - IT Dept - Internal Use Only');
+		console.log(' Environment : ' + ENVIRONMENT);
+		console.log(' Listening   : http://localhost:' + PORT + '/');
+		console.log(' Database    : ' + DB_FILE);
+		console.log('====================================================');
+	});
+}
+
+module.exports = { app: app };

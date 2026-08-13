@@ -165,6 +165,7 @@ table.table tbody tr:hover { background: #eef3fc; }
 .chip-review    { background: rgba(31,95,214,0.12);   color: var(--mdl-action); }
 .chip-hold      { background: rgba(166,106,10,0.12);  color: var(--mdl-warning); }
 .chip-escalated { background: rgba(179,38,30,0.12);   color: var(--mdl-critical); }
+.chip-resolved  { background: rgba(30,122,82,0.12);   color: var(--mdl-success); }
 .chip-low       { background: rgba(30,122,82,0.12);   color: var(--mdl-success); }
 .chip-med       { background: rgba(166,106,10,0.12);  color: var(--mdl-warning); }
 .chip-high      { background: rgba(179,38,30,0.12);   color: var(--mdl-critical); }

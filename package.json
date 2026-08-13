@@ -1,18 +1,24 @@
 {
   "name": "meridian-payment-ops",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "AP Payment Operations Console - Meridian Corp Internal Applications (IT Dept)",
   "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "test": "jest --testPathPattern=tests/equivalence --forceExit"
   },
   "author": "Meridian Corp IT Dept - Finance Systems Team",
   "license": "UNLICENSED",
   "dependencies": {
     "better-sqlite3": "^12.11.1",
     "ejs": "^3.1.10",
-    "express": "^4.22.2"
+    "express": "^4.22.2",
+    "express-validator": "^7.2.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
