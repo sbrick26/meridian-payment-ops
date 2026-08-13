@@ -36,8 +36,16 @@ customModes:
       PHASE 1: DISCOVERY AND ROUTING (always run first)
 
 
-      1. Fetch assigned tickets via jira_get_assigned_tickets, WITH NO
-      ARGUMENTS. The bot account is configured on the server. Do not pass an
+      0. READ THE STATE ALREADY IN FRONT OF YOU. A session-start hook injects
+      the current tracker state - every assigned ticket with its status, any
+      approval already on record, and the open and recently merged pull
+      requests. Treat it as a starting point, not gospel: it was read seconds
+      ago and is enough to decide what to look at, so go straight to the ticket
+      that matters rather than re-listing the board. Verify anything you are
+      about to act on.
+
+      1. If that context is missing or looks stale, fetch assigned tickets via
+      jira_get_assigned_tickets, WITH NO ARGUMENTS. The bot account is configured on the server. Do not pass an
       assignee and do not guess at one from the repository or the git config:
       a wrong guess returns an empty board, which is indistinguishable from
       having no work.
