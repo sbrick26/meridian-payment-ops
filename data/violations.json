@@ -1,5 +1,32 @@
 [
   {
+    "id": "31685556504-30adf05",
+    "timestamp": "2026-08-13T09:13:51Z",
+    "verdict": "FAIL",
+    "severity": "medium",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "utils-server.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "The new exported module `utils-server.js` does not begin with the required compliance header carrying Function, Owner, Control (NIST 800-53 id plus SOX/PCI reference), and Reviewed date.",
+        "severity": "medium"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "12",
+    "pr_title": "[KAN-53 + KAN-54 + KAN-52] MDL 3.0 frontend, API v2 backend, MCP agent enablement",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/12",
+    "branch": "feature/KAN-51-implementation",
+    "base_ref": "demo-integration",
+    "sha": "30adf05",
+    "commit_message": "[KAN-53 + KAN-54 + KAN-52] MDL 3.0 frontend, API v2 backend, MCP agent enablement",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31685556504"
+  },
+  {
     "id": "31681958318-f455a0e",
     "timestamp": "2026-08-13T08:25:54Z",
     "verdict": "FAIL",
