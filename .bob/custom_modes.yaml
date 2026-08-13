@@ -181,10 +181,14 @@ customModes:
             seconds after the connection opens, so a single "not connected"
             reply is not a verdict: retry status up to three times, a few
             seconds apart, before concluding the bridge is down. Do NOT call
-            figma_reconnect to recover: every reconnect can raise another
-            bridge server, the plugin attaches to only one of them, and the
-            extra instances are themselves the usual cause of a connection
-            that appears to keep dropping.
+            figma_reconnect to recover - it raises another server without
+            fixing anything.
+            SEVERAL BRIDGE SERVERS ON DIFFERENT PORTS IS NORMAL AND NOT A
+            PROBLEM. The plugin connects to every server it finds in the range
+            9223-9232, including ones started after it launched, so a call
+            succeeds whichever port this session landed on. A status reply
+            mentioning a fallback port is information, not a fault: proceed.
+            Leftover servers are cleaned up between rehearsals, not by you.
             READ WHAT STATUS ACTUALLY SAYS. If it reports a FALLBACK PORT -
             that this server is on 9224 or above because 9223 was taken - the
             bridge is not broken: the plugin is attached to a different server
