@@ -99,6 +99,15 @@ reachable by phone, governed by a short-lived identity that can read but never w
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-12 |
 | **Recorded on** | KAN-41 |
+| **Approving comment** | "approved - plan and design look good. API first, read-only agent boundary, legacy stays mounted, fix the WCAG failures. Run the slices in parallel where they do not collide." |
+
+## Design review
+
+| | |
+|---|---|
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-12 |
+| **Reviewed** | KAN-41 BEFORE (135:898) and AFTER (135:900) frames, https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu/Meridian-Demo |
