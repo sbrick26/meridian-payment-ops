@@ -13,3 +13,17 @@ id_rsa*
 node_modules/
 coverage/
 dist/
+
+# Control surface — committed, versioned, and not the agent's to read or edit.
+#
+# The mode file and the rulebook are what govern the agent; they are already
+# loaded into its instructions, so it has no reason to open them and every
+# reason not to change them. Leaving them visible let a rulebook edit ride
+# along in a code branch, where rule 06 correctly blocked the pull request -
+# the right outcome reached the expensive way.
+#
+# They stay in git. They simply stop being files in the agent's working set.
+.bob/custom_modes.yaml
+.bob/rules/
+.bob/skills/
+.bobignore
