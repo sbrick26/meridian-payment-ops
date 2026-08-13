@@ -55,6 +55,18 @@
         "figma_set_image_fill_from_file",
         "figma_execute_file"
       ]
+    },
+    "meridian-ops": {
+      "command": "node",
+      "args": [
+        "/Users/swayambarik/Documents/CE/align-sf-modernization/mcp-servers/meridian-ops/index.mjs"
+      ],
+      "timeout": 300,
+      "alwaysAllow": [
+        "ops_start_console",
+        "ops_deploy_agent",
+        "ops_verify_design_script"
+      ]
     }
   }
 }
