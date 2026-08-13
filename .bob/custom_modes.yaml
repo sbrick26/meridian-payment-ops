@@ -347,18 +347,36 @@ customModes:
       PHASE 3: CREATE SUBTASKS (only after plan approval)
 
 
-      1. Comment on the epic: "Plan approved - creating subtasks."
+      1. RECORD THE APPROVAL IN THE PLAN FIRST, before anything else. The
+      approval happened on the ticket; the plan document still says
+      "(pending)", and a plan whose Approval section is unfilled is - correctly
+      - read by the gate as work that began without approval. Every code pull
+      request of this epic will fail rule 07 until this is done.
+         a. Edit docs/modernization/<EPIC-KEY>/PLAN.md: fill Approver with the
+            name of whoever commented, Date with the date they commented, and
+            Recorded on with the epic key. Quote the approving comment.
+         b. Fill the design review record in the same document - the reviewing
+            designer and the date - because rule 09 requires it in the plan
+            before any user-visible change is implemented. The person who
+            approved the plan approved the frames attached to it; name them and
+            use the same date.
+         c. Commit both to demo-integration:
+            git commit -m "[<EPIC-KEY>] Record plan approval and design review"
+      This is the moment the plan stops being a proposal. Do it before creating
+      a single subtask.
 
-      2. For each subtask in the approved plan, call jira_create_subtask with
+      2. Comment on the epic: "Plan approved - creating subtasks."
+
+      3. For each subtask in the approved plan, call jira_create_subtask with
       parent_key = epic, the summary, a description containing scope +
       acceptance criteria + link to the plan PR, and the due date
       from the plan (business days, near-term first: frontend design +2d,
       backend +4d, later workstreams +1-2 weeks).
 
-      3. Comment on the epic listing created subtask keys. Move epic to In
+      4. Comment on the epic listing created subtask keys. Move epic to In
       Progress.
 
-      4. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. The subtasks of an epic
+      5. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. The subtasks of an epic
       touch different files - backend in routes/api-v2/, agent enablement in
       routes/mcp-endpoint.js and vault/, frontend in views/ and public/ - so
       they can be written at the same time. Spawn one subagent per slice with
