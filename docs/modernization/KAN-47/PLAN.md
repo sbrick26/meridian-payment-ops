@@ -5,7 +5,7 @@
 | **Epic** | KAN-47 |
 | **Author** | payments-platform-team |
 | **Date** | 2026-08-13 |
-| **Status** | Awaiting approval |
+| **Status** | Approved |
 
 ## Current state
 
@@ -69,15 +69,15 @@ The Held Payments screen is rebuilt to Meridian Design Language 3.0 (chip-based 
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Recorded on** | KAN-47 |
-| **Approving comment** | (pending) |
+| **Approving comment** | "approved - plan and design look good. Proceed with the subtasks." |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending — approver of this plan approves the attached BEFORE/AFTER frames) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-47 BEFORE / KAN-47 AFTER frames, https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu/Meridian-Demo?node-id=138-1146 |
