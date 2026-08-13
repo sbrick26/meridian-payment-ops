@@ -1,3 +1,12 @@
+<%#
+  ---------------------------------------------------------------------------
+  View:     exceptions (Held Payments)
+  Owner:    payments-platform-team
+  Control:  AC-3 (data display access), SI-10 (input — output escaped)
+            SOX/PCI: PCI Req. 7 (access control) · FFIEC operational risk
+  Reviewed: 2026-08-13
+  ---------------------------------------------------------------------------
+%>
 <%- include('partials/header', { pageTitle: 'Held Payments' }) %>
 
   <ul class="breadcrumb">
@@ -65,17 +74,18 @@
   <table class="table table-bordered table-condensed table-striped exc-table" id="excTable">
     <thead>
       <tr>
-        <th><a href="#" onclick="return setSort('ref');">Reference</a></th>
-        <th><a href="#" onclick="return setSort('vendor');">Vendor</a></th>
-        <th><a href="#" onclick="return setSort('invoice');">Invoice no</a></th>
-        <th>PO</th>
-        <th class="num"><a href="#" onclick="return setSort('amount');">Amount</a></th>
-        <th>Ccy</th>
-        <th><a href="#" onclick="return setSort('status');">Status</a></th>
-        <th>Hold reason</th>
-        <th class="num">Age</th>
-        <th>Clerk</th>
-        <th class="no-print">&nbsp;</th>
+        <th scope="col" role="button" aria-sort="none" tabindex="0" onclick="return setSort('ref');" onkeydown="if(event.key==='Enter'){return setSort('ref');}">Reference</th>
+        <th scope="col" role="button" aria-sort="none" tabindex="0" onclick="return setSort('vendor');" onkeydown="if(event.key==='Enter'){return setSort('vendor');}">Vendor</th>
+        <th scope="col" role="button" aria-sort="none" tabindex="0" onclick="return setSort('invoice');" onkeydown="if(event.key==='Enter'){return setSort('invoice');}">Invoice no</th>
+        <th scope="col">PO</th>
+        <th scope="col" class="num" role="button" aria-sort="none" tabindex="0" onclick="return setSort('amount');" onkeydown="if(event.key==='Enter'){return setSort('amount');}">Amount</th>
+        <th scope="col">Ccy</th>
+        <th scope="col" role="button" aria-sort="none" tabindex="0" onclick="return setSort('status');" onkeydown="if(event.key==='Enter'){return setSort('status');}">Status</th>
+        <th scope="col">Hold reason</th>
+        <th scope="col" class="num">Age</th>
+        <th scope="col">Risk</th>
+        <th scope="col">Clerk</th>
+        <th scope="col" class="no-print">&nbsp;</th>
       </tr>
     </thead>
     <tbody>
@@ -83,8 +93,12 @@
       <tr><td colspan="11" class="muted">No items match the selection. Amend the filter and search again.</td></tr>
     <% } %>
     <% for (var i = 0; i < rows.length; i++) { var r = rows[i]; %>
-      <tr id="row-<%= r.id %>"<% if (r.risk_flag == 'HIGH') { %> class="row-high"<% } %>
-          onclick="selectRow(this, <%= r.id %>);" ondblclick="openRow(<%= r.id %>);">
+      <tr id="row-<%= r.id %>"
+          tabindex="0"
+          aria-selected="false"
+          onclick="selectRow(this, <%= r.id %>);"
+          ondblclick="openRow(<%= r.id %>);"
+          onkeydown="if(event.key==='Enter'||event.key===' '){selectRow(this,<%= r.id %>);}">
         <td class="ref" id="ref-<%= r.id %>"><a href="/exceptions/<%= r.id %>"><%= r.payment_ref %></a></td>
         <td class="cust"><%= r.vendor %></td>
         <td><%= r.invoice_no %></td>
@@ -94,6 +108,14 @@
         <td><%- u.statusLabel(r.status) %></td>
         <td><b><%= r.reason_code %></b> <%= r.reason_text %></td>
         <td class="num"><%- u.ageCell(r.age_days) %></td>
+        <td>
+          <%
+            var riskCls = 'chip-low';
+            if (r.risk_flag === 'HIGH') { riskCls = 'chip-high'; }
+            else if (r.risk_flag === 'MED') { riskCls = 'chip-med'; }
+          %>
+          <span class="chip <%= riskCls %>" aria-label="Risk: <%= r.risk_flag %>"><%= r.risk_flag %></span>
+        </td>
         <td><%= r.clerk_initials %></td>
         <td class="no-print"><a href="/exceptions/<%= r.id %>">detail</a></td>
       </tr>
@@ -133,10 +155,11 @@
   </div>
 
   <p class="muted">
-    Rows shaded red are flagged by the overnight ERP batch and must be referred to
-    AP controls before release. Invoices over <b>50,000.00</b> require a second
-    sign-off per procedure AP-114. If a vendor rings the hotline about an item,
-    add the call as a note so the next clerk can see it.
+    Items with a <span class="chip chip-high" aria-label="Risk: HIGH">HIGH</span>
+    risk chip are flagged by the overnight ERP batch and must be referred to AP controls
+    before release. Invoices over <b>50,000.00</b> require a second sign-off per
+    procedure AP-114. If a vendor rings the hotline about an item, add the call as a
+    note so the next clerk can see it.
   </p>
 
 <%- include('partials/footer') %>

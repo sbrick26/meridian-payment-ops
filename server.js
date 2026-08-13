@@ -25,6 +25,13 @@ var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
 
+/* v2 API routes (KAN-50) */
+var paymentsV2Router  = require('./routes/api-v2/payment-status');
+var riskScoreV2Router = require('./routes/api-v2/risk-score');
+
+/* MCP agent endpoint (KAN-49) */
+var mcpRouter = require('./routes/mcp-endpoint');
+
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
  * ------------------------------------------------------------------ */
@@ -70,6 +77,7 @@ function openDatabase() {
 		seed.build();
 	}
 	db = new Database(DB_FILE);
+	app.locals.db = db;
 }
 
 function queryAll(sql) {
@@ -516,7 +524,18 @@ function scoreRow(row) {
 }
 
 /* ------------------------------------------------------------------
- * INTERFACES
+ * v2 API (KAN-50) — parameterized, validated replacements
+ * Legacy routes remain mounted below as deprecated.
+ * ------------------------------------------------------------------ */
+
+app.use('/api/v2/payments',   paymentsV2Router);
+app.use('/api/v2/risk-score', riskScoreV2Router);
+
+/* MCP agent endpoint (KAN-49) — mounted after /api/v2 */
+app.use('/mcp', mcpRouter);
+
+/* ------------------------------------------------------------------
+ * INTERFACES (legacy - deprecated)
  * /api/payment-status  - vendor payment enquiry (ref or invoice)
  * /api/risk-score      - vendor enquiry desk traffic light
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
@@ -719,12 +738,18 @@ app.use(function (req, res) {
 
 openDatabase();
 
-http.createServer(app).listen(PORT, function () {
-	console.log('====================================================');
-	console.log(' ' + APP_NAME + ' v' + APP_VERSION);
-	console.log(' Meridian Corp - IT Dept - Internal Use Only');
-	console.log(' Environment : ' + ENVIRONMENT);
-	console.log(' Listening   : http://localhost:' + PORT + '/');
-	console.log(' Database    : ' + DB_FILE);
-	console.log('====================================================');
-});
+/* Export the app for supertest before listening, so test files can
+ * require('./server') without binding the port. */
+module.exports = app;
+
+if (require.main === module) {
+	http.createServer(app).listen(PORT, function () {
+		console.log('====================================================');
+		console.log(' ' + APP_NAME + ' v' + APP_VERSION);
+		console.log(' Meridian Corp - IT Dept - Internal Use Only');
+		console.log(' Environment : ' + ENVIRONMENT);
+		console.log(' Listening   : http://localhost:' + PORT + '/');
+		console.log(' Database    : ' + DB_FILE);
+		console.log('====================================================');
+	});
+}
