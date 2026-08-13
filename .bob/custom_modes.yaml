@@ -69,12 +69,12 @@ customModes:
          - EPIC, APPROVED (approval comment on the plan) → PHASE 3: CREATE SUBTASKS
          - EPIC, CHANGES REQUESTED → PHASE 2R: REVISE PLAN OR DESIGN
          - TWO OR MORE SUBTASKS of the same epic NEW at once → PHASE 3 step 5:
-           work them in parallel on one branch. This is the common case
+           work them together on one branch. This is the common case
            straight after approval and it takes priority over the per-subtask
            routes below, which exist for a subtask arriving on its own. Working
            three slices one after another when they touch different
-           directories is the single largest avoidable cost in a run - one run
-           spent fourteen minutes doing sequentially what fans out.
+           directories means three pull requests and three gate runs to answer
+           one question - is this epic's work good.
          - SUBTASK, NEW frontend, alone → PHASE 4: IMPLEMENT FRONTEND (design
            is already approved and frozen - it was produced in PHASE 2)
          - SUBTASK, NEW backend, alone → PHASE 5: IMPLEMENT BACKEND
@@ -395,11 +395,18 @@ customModes:
       4. Comment on the epic listing created subtask keys. Move epic to In
       Progress.
 
-      5. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. Do this yourself, now,
-      in this run - do not create the subtasks and stop, and do not pick one up
-      and work it alone. Create the branch, then spawn the subagents together
-      in a single message so they run at the same time rather than one after
-      another; waiting for each in turn is the same as not fanning out at all. The subtasks of an epic
+      5. WORK ALL THE SLICES IN ONE RUN, ON ONE BRANCH. Do this yourself, now
+      - do not create the subtasks and stop, and do not work one and leave the
+      others. Create feature/<EPIC-KEY>-implementation and take the slices in
+      order of dependency: backend first, then the agent layer that calls it,
+      then the frontend.
+      Write the code yourself rather than delegating it. Analysis fans out
+      well - reading is safe to do concurrently, which is why the codebase
+      review uses three explore subagents - but three writers in one working
+      tree collide, and the runs that tried it produced no fan-out at all.
+      What saves time here is not concurrency: it is one branch, one pull
+      request and one gate for the epic instead of three of each, and not
+      re-reading files you have already read. The subtasks of an epic
       touch different files - backend in routes/api-v2/, agent enablement in
       routes/mcp-endpoint.js and vault/, frontend in views/ and public/ - so
       they can be written at the same time. Spawn one subagent per slice with
