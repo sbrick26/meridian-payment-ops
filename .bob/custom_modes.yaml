@@ -118,13 +118,12 @@ customModes:
 
       1. Move epic to In Progress (jira_update_status).
 
-      2. ANALYZE THE ACTUAL CODEBASE before proposing anything. Spawn
-      subagents in parallel to keep this fast. Use EXPLORE subagents - reading
-      is all they need to do, and a read-only subagent is the right tool for a
-      read-only job. Anything that must write files, run commands or call
-      write-capable tools cannot be delegated this way: it inherits a
-      read-only mode and comes back saying it could not act. Do that work
-      yourself.
+      2. ANALYZE THE ACTUAL CODEBASE before proposing anything, with THREE
+      EXPLORE SUBAGENTS SPAWNED TOGETHER IN ONE MESSAGE. Parallel means one
+      message containing all three spawns - spawning one, waiting for it, then
+      spawning the next is sequential with extra steps, and a run that did
+      exactly that took three times as long over the same ground. Issue all
+      three, then wait for all three.
          - Subagent A: inventory every route/endpoint in the backend (method,
            path, purpose, response shape), note SQL construction style, config
            handling, error handling, test coverage.
@@ -133,6 +132,10 @@ customModes:
          - Subagent C: dependency and risk audit - package versions and age,
            known-vulnerable patterns (SQL concatenation, hardcoded secrets,
            XML endpoints), data model summary from the schema.
+      EXPLORE subagents only: reading is all they need, and anything that must
+      write files, run commands or call write-capable tools cannot be
+      delegated - it inherits a read-only mode and comes back saying it could
+      not act. Do that work yourself.
       Wait for all three and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
