@@ -277,27 +277,28 @@ customModes:
                 docs/design/legacy-held-payments.png; reference that path in
                 the PR body's side-by-side rather than writing a second copy.
 
-      7. Publish plan and design together as one reviewable artifact. They are
-      the deliverable, so they travel through source control, not a wiki:
-         a. Branch from the integration trunk, never from main:
-            git checkout demo-integration && git pull && git checkout -b
-            docs/<EPIC-KEY>-modernization-plan
-            Pull requests target demo-integration, so branching anywhere else
-            makes the PR diff carry every commit the two branches differ by -
-            work nobody in this ticket did.
-         b. Commit PLAN.md together with the design spec and both PNGs
-            (message "[<EPIC-KEY>] Modernization plan and design"), push the
-            branch, and open a documentation pull request with gh CLI:
-            gh pr create --title "[<EPIC-KEY>] Modernization plan and design"
-            --body-file <tmp>
-            The PR body summarizes the target state, the proposed subtasks,
-            the equivalence strategy, and embeds the before/after images so
-            the design is reviewable in the PR itself. This PR is the review
-            surface - it is not merged until the plan is approved.
-         c. Attach PLAN.md to the epic itself via jira_attach_file so the
-            approver has the document without leaving the tracker. Attach
-            <EPIC-KEY>-after.png as well.
-      Capture the PR URL, the Figma page URL and the attachment filenames.
+      7. Publish plan and design TO THE TICKET. The plan is not a pull
+      request. A pull request is for code: it is reviewed by engineers, it runs
+      the guardrail gate, and it merges. A plan is approved by the person who
+      owns the work, in the tracker, in a sentence - and putting it through a
+      code review surface only buys a second place to look and a second thing
+      to keep in sync.
+         a. Commit the plan and the design artifacts straight to the
+            integration trunk, no branch and no pull request:
+              git checkout demo-integration && git pull
+              git add docs/modernization/<EPIC-KEY>/PLAN.md
+                      docs/design/<EPIC-KEY>-spec.md
+                      docs/design/<EPIC-KEY>-after.png
+              git commit -m "[<EPIC-KEY>] Modernization plan and design"
+              git push origin demo-integration
+            They are still versioned and still diffable - they simply are not
+            gated by a code review they would always pass.
+         b. Attach PLAN.md and <EPIC-KEY>-after.png to the epic with
+            jira_attach_file, so the approver has both without leaving the
+            tracker.
+      Capture the Figma page URL and the attachment filenames. Every code pull
+      request opened later cites the committed plan path and the Figma page,
+      which is how the code carries its approval with it.
 
       8. Request approval on the epic via jira_add_comment using this
       structure:
@@ -306,7 +307,7 @@ customModes:
 
          **Plan document:** attached to this issue (PLAN.md)
          **Design:** <FIGMA_URL> (before/after frames; after-frame attached)
-         **Review PR:** <PR_URL>
+         **Committed:** docs/modernization/<EPIC-KEY>/PLAN.md on demo-integration
 
          **Grounding:** analyzed <N> endpoints, <N> pages, <N> dependencies
          (details in PLAN.md)
@@ -333,8 +334,8 @@ customModes:
       (never rewrite committed history). For the design: update the EXISTING
       frames on the epic's Figma page rather than creating a second set - a
       review is against a moving artifact, not a gallery - then re-freeze the
-      spec and re-export the AFTER png. Either way, commit and push to the
-      same docs branch, re-attach the updated artifacts to the epic, post a
+      spec and re-export the AFTER png. Either way, commit and push to
+      demo-integration, re-attach the updated artifacts to the epic, post a
       comment mapping each revision to the quoted feedback, and move back to
       In Review. STOP.
 
@@ -390,9 +391,12 @@ customModes:
 
       7. Create the PR with gh CLI (NOT an MCP tool):
          gh pr create --title "[TICKET-KEY] <summary>" --body-file <tmp-body.md>
-      Body must include: summary, Jira link, approved-Figma link, testing
-      checklist, fidelity note, change-log reference. Keep the PR focused -
-      frontend changes only.
+      Body must include: summary, Jira link, the approved Figma page, the
+      committed plan path (docs/modernization/<EPIC-KEY>/PLAN.md) and the
+      comment where it was approved, testing checklist, fidelity note,
+      change-log reference. The plan is not reviewed here - it was approved on
+      the ticket - but every code change has to say which approved plan it
+      belongs to. Keep the PR focused - frontend changes only.
 
       8. Subtask to In Review; Jira comment with PR URL.
 
@@ -498,6 +502,15 @@ customModes:
            succeeds, one write attempt that is refused. Quote both. A
            deployment that cannot demonstrate the refusal is not finished.
 
+      5a. LEAVE IT RUNNING AND SAY WHERE. The point of the whole exercise is
+      a working screen and a number that answers, so finish by making both
+      reachable and stating them plainly:
+         - the modernized console serving on http://localhost:4600 (leave the
+           process up; do not start and stop it to prove a point),
+         - the deployed service URL and its health response,
+         - the phone number bound to the agent, unchanged by this deployment,
+           so the reader knows what to call.
+
       6. Comment the result on the ticket with jira_add_comment:
          ```
          🚀 Deployed
@@ -511,8 +524,13 @@ customModes:
          ```
       Attach the screenshot of the modernized screen.
 
-      7. Move the subtask to Done ONLY if the reviewer has already accepted
-      the work by merging; otherwise leave it In Review and say why. Then
+      7. Move the subtask to Done - the merge IS the acceptance, so once the
+      suite is green and the deployment is verified, Done is the honest status
+      and leaving it In Review misreports finished work. If anything above
+      failed, leave it In Review and say which step. When every subtask of the
+      epic is Done, move the epic to Done too and post a closing comment
+      carrying the console URL, the service URL and the phone number, so the
+      ticket ends holding everything a person needs to see it working. Then
       return to PHASE 1 and pick up the next ticket.
 
 
