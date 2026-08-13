@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score?ref=MT-UNKNOWN-00000",
+  "status": 404,
+  "body": "{\"ERR\":\"NOT_FOUND\",\"REF\":\"MT-UNKNOWN-00000\"}"
+}

@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09168",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09168\",\"InvoiceNo\":\"INV-2026-4752\",\"PO_NUM\":\"PO-40599\",\"sts\":\"ESCALATED\",\"sts_desc\":\"Escalated to AP controls\",\"amt_cents\":\"1025938\",\"Amount_Formatted\":\"10,259.38\",\"ccy\":\"EUR\",\"Type\":\"SEPA\",\"vendorName\":\"Ostheim Kunststoff\",\"vend_ctry\":\"DE\",\"VendorNo\":\"V100682\",\"remit_TO\":\"Ostheim Kunststoff - Lockbox 1079\",\"BankBIC\":\"UOVBSGSG\",\"rsn\":\"H33\",\"rsnText\":\"PO mismatch - price or quantity\",\"age_days\":\"11\",\"CreatedDate\":\"2026-07-21\",\"invoice_dt\":\"2026-07-16\",\"due_dt\":\"2026-08-15\",\"expected_pay_dt\":\"2026-08-07\",\"value_dt\":\"2026-07-22\",\"PaymentRun\":\"PR-2026-140-ACH\",\"risk\":\"LOW\",\"Clerk\":\"ROK\",\"resolved_dt\":\"\",\"Resolution\":\"\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

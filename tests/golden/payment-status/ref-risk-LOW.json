@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09628",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09628\",\"InvoiceNo\":\"INV-2026-5224\",\"PO_NUM\":\"PO-41257\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"561029\",\"Amount_Formatted\":\"5,610.29\",\"ccy\":\"USD\",\"Type\":\"WIRE\",\"vendorName\":\"Whitcombe Dairy\",\"vend_ctry\":\"GB\",\"VendorNo\":\"V100835\",\"remit_TO\":\"Whitcombe Dairy - Lockbox 7357\",\"BankBIC\":\"COBADEFF\",\"rsn\":\"H21\",\"rsnText\":\"Duplicate invoice suspected\",\"age_days\":\"74\",\"CreatedDate\":\"2026-05-19\",\"invoice_dt\":\"2026-05-03\",\"due_dt\":\"2026-07-02\",\"expected_pay_dt\":\"2026-05-25\",\"value_dt\":\"2026-05-20\",\"PaymentRun\":\"PR-2026-123-ACH\",\"risk\":\"LOW\",\"Clerk\":\"DWH\",\"resolved_dt\":\"2026-05-25\",\"Resolution\":\"RELEASED\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

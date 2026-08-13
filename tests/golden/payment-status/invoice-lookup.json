@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?invoice=INV-2026-5108",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09516\",\"InvoiceNo\":\"INV-2026-5108\",\"PO_NUM\":\"PO-41102\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"3460886\",\"Amount_Formatted\":\"34,608.86\",\"ccy\":\"USD\",\"Type\":\"WIRE\",\"vendorName\":\"Gruner Landtechnik\",\"vend_ctry\":\"DE\",\"VendorNo\":\"V100869\",\"remit_TO\":\"Gruner Landtechnik - Lockbox 8750\",\"BankBIC\":\"UOVBSGSG\",\"rsn\":\"H52\",\"rsnText\":\"Vendor onboarding incomplete\",\"age_days\":\"74\",\"CreatedDate\":\"2026-05-19\",\"invoice_dt\":\"2026-05-04\",\"due_dt\":\"2026-07-03\",\"expected_pay_dt\":\"2026-05-22\",\"value_dt\":\"2026-05-20\",\"PaymentRun\":\"PR-2026-098-WIRE\",\"risk\":\"MED\",\"Clerk\":\"GHO\",\"resolved_dt\":\"2026-05-22\",\"Resolution\":\"CANCELLED\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

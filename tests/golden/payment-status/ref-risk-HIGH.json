@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09591",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09591\",\"InvoiceNo\":\"INV-2026-5190\",\"PO_NUM\":\"PO-41208\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"113506\",\"Amount_Formatted\":\"1,135.06\",\"ccy\":\"EUR\",\"Type\":\"SEPA\",\"vendorName\":\"Highfield Timber\",\"vend_ctry\":\"GB\",\"VendorNo\":\"V101192\",\"remit_TO\":\"Highfield Timber - Remittance Desk\",\"BankBIC\":\"UOVBSGSG\",\"rsn\":\"H33\",\"rsnText\":\"PO mismatch - price or quantity\",\"age_days\":\"72\",\"CreatedDate\":\"2026-05-21\",\"invoice_dt\":\"2026-05-10\",\"due_dt\":\"2026-07-09\",\"expected_pay_dt\":\"2026-05-24\",\"value_dt\":\"2026-05-22\",\"PaymentRun\":\"PR-2026-108-SEPA\",\"risk\":\"HIGH\",\"Clerk\":\"GHO\",\"resolved_dt\":\"2026-05-24\",\"Resolution\":\"CANCELLED\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09639",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09639\",\"InvoiceNo\":\"INV-2026-5237\",\"PO_NUM\":\"PO-41278\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"614995\",\"Amount_Formatted\":\"6,149.95\",\"ccy\":\"USD\",\"Type\":\"ACH\",\"vendorName\":\"Baumgartner Stahl\",\"vend_ctry\":\"DE\",\"VendorNo\":\"V101107\",\"remit_TO\":\"Baumgartner Stahl - Lockbox 2222\",\"BankBIC\":\"CITIUS33\",\"rsn\":\"H14\",\"rsnText\":\"Missing goods receipt - GR/IR not cleared\",\"age_days\":\"73\",\"CreatedDate\":\"2026-05-20\",\"invoice_dt\":\"2026-05-03\",\"due_dt\":\"2026-06-02\",\"expected_pay_dt\":\"2026-05-23\",\"value_dt\":\"2026-05-21\",\"PaymentRun\":\"PR-2026-097-SEPA\",\"risk\":\"LOW\",\"Clerk\":\"SBR\",\"resolved_dt\":\"2026-05-23\",\"Resolution\":\"RELEASED\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

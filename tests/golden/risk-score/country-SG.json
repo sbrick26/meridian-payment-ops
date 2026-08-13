@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score?ref=MT-2026-09544",
+  "status": 200,
+  "body": "{\"REF\":\"MT-2026-09544\",\"INV\":\"INV-2026-5133\",\"SCORE\":\"52\",\"BAND\":\"MEDIUM\",\"amt_cents\":\"270702\",\"ccy\":\"USD\",\"TYPE\":\"WIRE\",\"ctry\":\"SG\",\"age\":\"71\",\"dup_suspect\":\"N\",\"bank_chg_days\":\"-1\",\"over_limit\":\"N\",\"round_amt\":\"N\",\"new_vend\":\"N\",\"model\":\"APRSK01\",\"retcode\":\"0000\"}"
+}

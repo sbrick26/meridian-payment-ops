@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score?ref=MT-2026-09507",
+  "status": 200,
+  "body": "{\"REF\":\"MT-2026-09507\",\"INV\":\"INV-2026-5098\",\"SCORE\":\"29\",\"BAND\":\"LOW\",\"amt_cents\":\"51106\",\"ccy\":\"EUR\",\"TYPE\":\"SEPA\",\"ctry\":\"DE\",\"age\":\"72\",\"dup_suspect\":\"N\",\"bank_chg_days\":\"-1\",\"over_limit\":\"N\",\"round_amt\":\"N\",\"new_vend\":\"N\",\"model\":\"APRSK01\",\"retcode\":\"0000\"}"
+}

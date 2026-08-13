@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score",
+  "status": 400,
+  "body": "{\"ERR\":\"MISSING_REF\"}"
+}

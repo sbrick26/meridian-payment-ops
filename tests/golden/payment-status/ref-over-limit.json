@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09698",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09698\",\"InvoiceNo\":\"INV-2026-5294\",\"PO_NUM\":\"PO-41353\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"10936865\",\"Amount_Formatted\":\"109,368.65\",\"ccy\":\"USD\",\"Type\":\"ACH\",\"vendorName\":\"Ravenswood Media\",\"vend_ctry\":\"GB\",\"VendorNo\":\"V100699\",\"remit_TO\":\"Ravenswood Media - Accounts Receivable\",\"BankBIC\":\"HSBCGB2L\",\"rsn\":\"H14\",\"rsnText\":\"Missing goods receipt - GR/IR not cleared\",\"age_days\":\"57\",\"CreatedDate\":\"2026-06-05\",\"invoice_dt\":\"2026-05-16\",\"due_dt\":\"2026-06-30\",\"expected_pay_dt\":\"2026-06-06\",\"value_dt\":\"2026-06-06\",\"PaymentRun\":\"PR-2026-119-ACH\",\"risk\":\"HIGH\",\"Clerk\":\"GHO\",\"resolved_dt\":\"2026-06-06\",\"Resolution\":\"RELEASED\",\"over_approval_limit\":\"Y\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}
