@@ -223,66 +223,37 @@ customModes:
             plugin sandbox, and the tool call dies on timeout. Set the current
             page with await figma.setCurrentPageAsync(page) - assigning
             figma.currentPage is rejected by the bridge.
-         e. Create (or reuse) a PAGE named "<EPIC-KEY> — <short name>" and put
-            this epic's frames on it: the design-system page is a reference
-            and must never be edited, and keeping ticket work on its own page
-            means it can be cleared without touching the system. Name the
-            frames "<EPIC-KEY> BEFORE" and "<EPIC-KEY> AFTER".
-         f. "BEFORE" frame: do NOT redraw the current screen. Create one frame
-            1440x920, put a single rectangle filling it, and apply the image
-            with figma_set_image_fill_from_file:
-              nodeId: <the rectangle's id>
-              image_path: docs/design/legacy-held-payments.png
-              scaleMode: FILL
-            Apply it to the RECTANGLE inside the BEFORE frame and to nothing
-            else. Applying an image fill to a frame makes it that frame's
-            background: done to the AFTER frame it puts the old screen behind
-            the new design, and the two render on top of each other.
-            Use that tool and never figma_set_image_fill directly: the
-            path-based one loads the bytes inside the MCP server, so the image
-            never passes through the conversation. Passing base64 as a tool
-            argument is what made this call time out and leave an empty frame.
-            The current state is evidence, so it belongs in the review verbatim
-            - redrawing it wastes turns, invites an endless fidelity loop, and
-            quietly flatters a UI whose ugliness is the entire point of the
-            comparison. One call, no iteration, no rebuilding.
-         g. "AFTER" frame applying the Meridian Design Language 3.0 spec page
-            in the same Figma file (design tokens: colors, type scale,
-            spacing, components). The Figma design-language page is the source
-            of truth for tokens - read it via figma tools, do not invent
-            tokens. Verify it with figma_capture_screenshot.
-            BUILD IT FROM THE COMMITTED SCRIPT, not from generated code.
-            design/figma/render-screen.js draws this screen. Call it with
-            figma_execute_file (an MCP tool like any other - the server reads
-            the file and forwards it to the bridge, so the drawing code never
-            crosses the conversation):
+         e. BUILD BOTH FRAMES IN ONE CALL. Every extra round trip over the
+            bridge is another chance for the connection to drop mid-sequence,
+            and a drop between creating the BEFORE frame and filling it leaves
+            a black rectangle on the canvas - which has happened. One call
+            either produces both frames or produces neither.
+            Read the five rows first:
+              sqlite3 payops.db design/figma/rows.sql
+            Then call figma_execute_file ONCE:
               script_path: design/figma/render-screen.js
-              params: {
-                pageName:  "<EPIC-KEY> - Held Payments Modernization",
-                frameName: "<EPIC-KEY> AFTER",
-                x: 1560, y: 0,
-                tokens: { ...the MDL 3.0 values you read from the design
-                          language page, by name... },
-                rows:   the five payments returned by
-                        sqlite3 payops.db < design/figma/rows.sql
-                        (open items, oldest first - the same rows the legacy
-                        screen shows, so the before/after compares like with
-                        like). Pass the JSON through unchanged.
+              params:
+                pageName:        "<EPIC-KEY> - Held Payments Modernization"
+                beforeFrameName: "<EPIC-KEY> BEFORE"
+                frameName:       "<EPIC-KEY> AFTER"
+                x: 1560, y: 0
+                beforeImage_path: docs/design/legacy-held-payments.png
+                tokens: the MDL 3.0 values you read from the design-language page
+                rows:   the JSON from the query, unchanged
                 meta:   { subtitle, summary, pageNote, footnote }
-              }
-            You still own the design decisions: which tokens apply, which
-            columns matter, what the five rows say. The script owns pixel
-            placement, which is the part that must not vary between runs.
-            Writing this screen as inline figma_execute is forbidden. It costs
-            thousands of output tokens per attempt, it is the call most likely
-            to exceed the timeout - and when it does the client restarts the
-            MCP server, the restart detaches the plugin, and the frame is lost
-            - and it lays the screen out differently every time, which is how
-            the masthead came to sit on the page title and the filter bar under
-            the table header.
-            If the screen needs a change, edit the committed script and say so
-            in the plan; a design system that lives in a file can be reviewed,
-            and one that lives in a prompt cannot.
+            The _path suffix means the MCP server loads that file and hands the
+            script its contents, so the screenshot never crosses the
+            conversation. It creates the page, builds the BEFORE frame with the
+            legacy screenshot in it, renders the AFTER frame from the tokens,
+            and returns both node ids.
+            Do NOT call figma_set_image_fill, figma_set_image_fill_from_file or
+            any separate frame-creation execute for this. They are what turned
+            one step into a sequence that kept breaking.
+         f. Verify with ONE figma_capture_screenshot of the page, and check the
+            BEFORE frame shows the old screen rather than a solid rectangle.
+         g. If the bridge is unavailable, finish the plan and say the frames
+            are pending - do not retry in a loop.
+
          h. FREEZE THE SPEC. Implementation must never depend on a live design
             tool, so capture everything the build needs while the bridge is up
             and commit it:
