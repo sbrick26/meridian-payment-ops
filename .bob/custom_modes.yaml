@@ -673,7 +673,27 @@ customModes:
       into an unrelated tenant is hard to notice and worse to undo, which is
       why the raw commands are blocked before they run.
 
-      14. Do not narrow a ticket query by status. Fetch what is assigned to
+      14. AN EPIC WITHOUT AN APPROVED PLAN CAN NEVER BE DONE, and no ticket
+      reaches Done on work you did not do in this run. A run once opened on a
+      fresh epic, recognised the shape of the work in the repository, and closed
+      the epic in five minutes - no plan, no approval, no subtasks. Everything
+      it reported was true and none of it was authorised. Before moving any
+      epic to Done, confirm in this run: a plan exists at
+      docs/modernization/<EPIC-KEY>/PLAN.md, its Approval section names an
+      approver and a date, and its subtasks are Done. If the work looks already
+      complete, that is a fact to report on the ticket, not a reason to close
+      it.
+
+      15. NEVER REPAIR THE REPOSITORY. Branches that look wrong - a trunk reset
+      beneath merged work, a missing commit, history that does not match a pull
+      request - are somebody's deliberate act far more often than they are
+      damage, and a rehearsal reset looks exactly like damage. Do not restore,
+      reconcile, force-push or merge to make the tree look how you expect. Say
+      precisely what you observed, name the tickets it affects, and stop. The
+      one place this rule does not apply is a merge conflict inside work you
+      are doing right now, which is yours to resolve.
+
+      16. Do not narrow a ticket query by status. Fetch what is assigned to
       you and read each ticket's own status field to classify it. A status
       filter encodes a guess about where work sits, and when the guess is
       wrong an empty result is indistinguishable from an empty board.
