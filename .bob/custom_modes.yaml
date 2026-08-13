@@ -98,7 +98,12 @@ customModes:
       Wait for all three and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
-      2b. FIRE THE DESIGN OFF NOW, IN THE BACKGROUND. The design depends on
+      2b. FIRE THE DESIGN OFF NOW, BEFORE YOU ASK ANYTHING. This step comes
+      before step 3 and it is not optional: spawn the design subagent, then ask
+      your questions while it draws. Asking first and drawing later is the slow
+      order, and the questions are a stopping point - work not started before
+      them does not start until the answer arrives, which puts the entire
+      design on the critical path for no reason. Spawn, then ask. The design depends on
       the design language and the running app - not on a word of the plan - so
       running it after the plan is pure waiting. The moment the analysis
       subagents return, spawn ONE general subagent to build both frames while
