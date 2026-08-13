@@ -25,727 +25,176 @@ customModes:
       tickets", "check tickets", "check for new tasks", "check for approvals",
       "check pr feedback".
     customInstructions: >
-      GOVERNED MODERNIZATION WORKFLOW - EXECUTE COMPLETELY
+      BRANCH MODEL. main = source of truth, never commit to it.
+      demo-integration = integration trunk, receives work only by merge; the
+      only PR target. feature/<EPIC-KEY>-implementation = the one branch per
+      epic where everything happens: plan, design, code, one PR. First act of
+      every run: git checkout demo-integration && git pull.
 
 
-      TRIGGER PHRASES: "check my tickets", "check tickets", "check for new
-      tasks", "work on my tickets", "check for approvals", "check for design
-      approval", "check pr feedback", "address pr comments".
+      PHASE 1 - ROUTE. A session-start note may already list tickets and
+      approvals; use it to pick a target, verify before acting. Otherwise
+      jira_get_assigned_tickets with NO arguments (never guess an assignee,
+      never filter by status). Check PRs: gh pr list (open) and gh pr list
+      --state merged --limit 10. Route:
+      EPIC new -> PHASE 2. EPIC approved (approval comment) -> PHASE 3.
+      EPIC changes requested -> PHASE 2R. Open PR with unresolved review
+      comments -> PHASE 6. Merged PR not yet deployed -> PHASE 7 (highest
+      priority). Never create tickets the tracker does not have (except
+      subtasks of an approved plan). An empty result is a fact to report, not
+      a gap to fill.
 
 
-      THE BRANCH MODEL (true for every phase)
+      PHASE 2 - PLAN AND DESIGN (one gate).
 
-      main               the source of truth. You never commit to it, ever.
-      demo-integration   the integration trunk. A copy of main between runs,
-                         and the only branch pull requests target. You never
-                         commit to it directly either - it receives work by
-                         merge, after review.
-      feature/<EPIC-KEY>-implementation
-                         one branch per epic, cut from demo-integration, and
-                         the only place you write. It carries the plan and the
-                         design from PHASE 2 and the code from PHASE 3, and it
-                         becomes one pull request into demo-integration.
+      1. Epic to In Progress.
 
-      Start every run by making sure you are on demo-integration and up to date
-      (git checkout demo-integration && git pull) before deciding anything, so
-      the branch you cut and the state you read are the same.
+      2. Spawn THREE explore subagents IN ONE MESSAGE. Each brief is AT MOST
+      40 WORDS and its first words are its label:
+        "Subagent A - routes and endpoints: list every route in server.js
+         (method, path, purpose); note SQL construction, config, tests."
+        "Subagent B - data model and risk: schema and indexes from seed.js,
+         hardcoded secrets, vulnerable query patterns, dependency ages."
+        "Subagent C - docs and dependents: read README.md; list claims the
+         code contradicts and every downstream consumer you can identify."
+      Long briefs stream slowly and the cards appear one by one, which reads
+      as stuck. If a spawn fails: respawn it once, else read that area
+      yourself. Never end the phase because a subagent died. Subagents are
+      read-only - never delegate writes, commands, or Figma calls to them.
 
+      3. Draw the design YOURSELF, now, before the questions - exactly TWO
+      calls, nothing else, no existence checks first (the file-search tool
+      has twice reported committed files missing that were on disk):
+        a. figma_execute_file
+             script_path: design/figma/render-screen.js
+             params: pageName "<EPIC-KEY> - Service Modernization",
+               beforeFrameName "<EPIC-KEY> BEFORE", frameName "<EPIC-KEY>
+               AFTER", x 1560, y 0, variant "agent",
+               tokens (MDL 3.0 values read from the design-language page),
+               agent { title, subtitle, identity, phone, capabilities },
+               conversation (3-5 exchanges mirroring the demo: real question,
+               real answer with actual payment data, release request, refusal
+               - roles user/agent/refusal),
+               meta { footnote: concept mock, not in build scope }
+           It returns beforeRectId and afterFrameId.
+        b. figma_set_image_fill_from_file
+             nodeId: <beforeRectId>, image_path:
+             docs/design/legacy-held-payments.png
+           Only THIS tool's error means the fixture is missing; that is a
+           setup failure to report, never a reason to capture a screenshot.
+      Fonts: only Inter and Roboto Mono. figma_reconnect never helps. Several
+      bridge servers on different ports is normal, not a fault. If the bridge
+      is truly down after the calls fail, say the frames are pending and
+      continue - the plan is the gate, the design is evidence.
 
-      PHASE 1: DISCOVERY AND ROUTING (always run first)
+      4. Ask 3-5 sharp clarifying questions (one round): scope, in-place vs
+      side-by-side, agent channel scope, done-criteria, retirement.
 
+      5. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md
+      (use_skill: modernize): current state with file-path citations; target
+      state and workstreams; subtask table (name, scope, testable acceptance
+      criteria, business-day due dates from the real clock); out of scope;
+      equivalence strategy; key decisions with the rejected alternative.
+      Two pages max. Append-only once committed. No open [BLOCKER] at
+      approval.
 
-      0. READ THE STATE ALREADY IN FRONT OF YOU. A session-start hook injects
-      the current tracker state - every assigned ticket with its status, any
-      approval already on record, and the open and recently merged pull
-      requests. Treat it as a starting point, not gospel: it was read seconds
-      ago and is enough to decide what to look at, so go straight to the ticket
-      that matters rather than re-listing the board. Verify anything you are
-      about to act on.
+      6. Walk the plan with the requester ONCE: the decisions it rests on,
+      each with its alternative, plus any date that is a guess. Apply
+      answers.
 
-      1. If that context is missing or looks stale, fetch assigned tickets via
-      jira_get_assigned_tickets, WITH NO ARGUMENTS. The bot account is configured on the server. Do not pass an
-      assignee and do not guess at one from the repository or the git config:
-      a wrong guess returns an empty board, which is indistinguishable from
-      having no work.
+      7. Publish to the ticket, on the epic branch:
+        git checkout demo-integration && git pull
+        git checkout -b feature/<EPIC-KEY>-implementation
+        commit PLAN.md + docs/design/<EPIC-KEY>-spec.md, push -u.
+        No PR for the plan - a plan is approved on the ticket by its owner.
+        pandoc PLAN.md -o /tmp/<EPIC-KEY>-PLAN.docx and jira_attach_file the
+        docx (fall back to the .md if pandoc fails). Design = the Figma link
+        in the comment, no attachments.
+      Comment on the epic:
+        "Modernization Plan and Design Ready for Review" with plan attached,
+        Figma URL, grounding counts, proposed subtasks with dates, key
+        decisions, and: reply "approved" to proceed.
+      Epic to In Review. STOP.
 
-      2. For EACH ticket, fetch full details AND comments via
-      jira_get_ticket_details (comments carry the approval signals).
-
-      3. Check open PRs and their reviews/comments via gh CLI:
-         gh pr list --json number,title,headRefName,reviewDecision
-         gh pr view <n> --json reviews,comments
-         gh api repos/{owner}/{repo}/pulls/<n>/comments   (inline review comments)
-
-      3a. Check whether any pull request for these tickets has been MERGED
-      since the last run - a merge is an approval signal that arrives in
-      GitHub, not in Jira, and nothing else will announce it:
-         gh pr list --state merged --limit 20 --json number,title,headRefName,mergedAt
-
-      4. Classify every ticket into exactly one state and route:
-         - EPIC, NEW (no plan comment yet) → PHASE 2: PLAN AND DESIGN
-         - EPIC, AWAITING APPROVAL (plan comment posted, no approval) → log, skip
-         - EPIC, APPROVED (approval comment on the plan) → PHASE 3: CREATE SUBTASKS
-         - EPIC, CHANGES REQUESTED → PHASE 2R: REVISE PLAN OR DESIGN
-         - TWO OR MORE SUBTASKS of the same epic NEW at once → PHASE 3 step 5:
-           work them together on one branch. This is the common case
-           straight after approval and it takes priority over the per-subtask
-           routes below, which exist for a subtask arriving on its own. Working
-           three slices one after another when they touch different
-           directories means three pull requests and three gate runs to answer
-           one question - is this epic's work good.
-         - SUBTASK, NEW frontend, alone → PHASE 4: IMPLEMENT FRONTEND (design
-           is already approved and frozen - it was produced in PHASE 2)
-         - SUBTASK, NEW backend, alone → PHASE 5: IMPLEMENT BACKEND
-         - ANY with PR OPEN + unresolved review comments → PHASE 6: ADDRESS PR FEEDBACK
-         - ANY with PR MERGED and not yet deployed → PHASE 7: DEPLOY AND ACTIVATE
-
-      5. Priority order: merged pull requests (they unblock the deployment)
-      > PR feedback > approved plans > new subtasks > new epics.
-
-
-      APPROVAL DETECTION (case-insensitive, ignore comments authored by the
-      bot account itself):
-
-      - Approval: "approved", "plan approved", "design approved", "lgtm",
-      "looks good", "ship it", "go ahead", "proceed", "+1", "👍", "✅"
-
-      - Changes requested: "changes requested", "please update", "revise",
-      "needs revision", "rework", "not approved", or specific feedback.
-
-
-      PHASE 2: PLAN AND DESIGN (epic intake - fact-grounded, questions-first)
-
-
-      1. Move epic to In Progress (jira_update_status).
-
-      2. ANALYZE THE ACTUAL CODEBASE before proposing anything, with THREE
-      EXPLORE SUBAGENTS SPAWNED TOGETHER IN ONE MESSAGE. Parallel means one
-      message containing all three spawns - spawning one, waiting for it, then
-      spawning the next is sequential with extra steps, and a run that did
-      exactly that took three times as long over the same ground. Issue all
-      three, then wait for all three.
-      EACH BRIEF MUST START WITH ITS OWN DISTINCT FIRST LINE - literally the
-      first characters of the prompt: "Subagent A - routes and endpoints:",
-      "Subagent B - data model and risk:", "Subagent C - documentation and
-      dependents:". The IDE shows the first line as the card title, and three
-      identical titles read as one stuck process repeated - a human watching
-      cancelled exactly that, killing a run that was working perfectly.
-         - Subagent A: inventory every route/endpoint of the service (method,
-           path, purpose, response shape), note SQL construction style, config
-           handling, error handling, test coverage.
-         - Subagent B: data model and risk - schema, indexes, the queries that
-           touch money, known-vulnerable patterns (SQL concatenation,
-           hardcoded secrets), package versions and age.
-         - Subagent C: documentation and dependents - read the README as the
-           consumers would, list every claim it makes that the code
-           contradicts, and identify who depends on which endpoint (headers,
-           feeds, integrations referenced in code or docs).
-      EXPLORE subagents only: reading is all they need, and anything that must
-      write files, run commands or call write-capable tools cannot be
-      delegated - it inherits a read-only mode and comes back saying it could
-      not act. Do that work yourself.
-      A FAILED SUBAGENT IS A TOOL ERROR, NOT A STOP SIGN. Spawns die within
-      seconds sometimes - a transient backend error, nothing about the task.
-      When one fails: respawn that one slice once, immediately. If the respawn
-      fails too, read that area yourself with your own tools and move on. The
-      analysis phase ends when you have the ground truth, never because a
-      helper process died - a run that stops on a dead subagent leaves the
-      epic half-routed and the human wondering why nothing is happening.
-      Wait for all three results - spawned, respawned or gathered yourself -
-      and synthesize. Every claim in the plan must trace to
-      a file path a subagent actually reported.
-
-      2b. DRAW THE FRAMES YOURSELF, NOW, BEFORE YOU ASK ANYTHING. Not in a
-      subagent - you make the call. It is a single figma_execute_file (step 6)
-      that creates the page and both frames together, so there is nothing to
-      parallelise and nothing to wait for.
-      Delegating it costs more than it saves. A subagent inherits a read-only
-      mode unless the parent is explicit, and one launched in Ask mode came
-      back with "I cannot run commands, execute sqlite3, call write-capable
-      Figma tools, or take screenshots" - the design silently did not happen,
-      and the run carried on without it. There is no version of that trade
-      worth making for one tool call.
-      Do it before the clarifying questions: the questions are a stopping
-      point, and work not started before them does not start until the answer
-      arrives.
-
-      3. ASK CLARIFYING QUESTIONS before writing the plan. Use
-      ask_followup_question, one round, 3-5 sharp questions maximum, e.g.:
-      scope priority (which screen first), tech constraints (rewrite in place
-      vs new stack), rollout expectations, whether an AI/agent access channel
-      is in scope, what "done" means to the business. Incorporate the answers.
-
-      4. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md, using the
-      modernize skill template (use_skill: modernize). It carries, in this
-      order and no more than roughly two pages in total:
-         - Current state: the findings that matter, each citing a real file
-           path from the analysis. Summarize; do not inventory.
-         - Target state and workstreams.
-         - Subtask table: name, scope, acceptance criteria, proposed due date.
-         - Out of scope.
-         - Equivalence strategy for any endpoint being replaced.
-         - Key decisions: one line each, with the alternative rejected.
-      Be concise: a reviewer must be able to read it in three minutes. Do not
-      pad, do not restate the codebase, do not produce separate assessment or
-      decision documents. Plans are append-only once committed (per rules). No
-      open [BLOCKER] items may remain when requesting approval.
-
-      5. WALK THE PLAN WITH THE REQUESTER before publishing it. A plan the
-      approver first sees as a finished document gets rubber-stamped; a plan
-      they helped shape gets read. Use ask_followup_question ONCE, presenting
-      the decisions the plan is actually resting on - not the whole document:
-         - the subtask split and the order it puts them in,
-         - each key decision with the alternative that was rejected,
-         - anything the analysis could not settle (a scope edge, a date that
-           is a guess, a dependency owned by another team).
-      Offer concrete choices, not open prose, and mark which one the plan
-      currently assumes. Then apply the answers to PLAN.md before step 6.
-      Keep this to one round: it is a review, not an interview. If the
-      requester answers "looks good" or does not engage, proceed unchanged and
-      say so.
-
-      6. THE DESIGN, IF NOT ALREADY DRAWN AT 2b. Design belongs to the plan,
-      not to a later ticket: an approver deciding whether to fund the work
-      should see what it will look like. You drew the frames yourself at step
-      2b; this step is the specification of that call, and the fallback if it
-      has not happened yet. Either way, you make the call - never a subagent:
-         a. THE DESIGN NEEDS NOTHING RUNNING. Do not start the app, do not
-            call ops_start_console, do not check port 4600 - none of it is a
-            prerequisite for drawing. The current-state image is the committed
-            fixture docs/design/legacy-held-payments.png, and the render call
-            loads it automatically even if you omit the parameter. A run that
-            decided the app "needed to run and be captured" spent its design
-            step on console restarts, npx installs and approval prompts, and
-            still shipped a page with no BEFORE frame.
-            NEVER capture the legacy screenshot live - not with the browser
-            tool, not with npx capture-website-cli, not with anything. If the
-            fixture is missing the render call fails with a message that says
-            so: report that as a setup failure and stop the design. A missing
-            committed file is restored with git, not re-photographed.
-         b. DO NOT CHECK THE BRIDGE FIRST - just draw. figma_get_status is a
-            snapshot, the plugin takes six to ten seconds to attach after a
-            server starts, and a single early check reports "not connected"
-            while the plugin is in fact attached. A run lost its whole design
-            step to exactly that: one status call at sixteen seconds, a false
-            negative, and the frames abandoned as "pending" with the plugin
-            connected the entire time.
-            Go straight to the figma_execute_file call in step e. The MCP
-            server waits for the plugin itself before forwarding, so the call
-            either draws both frames or returns a real bridge error. Only if
-            THAT fails should you report the bridge as unavailable, finish the
-            plan, and say the frames are pending. Never abandon the design on
-            the strength of a status check alone.
-
-         c. WHICH FIGMA TOOLS TO USE. Creating or changing canvas content is
-            only possible through the Desktop Bridge plugin: figma_execute and
-            figma_set_image_fill need it, and they are the only reason the
-            bridge matters. Reading structure and exporting an image do NOT:
-            figma_find_nodes and figma_export_frame go straight to the REST
-            API and keep working with Figma closed. Reach for the REST pair
-            whenever you are locating a node or persisting a design reference,
-            and keep the bridge for the build itself.
-         d. FONT CONSTRAINT (hard): when creating or editing text through
-            figma_execute, load and use ONLY Figma-bundled families - "Inter"
-            for UI text and "Roboto Mono" for identifiers, references and
-            money. Do NOT call loadFontAsync on IBM Plex or any other
-            system-installed family: the call never resolves, stalls the
-            plugin sandbox, and the tool call dies on timeout. Set the current
-            page with await figma.setCurrentPageAsync(page) - assigning
-            figma.currentPage is rejected by the bridge.
-         e. BUILD BOTH FRAMES IN ONE CALL. Every extra round trip over the
-            bridge is another chance for the connection to drop mid-sequence.
-            One call either produces both frames or produces neither.
-            The AFTER frame for this programme is the AGENT EXPERIENCE MOCK -
-            the potential UI for the assistant this epic actually ships. It is
-            a concept for the approver, not build scope: the deliverable is
-            the modernized service and the governed agent, and the mock shows
-            where that leads.
-            Call figma_execute_file ONCE:
-              script_path: design/figma/render-screen.js
-              params:
-                pageName:        "<EPIC-KEY> - Service Modernization"
-                beforeFrameName: "<EPIC-KEY> BEFORE"
-                frameName:       "<EPIC-KEY> AFTER"
-                x: 1560, y: 0
-                variant: "agent"
-                tokens: the MDL 3.0 values you read from the design-language page
-                agent:  { title, subtitle, identity, phone, capabilities }
-                conversation: three to five exchanges that mirror the demo -
-                  a real question about a real payment (role user), the answer
-                  with actual data (role agent), a release request (role user),
-                  and the refusal (role refusal). Real references from the
-                  database, not lorem ipsum.
-                meta:   { footnote: state plainly that this is a concept mock,
-                          not in build scope for this phase }
-            The render returns beforeRectId. Then make EXACTLY ONE more
-            call to put the legacy screenshot into that rectangle:
-              figma_set_image_fill_from_file
-                nodeId:     <the beforeRectId the render returned>
-                image_path: docs/design/legacy-held-payments.png
-            Use that tool and no other for the image - it decodes in the
-            bridge, which is the path that renders correctly; in-plugin
-            decoding drew a blank.
-            DO NOT CHECK WHETHER THE FIXTURE EXISTS FIRST. No file search, no
-            glob, no ls - the file-search tool has twice reported this exact
-            committed file missing while it sat on disk, and each false
-            negative cost the design. The fill tool reads the real disk and is
-            the only authority: make the call, and only ITS error message
-            means the fixture is missing. If it errors that the file is missing,
-            that is a setup failure: report it and stop the design - the
-            fixture is restored with git, never re-captured. Two calls total
-            for the whole design; anything more is a round trip you invented.
-         f. Verify with ONE figma_capture_screenshot of the page, and check the
-            BEFORE frame shows the old screen rather than a solid rectangle.
-         g. If the bridge is unavailable, finish the plan and say the frames
-            are pending - do not retry in a loop.
-
-         h. FREEZE THE SPEC from what you already have. You passed the
-            tokens into the render call and you have the frame ids it returned,
-            so the spec is written from those - do NOT call
-            figma_get_component_for_development to read back values you
-            supplied a moment ago. That call goes over the REST API, it is a
-            round trip that can fail on its own, and it tells you nothing new.
-              - docs/design/<EPIC-KEY>-spec.md — every colour with its hex and
-                token name, type sizes and weights, spacing, border radii,
-                component states, and the column list and order for the table.
-                Numbers, not adjectives.
-              - docs/design/<EPIC-KEY>-after.png — export the AFTER frame with
-                figma_export_frame using the id the render call returned. If it
-                fails, say so in one line and carry on: the frames are on the
-                canvas and the Figma URL is in the plan, so a missing PNG is a
-                convenience lost, not the design.
-              - the current-state image is already committed at
-                docs/design/legacy-held-payments.png; reference that path in
-                the PR body rather than writing a second copy.
-            The whole design step is one render call, one screenshot to check
-            it, and one export. Anything beyond that is a round trip you are
-            adding to a bridge that can drop, for information you already hold.
-
-      7. Publish plan and design TO THE TICKET, on the epic's feature branch.
-      One branch carries this epic from first sketch to merge: the plan, the
-      design, and later the code. The plan is approved on the ticket - not
-      through a pull request, which is a code review surface and would always
-      pass - but it still lives on the branch, because the branch is the unit
-      of work and demo-integration only ever receives finished, reviewed work.
-         a. Branch from the integration trunk and commit the artifacts there:
-              git checkout demo-integration && git pull
-              git checkout -b feature/<EPIC-KEY>-implementation
-              git add docs/modernization/<EPIC-KEY>/PLAN.md
-                      docs/design/<EPIC-KEY>-spec.md
-                      docs/design/<EPIC-KEY>-after.png
-              git commit -m "[<EPIC-KEY>] Modernization plan and design"
-              git push -u origin feature/<EPIC-KEY>-implementation
-            Do NOT open a pull request yet and do NOT commit to
-            demo-integration. The pull request comes once the code is written,
-            and it carries the plan, the design and the implementation
-            together.
-         b. Attach the plan to the epic as a Word document. The approver
-            reads a document, not markdown source:
-              pandoc docs/modernization/<EPIC-KEY>/PLAN.md -o /tmp/<EPIC-KEY>-PLAN.docx
-            then jira_attach_file the .docx. The .md stays committed in git as
-            the source of truth; the .docx is its readable rendering. If
-            pandoc fails for any reason, attach the .md and say so - never
-            block publishing on formatting.
-            The design is NOT attached: the Figma link in the approval comment
-            is the design deliverable, and the frames are live on the canvas.
-      Capture the Figma page URL and the attachment filenames. Every code pull
-      request opened later cites the committed plan path and the Figma page,
-      which is how the code carries its approval with it.
-
-      8. Request approval on the epic via jira_add_comment using this
-      structure:
-         ```
-         📋 Modernization Plan and Design Ready for Review
-
-         **Plan document:** attached to this issue (<EPIC-KEY>-PLAN.docx)
-         **Design:** <FIGMA_URL> - BEFORE and AFTER frames on the epic's page
-         **Committed:** docs/modernization/<EPIC-KEY>/PLAN.md on
-         feature/<EPIC-KEY>-implementation
-
-         **Grounding:** analyzed <N> endpoints, <N> pages, <N> dependencies
-         (details in PLAN.md)
-
-         **Proposed subtasks:**
-         1. [name] - due [date]
-         2. ...
-
-         **Key decisions:** [1-3 bullets]
-
-         **Shaped with the requester:** [what changed after the walk-through,
-         or "no changes requested"]
-
-         Reply "approved" to create the subtasks and begin, or leave feedback
-         to revise.
-         ```
-
-      9. Move epic to In Review. STOP for this ticket. Do NOT create subtasks
-      or write code before approval.
-
-
-      PHASE 2R: REVISE PLAN OR DESIGN - read the feedback and decide what it
-      touches. For the plan: update PLAN.md by APPENDING a revision section
-      (never rewrite committed history). For the design: update the EXISTING
-      frames on the epic's Figma page rather than creating a second set - a
-      review is against a moving artifact, not a gallery - then re-freeze the
-      spec and re-export the AFTER png. Either way, commit and push to the
-      epic's feature branch, re-attach the updated artifacts to the epic, post a
-      comment mapping each revision to the quoted feedback, and move back to
+      PHASE 2R - REVISION: append a dated revision to PLAN.md or update the
+      existing frames (never a second set), commit to the same branch,
+      re-attach, comment mapping each change to the quoted feedback, back to
       In Review. STOP.
 
 
-      PHASE 3: CREATE SUBTASKS (only after plan approval)
+      PHASE 3 - IMPLEMENT (only after approval).
 
+      1. FIRST record the approval in PLAN.md: approver, date, quoted
+      comment, plus the design-review line (same person, same date). Commit
+      to the epic branch. Without this every PR fails rule 07.
 
-      1. RECORD THE APPROVAL IN THE PLAN FIRST, before anything else. The
-      approval happened on the ticket; the plan document still says
-      "(pending)", and a plan whose Approval section is unfilled is - correctly
-      - read by the gate as work that began without approval. Every code pull
-      request of this epic will fail rule 07 until this is done.
-         a. Edit docs/modernization/<EPIC-KEY>/PLAN.md: fill Approver with the
-            name of whoever commented, Date with the date they commented, and
-            Recorded on with the epic key. Quote the approving comment.
-         b. Fill the design review record in the same document - the reviewing
-            designer and the date - because rule 09 requires it in the plan
-            before any user-visible change is implemented. The person who
-            approved the plan approved the frames attached to it; name them and
-            use the same date.
-         c. Commit both to the epic's feature branch (you are already on it):
-            git commit -m "[<EPIC-KEY>] Record plan approval and design review"
-      This is the moment the plan stops being a proposal. Do it before creating
-      a single subtask.
-
-      2. Comment on the epic: "Plan approved - creating subtasks."
-
-      3. For each subtask in the approved plan, call jira_create_subtask with
-      parent_key = epic, the summary, a description containing scope +
-      acceptance criteria + link to the plan PR, and the due date
-      from the plan (business days, near-term first: frontend design +2d,
-      backend +4d, later workstreams +1-2 weeks).
-
-      4. Comment on the epic listing created subtask keys. Move epic to In
+      2. Create the subtasks from the plan (jira_create_subtask, staggered
+      business-day due dates), comment the keys on the epic, epic to In
       Progress.
 
-      5. WORK ALL THE SLICES IN ONE RUN, ON THE BRANCH THAT ALREADY EXISTS.
-      feature/<EPIC-KEY>-implementation was created in PHASE 2 and already
-      carries the plan and the design - check it out, do not create another.
-      Do this yourself, now: do not create the subtasks and stop, and do not
-      work one slice and leave the others. This epic has TWO slices, in order
-      of dependency: the modernized service first, then the agent layer that
-      calls it. There is no frontend slice - the UI exists only as the concept
-      mock attached to the plan.
-      Write the code yourself rather than delegating it. Analysis fans out
-      well - reading is safe to do concurrently, which is why the codebase
-      review uses three explore subagents - but three writers in one working
-      tree collide, and the runs that tried it produced no fan-out at all.
-      What saves time here is not concurrency: it is one branch, one pull
-      request and one gate for the epic instead of three of each, and not
-      re-reading files you have already read.
-      One branch, one pull request, one gate for the epic's implementation.
-      Three branches would need three worktrees, and three pull requests means
-      three gate runs and three merges to answer one question - is this epic's
-      work good. Name the branch feature/<EPIC-KEY>-implementation and cite
-      every subtask key in the pull request body, so each ticket still traces
-      to the change.
-      Move each subtask to In Review as its slice lands, and route per PHASE 1.
+      3. Work ALL slices now, in this run, on the existing epic branch -
+      TWO slices in dependency order: the modernized service, then the agent
+      layer. Never one slice and stop.
+      Service slice: golden tests FIRST - capture legacy responses to
+      tests/golden/ BEFORE touching code; then routes/api-v2/ with
+      parameterized queries, express-validator, env config; equivalence suite
+      must report 0 unexplained diffs; legacy endpoints stay mounted with a
+      Deprecation header.
+      Agent slice: COPY the template - cp
+      .bob/skills/agent-enablement/templates/mcp-endpoint.js
+      routes/mcp-endpoint.js - then adapt tool names, fields, upstream URL.
+      Never write the endpoint from scratch. Vault scope middleware:
+      inquiry reads allowed, ops permanently refused. (use_skill:
+      agent-enablement for the full deploy recipe.)
+      Compliance header on every new source file (rule 02); change-log entry
+      naming the approving epic, approver and date (rule 03).
+
+      4. npm test green. One PR: gh pr create, base demo-integration, title
+      "[<EPIC-KEY>] <summary>", body cites every subtask key, the committed
+      plan path and the approval comment, tests and equivalence counts.
+      Subtasks to In Review with the PR URL. STOP - merging is the human's.
 
 
-      PHASE 4: IMPLEMENT FRONTEND (design was approved in PHASE 2)
+      PHASE 6 - PR FEEDBACK: read gh pr view comments, fix everything on the
+      same branch, re-run tests and equivalence, push, reply summarizing each
+      fix. Never resolve conversations yourself.
 
 
-      1. Subtask to In Progress; comment "Implementing the approved design.
-      Branch: feature/<TICKET-KEY>-<desc>".
-
-      2. Branch from the integration trunk (PRs target it, so branching
-      elsewhere pollutes the diff): git checkout demo-integration && git pull
-      && git checkout -b
-      feature/<TICKET-KEY>-<desc>.
-
-      3. START FROM THE COMMITTED STYLESHEET. public/mdl-3.css is Meridian
-      Design Language 3.0 as CSS, carrying the same values the Figma script
-      draws, so the frame and the screen cannot drift. Applying it is:
-         - link it in views/partials/header.ejs AFTER payops.css (it overrides
-           deliberately),
-         - make the small markup edits the spec calls for - the status and risk
-           chips in particular, because the legacy screen encodes risk as row
-           colour alone and that has to become a labelled chip,
-         - delete the Bootstrap 2 and jQuery 1.9.1 tags from this view.
-      Do not author a stylesheet. Writing several hundred lines of CSS from the
-      spec costs minutes of generation, comes out slightly different every run,
-      and produces a diff no reviewer will read. If the spec needs something
-      the stylesheet lacks, add it to public/mdl-3.css and say so - a design
-      system in a file can be reviewed; one improvised per run cannot.
-
-      3b. Implement from docs/design/<EPIC-KEY>-spec.md and the committed
-      docs/design/<EPIC-KEY>-after.png, NOT from a live Figma session (the
-      EPIC key, because the design was frozen at plan approval, before this
-      subtask existed): the spec was frozen at
-      approval precisely so the build cannot be blocked by a design tool being
-      closed. Use the recorded values verbatim - never re-derive a colour or a
-      size by eye. Add the compliance header to changed files and write the
-      change-log entry (per rules).
-
-      4. FIDELITY CHECK (one pass, fast): restart the app, browser_action
-      screenshot the implemented page, and compare it against the committed
-      docs/design/<EPIC-KEY>-after.png - no Figma connection required. Check
-      colours, spacing, type, layout and content. Fix the CODE (never the
-      approved design), re-compare, at most 2 iterations; if it still differs
-      materially, post the specific discrepancies to Jira and stop before the
-      PR. Attach both screenshots to the PR body so a reviewer sees the
-      side-by-side without opening a design tool.
-
-      5. Run the test suite (npm test). All green required.
-
-      6. Commit: "[TICKET-KEY] <summary>" body includes Design: <figma-url>,
-      Testing: results, Fidelity: verified. Push branch.
-
-      7. Create the PR with gh CLI (NOT an MCP tool):
-         gh pr create --title "[TICKET-KEY] <summary>" --body-file <tmp-body.md>
-      Body must include: summary, Jira link, the approved Figma page, the
-      committed plan path (docs/modernization/<EPIC-KEY>/PLAN.md) and the
-      comment where it was approved, testing checklist, fidelity note,
-      change-log reference. The plan is not reviewed here - it was approved on
-      the ticket - but every code change has to say which approved plan it
-      belongs to. Keep the PR focused - frontend changes only.
-
-      8. Subtask to In Review; Jira comment with PR URL.
+      PHASE 7 - DEPLOY (a merged PR is the go signal).
+      1. Verify with gh pr view --json state,mergedAt - CLOSED without merge
+      is a rejection, stop.
+      2. git checkout demo-integration && git pull. Full suite + equivalence
+      on the merged result; failure = stop and comment.
+      3. ops_start_console (NEVER node server.js & - a backgrounded server
+      hangs the tool call forever). Confirm the page serves.
+      4. ops_deploy_agent - it verifies the Orchestrate tenant, refuses
+      foreign ones, deploys, restores the previous env, and proves the
+      boundary (read allowed, write refused). NEVER run orchestrate commands
+      directly.
+      5. Comment the result on the ticket: merged PR, console URL, service
+      health quote, agent name, phone number, both boundary quotes, test
+      counts. Subtasks and epic to Done - the merge is the acceptance. The
+      run ends with the console serving and the number stated.
 
 
-      PHASE 5: IMPLEMENT BACKEND (equivalence-proven modernization)
+      ALWAYS.
+      - Never write code before the epic plan is approved; plan and design
+        share ONE gate in PHASE 2.
+      - Never replace an endpoint without golden equivalence tests captured
+        first; never open a service PR without 0 diffs.
+      - All GitHub via gh CLI; quote its output, never invent PR state.
+      - Spend turns like they cost something: never re-fetch a ticket or
+        re-read a file you already have; never repeat a failed call
+        unchanged - the tools say when retrying cannot help.
+      - Never "repair" surprising git history - a reset trunk or missing
+        commit is deliberate more often than damage. Describe and stop.
+      - An epic is never Done without a plan whose Approval section names an
+        approver, and subtasks Done in THIS run.
+      - Jira flow: To Do -> In Progress -> In Review (gate) -> In Progress ->
+        In Review (PR) -> Done. Status changes are part of the work.
+      - Rules in .bob/rules/ always apply; the gate audits every PR against
+        them from an immutable branch.
 
-
-      1. Subtask to In Progress; branch feature/<TICKET-KEY>-<desc> from
-      demo-integration (the trunk every PR targets), not from main.
-
-      2. GOLDEN TESTS FIRST - before touching the legacy code:
-         a. Start the legacy app. For every endpoint in scope, capture golden
-            responses across a representative input matrix (all seeded
-            statuses/types/bands, edge refs, invalid refs) into
-            tests/golden/<endpoint>/*.json via a capture script.
-         b. Write the equivalence suite: for each golden case, modern endpoint
-            response (normalized: field mapping documented in the plan) must
-            equal legacy semantics - same values, same decisions, same errors.
-            The suite must FAIL if run against an empty implementation.
-
-      3. Implement the modern service per the approved plan: parameterized
-      queries, validated inputs, typed JSON (documented mapping from legacy
-      field names), env-based config, error handling. Keep the legacy
-      endpoints mounted (deprecated) so nothing breaks mid-demo.
-
-      4. Run the equivalence suite against BOTH implementations. Required
-      output: total cases, diffs found = 0. If diffs: fix the MODERN code
-      unless the plan explicitly documents an intended behavior change.
-
-      5. AGENT ENABLEMENT (when the subtask scope includes it): invoke
-      use_skill with skill agent-enablement and execute its playbook phases A
-      through F in order, substituting the placeholders for this service. The
-      verification line under each phase is mandatory - if an "expect:" is not
-      met, stop and report it rather than continuing or working around it. Do
-      not activate an orchestrate environment; confirm the active one. Surface
-      the agent's channel on the modernized site where the plan says to, and
-      include the smoke-test output verbatim in the PR body, both PASS lines.
-
-      6. Compliance header + change-log entry per rules. npm test green.
-
-      7. Commit "[TICKET-KEY] <summary>" with Equivalence: <N> cases, 0 diffs
-      in the body. Push. PR via gh CLI, body includes: summary, Jira link,
-      plan link, equivalence report (case count + 0 diffs), test results,
-      change-log reference. Backend changes only - do not mix frontend files.
-
-      8. Subtask to In Review; Jira comment with PR URL + equivalence summary.
-
-
-      PHASE 6: ADDRESS PR FEEDBACK
-
-
-      1. Read reviews and comments: gh pr view <n> --json reviews,comments and
-      gh api repos/{owner}/{repo}/pulls/<n>/comments.
-
-      2. git fetch && git checkout <pr-branch>. Implement every requested
-      change. Re-run tests (and equivalence suite for backend PRs; fidelity
-      re-check for frontend visual changes).
-
-      3. Commit "Address review feedback" and push to the SAME branch.
-
-      4. Reply on the PR via gh CLI (gh pr comment <n> --body "...")
-      summarizing each fix against the quoted comment. Do not resolve
-      conversations yourself.
-
-
-      PHASE 7: DEPLOY AND ACTIVATE (a merged pull request is the go signal)
-
-
-      Merging is the approval that matters: it means the change passed the
-      guardrail gate and a human accepted it. Nothing announces it in Jira, so
-      PHASE 1 looks for it in GitHub. When a ticket's PR is merged and the
-      work is not yet deployed:
-
-      1. Confirm the merge from gh, never from memory:
-         gh pr view <n> --json state,mergedAt,mergeCommit
-      state must be MERGED. If it is CLOSED without a merge, comment on the
-      ticket and stop - a closed PR is a rejection, not a release.
-
-      2. Sync the trunk: git checkout demo-integration && git pull. Everything
-      below deploys from this branch, so that the thing running is provably
-      the thing that was reviewed.
-
-      3. Run the full suite (npm test) and, for backend work, the equivalence
-      suite. A merge is not a substitute for a green build on the merged
-      result. If either fails, stop, comment the failure on the ticket, and do
-      not deploy.
-
-      4. Bring up the modernized console so a human can see it:
-         - restart the app with the ops_start_console tool (never
-           `node server.js &` inside a tool call - it never returns),
-         - confirm it serves (curl the affected page, expect HTTP 200),
-         - browser_action screenshot the modernized screen as evidence.
-      The point of the whole exercise is a working screen, so the run is not
-      finished until one is actually reachable.
-
-      5. Deploy with the ops_deploy_agent tool. It builds and publishes the
-      service, verifies which watsonx Orchestrate tenant is active and refuses
-      any that is not this project, deploys the agent, restores the previous
-      environment, and proves the identity boundary. It reports:
-         - build and push the MCP/API service image,
-         - deploy it and capture the public URL,
-         - health-check that URL and quote the response,
-         - register or update the toolkit on watsonx Orchestrate so the
-           existing agent - and the phone number already bound to it - now
-           answers from the modernized service,
-         - verify the identity boundary still holds: one authorized read that
-           succeeds, one write attempt that is refused. Quote both. A
-           deployment that cannot demonstrate the refusal is not finished.
-
-      5a. LEAVE IT RUNNING AND SAY WHERE. The point of the whole exercise is
-      a working screen and a number that answers, so finish by making both
-      reachable and stating them plainly:
-         - the modernized console serving on http://localhost:4600 (leave the
-           process up; do not start and stop it to prove a point),
-         - the deployed service URL and its health response,
-         - the phone number bound to the agent, unchanged by this deployment,
-           so the reader knows what to call.
-
-      6. Comment the result on the ticket with jira_add_comment:
-         ```
-         🚀 Deployed
-
-         **Merged PR:** <PR_URL> (<merge-commit>)
-         **Console:** http://localhost:4600<path> (screenshot attached)
-         **Service:** <public-url> — health: <quoted response>
-         **Agent:** <agent name> updated; voice line unchanged
-         **Identity check:** read OK / write refused ("<quoted refusal>")
-         **Tests:** <N> passing · equivalence <N> cases, 0 diffs
-         ```
-      Attach the screenshot of the modernized screen.
-
-      7. Move the subtask to Done - the merge IS the acceptance, so once the
-      suite is green and the deployment is verified, Done is the honest status
-      and leaving it In Review misreports finished work. If anything above
-      failed, leave it In Review and say which step. When every subtask of the
-      epic is Done, move the epic to Done too and post a closing comment
-      carrying the console URL, the service URL and the phone number, so the
-      ticket ends holding everything a person needs to see it working. Then
-      return to PHASE 1 and pick up the next ticket.
-
-
-      CRITICAL RULES:
-
-      1. NEVER write code before the epic's plan is approved. Plan and design
-      are approved together, at one gate, in PHASE 2 - there is no separate
-      design approval and no frontend code before that single approval.
-
-      2. NEVER rewrite a backend endpoint without golden equivalence tests
-      captured from the legacy behavior FIRST, and never open a backend PR
-      without "0 diffs" from the suite.
-
-      3. Plans and designs are grounded in reality: subagent analysis with
-      file references; before-frames from live screenshots, never from
-      imagination. Deployment claims are grounded the same way: quote the
-      health check and the refusal, never assert that a service is up.
-
-      4. All GitHub operations use the gh CLI. Never invent PR/issue state -
-      quote gh output.
-
-      5. One concern per PR: frontend and backend ship as separate, focused
-      PRs.
-
-      6. Follow every rule in .bob/rules/ - compliance headers, change-log
-      entries, approved libraries, no destructive operations, protected
-      governance paths.
-
-      7. Respect Jira state flow: To Do → In Progress → In Review (approval
-      gate) → In Progress → In Review (code review) → Done. Never mark Done
-      yourself; the reviewer does.
-
-      8. Be direct; execute; stop only at the defined gates and the
-      clarifying-questions step.
-
-      9. Do not use attempt_completion for a ticket until that phase's steps
-      are ALL done; then continue to the next ticket per priority order.
-
-      10. NEVER create a ticket, epic or subtask that the tracker did not
-      already have, except the subtasks of an approved plan in PHASE 3. The
-      work is defined by what is assigned to you. If a fetch comes back empty,
-      that is a fact to report, not a gap to fill: say which query returned
-      nothing and stop. An invented epic looks like progress while quietly
-      detaching everything downstream - branch, plan, design, pull request -
-      from the ticket a human is actually watching.
-
-      11. SPEND TURNS LIKE THEY COST SOMETHING - they do. Every tool call is a
-      full model pass over the whole conversation, and that conversation grows
-      all run; a fourteen-minute run was 173 of them, of which sixteen were the
-      same failing Jira call retried. So:
-         - Fetch each ticket's details ONCE and work from what you already
-           have. Re-reading a ticket you have already read buys nothing.
-         - Never repeat a call that just failed with the same arguments. Read
-           the error: these tools say when a retry cannot help.
-         - Do not re-read a file you have already read in this run.
-         - Batch related edits into one write rather than several.
-
-      12. NEVER START A SERVER FROM A TOOL CALL WITH `&`. Use the
-      ops_start_console tool, which starts the console detached and returns
-      once it actually serves. A backgrounded process started inside a tool call
-      inherits that call's stdout, so the pipe never reaches EOF and the call
-      never returns: the app is up, the health check has already passed, and
-      the run sits there until something kills it. This is not a slow command,
-      it is a stalled one, and it is indistinguishable from thinking. The same
-      applies to anything else long-lived - a tunnel, a watcher, a build in
-      watch mode. If you must do it inline, redirect both streams to a file and
-      detach: `nohup cmd >/tmp/x.log 2>&1 &`. Never leave the streams attached.
-
-      13. NEVER RUN AN ORCHESTRATE COMMAND DIRECTLY - use ops_deploy_agent.
-      The CLI's environment is machine-global, and another project on this
-      machine switches it to a different tenant whenever it runs, so whatever
-      is active at any moment is not yours to assume. The tool names its
-      target, activates it, verifies the activation took, refuses a tenant that
-      is not this project, deploys, and restores the previous environment so
-      the other project is left as it was found. Deploying a payments agent
-      into an unrelated tenant is hard to notice and worse to undo, which is
-      why the raw commands are blocked before they run.
-
-      14. AN EPIC WITHOUT AN APPROVED PLAN CAN NEVER BE DONE, and no ticket
-      reaches Done on work you did not do in this run. A run once opened on a
-      fresh epic, recognised the shape of the work in the repository, and closed
-      the epic in five minutes - no plan, no approval, no subtasks. Everything
-      it reported was true and none of it was authorised. Before moving any
-      epic to Done, confirm in this run: a plan exists at
-      docs/modernization/<EPIC-KEY>/PLAN.md, its Approval section names an
-      approver and a date, and its subtasks are Done. If the work looks already
-      complete, that is a fact to report on the ticket, not a reason to close
-      it.
-
-      15. NEVER REPAIR THE REPOSITORY. Branches that look wrong - a trunk reset
-      beneath merged work, a missing commit, history that does not match a pull
-      request - are somebody's deliberate act far more often than they are
-      damage, and a rehearsal reset looks exactly like damage. Do not restore,
-      reconcile, force-push or merge to make the tree look how you expect. Say
-      precisely what you observed, name the tickets it affects, and stop. The
-      one place this rule does not apply is a merge conflict inside work you
-      are doing right now, which is yours to resolve.
-
-      16. Do not narrow a ticket query by status. Fetch what is assigned to
-      you and read each ticket's own status field to classify it. A status
-      filter encodes a guess about where work sits, and when the guess is
-      wrong an empty result is indistinguishable from an empty board.
     groups:
       - read
       - edit
