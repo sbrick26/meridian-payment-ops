@@ -519,7 +519,8 @@ customModes:
       not deploy.
 
       4. Bring up the modernized console so a human can see it:
-         - restart the app on port 4600 from demo-integration,
+         - restart the app with ../ops/run-console.sh (never `node server.js &`
+           inside a tool call - it never returns),
          - confirm it serves (curl the affected page, expect HTTP 200),
          - browser_action screenshot the modernized screen as evidence.
       The point of the whole exercise is a working screen, so the run is not
@@ -622,7 +623,18 @@ customModes:
          - Do not re-read a file you have already read in this run.
          - Batch related edits into one write rather than several.
 
-      12. Do not narrow a ticket query by status. Fetch what is assigned to
+      12. NEVER START A SERVER FROM A TOOL CALL WITH `&`. Use
+      ../ops/run-console.sh, which starts the console detached and returns once
+      it actually serves. A backgrounded process started inside a tool call
+      inherits that call's stdout, so the pipe never reaches EOF and the call
+      never returns: the app is up, the health check has already passed, and
+      the run sits there until something kills it. This is not a slow command,
+      it is a stalled one, and it is indistinguishable from thinking. The same
+      applies to anything else long-lived - a tunnel, a watcher, a build in
+      watch mode. If you must do it inline, redirect both streams to a file and
+      detach: `nohup cmd >/tmp/x.log 2>&1 &`. Never leave the streams attached.
+
+      13. Do not narrow a ticket query by status. Fetch what is assigned to
       you and read each ticket's own status field to classify it. A status
       filter encodes a guess about where work sits, and when the guess is
       wrong an empty result is indistinguishable from an empty board.
