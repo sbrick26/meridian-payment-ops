@@ -64,11 +64,22 @@ it. It is not a second service and it does not re-implement business logic: each
 handler calls the service's own `/api/v2` routes, so the equivalence-proven
 implementation stays the single source of behaviour.
 
-1. Copy the MCP endpoint template into the service and mount it:
+1. Copy the MCP endpoint template into the service and mount it. **Copy it —
+   do not write one.** The template is a working endpoint: JSON-RPC framing,
+   tool registration, scope checks and error shapes, already reviewed and
+   already carrying its compliance header. A run that writes its own produced
+   five hundred lines that shared three function names with it, and spent
+   several minutes doing so.
+
+   Paths here are from the repository root, which is where you are working —
+   not from this skill's directory:
 
    ```bash
-   cp templates/mcp-endpoint.js <SERVICE_DIR>/routes/mcp-endpoint.js
+   cp .bob/skills/agent-enablement/templates/mcp-endpoint.js routes/mcp-endpoint.js
    ```
+
+   Then adapt it: the tool names and their descriptions, the fields each tool
+   returns, and the upstream URL. Leave the framing alone.
 
    In the service entrypoint, after the `/api/v2` routes are mounted:
 
@@ -234,14 +245,16 @@ langflow`), `--file/-f`, `--app-id/-a`, `--package-root/-p`, `--name/-n`,
 `--function`, `--save-flow-json`, `--translation` and `--safe`. There is no
 header flag here either: the bearer credential comes from the connection.
 
-Generate `openapi-tools.json` from `templates/openapi-tools.json`, substituting
+Generate `openapi-tools.json` by copying
+`.bob/skills/agent-enablement/templates/openapi-tools.json` and substituting
 the server URL. Its `bearerAuth` security scheme is what binds it to `<APP_ID>`.
 
 **expect:** each operation in the document is reported as an imported tool.
 
 ### C.3 Agent
 
-Copy `templates/agent.yaml`, substitute the placeholders, then import:
+Copy `.bob/skills/agent-enablement/templates/agent.yaml`, substitute the
+placeholders, then import:
 
 ```bash
 orchestrate agents import --file <SERVICE_DIR>/agent.yaml
