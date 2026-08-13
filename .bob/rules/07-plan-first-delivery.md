@@ -8,10 +8,22 @@ record must exist in the repository under:
 docs/modernization/<EPIC-KEY>/PLAN.md
 ```
 
-`<EPIC-KEY>` is the tracker key of the epic the work belongs to. This applies to
-**every** code-adding change — any commit or pull request — whether or not the
-modernization skill was invoked by name. If a request would add code without a
-plan, plan it first.
+`<EPIC-KEY>` is the tracker key of the **epic** the work belongs to — never the
+key of the subtask doing the work. One epic has one plan; its subtasks share it.
+A pull request for subtask KAN-39 is satisfied by the plan at
+`docs/modernization/KAN-37/PLAN.md` when KAN-37 is its parent epic, and looking
+for a plan named after the subtask will always fail.
+
+**The plan does not have to appear in the diff.** It is approved on the ticket
+and committed to the integration branch before implementation starts, so by the
+time code is written the plan is already in the repository and a diff that adds
+code correctly contains no plan. Check the branch, not the change: the question
+is whether an approved plan exists for the epic, not whether this commit
+introduced one.
+
+This applies to **every** code-adding change — any commit or pull request —
+whether or not the modernization skill was invoked by name. If a request would
+add code without a plan, plan it first.
 
 ## What PLAN.md must contain
 
