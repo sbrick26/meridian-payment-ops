@@ -26,6 +26,7 @@ var utils = require('./utils');
 var seed = require('./seed');
 var apiV2PaymentStatus = require('./routes/api-v2/payment-status');
 var apiV2RiskScore     = require('./routes/api-v2/risk-score');
+var mcpEndpoint        = require('./routes/mcp-endpoint');
 
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
@@ -67,6 +68,10 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
  * The v2 routes read db from app.locals; that is set in openDatabase(). */
 app.use('/api/v2/payment-status', apiV2PaymentStatus);
 app.use('/api/v2/risk-score',     apiV2RiskScore);
+
+/* MCP tool interface — read-only AI assistant channel, rule 11
+ * Scoped identity: inquiry scope only; ops scope refused by vault middleware. */
+app.use('/mcp', mcpEndpoint);
 
 /* ------------------------------------------------------------------
  * database
