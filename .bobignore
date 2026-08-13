@@ -13,3 +13,18 @@ id_rsa*
 node_modules/
 coverage/
 dist/
+
+# Control surface — protected, but NOT hidden.
+#
+# These files cannot go in this list. .bobignore removes a file from the
+# agent's reach entirely, and the agent has to READ its own rulebook and mode
+# in order to be governed by them: listing them here made the CI canary fail
+# with "Access denied: .bob/custom_modes.yaml" and the audit refused to run
+# without the Engineering Constitution loaded. Governance that cannot be read
+# is not governance.
+#
+# They are protected by the mechanisms built for it, and those work: rule 06
+# forbids touching them, the deterministic CI guard blocks any pull request
+# that modifies them (it caught exactly that today, before any model ran), and
+# CODEOWNERS requires the owner's review. Protection belongs in the gate, not
+# in a blindfold.
