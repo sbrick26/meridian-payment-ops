@@ -184,29 +184,20 @@ customModes:
             420KB of base64, about 105,000 tokens, into the conversation; that
             is what emptied the BEFORE frame on earlier runs. Use the
             committed file.
-         b. figma_get_status first. The plugin attaches to the bridge a few
-            seconds after the connection opens, so a single "not connected"
-            reply is not a verdict: retry status up to three times, a few
-            seconds apart, before concluding the bridge is down. Do NOT call
-            figma_reconnect to recover - it raises another server without
-            fixing anything.
-            SEVERAL BRIDGE SERVERS ON DIFFERENT PORTS IS NORMAL AND NOT A
-            PROBLEM. The plugin connects to every server it finds in the range
-            9223-9232, including ones started after it launched, so a call
-            succeeds whichever port this session landed on. A status reply
-            mentioning a fallback port is information, not a fault: proceed.
-            Leftover servers are cleaned up between rehearsals, not by you.
-            READ WHAT STATUS ACTUALLY SAYS. If it reports a FALLBACK PORT -
-            that this server is on 9224 or above because 9223 was taken - the
-            bridge is not broken: the plugin is attached to a different server
-            in the range. The only fix is on the human's side, and it is one
-            action: close the Desktop Bridge plugin in Figma and run it again,
-            because the plugin scans the port range solely at launch. Say
-            exactly that, in those words, then re-check status once.
-            If status still reports unavailable after three checks, do NOT abandon the epic: finish the plan,
-            publish it, and say in the approval comment that the design frames
-            are pending the Figma bridge. The plan is the gate; the design is
-            evidence attached to it.
+         b. DO NOT CHECK THE BRIDGE FIRST - just draw. figma_get_status is a
+            snapshot, the plugin takes six to ten seconds to attach after a
+            server starts, and a single early check reports "not connected"
+            while the plugin is in fact attached. A run lost its whole design
+            step to exactly that: one status call at sixteen seconds, a false
+            negative, and the frames abandoned as "pending" with the plugin
+            connected the entire time.
+            Go straight to the figma_execute_file call in step e. The MCP
+            server waits for the plugin itself before forwarding, so the call
+            either draws both frames or returns a real bridge error. Only if
+            THAT fails should you report the bridge as unavailable, finish the
+            plan, and say the frames are pending. Never abandon the design on
+            the strength of a status check alone.
+
          c. WHICH FIGMA TOOLS TO USE. Creating or changing canvas content is
             only possible through the Desktop Bridge plugin: figma_execute and
             figma_set_image_fill need it, and they are the only reason the
