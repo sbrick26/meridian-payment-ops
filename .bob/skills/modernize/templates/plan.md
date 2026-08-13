@@ -76,8 +76,25 @@
 
 ## Approval
 
+<!-- Filled in the moment approval is recorded on the ticket, before any
+     subtask is created. Left as "(pending)" this document reads - correctly -
+     as work that began without approval, and every code pull request for the
+     epic will fail rule 07. -->
+
 | | |
 |---|---|
 | **Approver** | <name> |
 | **Date** | <YYYY-MM-DD> |
 | **Recorded on** | <EPIC-KEY> |
+| **Approving comment** | <quote the sentence that approved it> |
+
+## Design review
+
+<!-- Required by rule 09 before any user-visible change is implemented. The
+     person who approved the plan approved the frames attached to it. -->
+
+| | |
+|---|---|
+| **Reviewing designer** | <name> |
+| **Date** | <YYYY-MM-DD> |
+| **Reviewed** | <EPIC-KEY> BEFORE / AFTER frames, <figma url> |
