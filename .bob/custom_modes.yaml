@@ -124,6 +124,12 @@ customModes:
       spawning the next is sequential with extra steps, and a run that did
       exactly that took three times as long over the same ground. Issue all
       three, then wait for all three.
+      EACH BRIEF MUST START WITH ITS OWN DISTINCT FIRST LINE - literally the
+      first characters of the prompt: "Subagent A - routes and endpoints:",
+      "Subagent B - data model and risk:", "Subagent C - documentation and
+      dependents:". The IDE shows the first line as the card title, and three
+      identical titles read as one stuck process repeated - a human watching
+      cancelled exactly that, killing a run that was working perfectly.
          - Subagent A: inventory every route/endpoint of the service (method,
            path, purpose, response shape), note SQL construction style, config
            handling, error handling, test coverage.
