@@ -1,5 +1,32 @@
 [
   {
+    "id": "31672124807-df96151",
+    "timestamp": "2026-08-13T05:58:14Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": ".bob/custom_modes.yaml",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "10",
+    "pr_title": "[KAN-44 + KAN-42] Held Payments \u2014 MDL 3.0 frontend + MCP agent enablement",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/10",
+    "branch": "feature/KAN-41-implementation",
+    "base_ref": "demo-integration",
+    "sha": "df96151",
+    "commit_message": "docs: add PR body for KAN-41 implementation",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31672124807"
+  },
+  {
     "id": "31661396799-cb8d4d6",
     "timestamp": "2026-08-13T02:38:26Z",
     "verdict": "PASS",
