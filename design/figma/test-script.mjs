@@ -98,5 +98,32 @@ const missing = rows.filter((r) => !chars.some((c) => c.includes(r.ref)));
 console.log(`nodes: ${created.length} · frame children: ${frame.children.length} · text nodes: ${texts.length}`);
 if (missing.length) { console.error('FAIL: rows missing from canvas:', missing.map((m) => m.ref)); process.exit(1); }
 if (frame.children.length < 40) { console.error(`FAIL: only ${frame.children.length} nodes in frame - draw aborted early`); process.exit(1); }
-console.log('PASS — both frames in one call: BEFORE has an image fill, AFTER has',
+console.log('PASS — table variant: BEFORE has an image fill, AFTER has',
   frame.children.length, 'nodes,', rows.length, 'rows');
+
+// ---- agent variant ----------------------------------------------------------
+// The same script draws the potential-agent-experience mock. Re-import with a
+// cache-busted URL so the module evaluates again under new PARAMS.
+globalThis.PARAMS = {
+  pageName: 'TEST - Agent Mock', frameName: 'TEST AGENT AFTER', x: 0, y: 0,
+  variant: 'agent',
+  beforeFrameName: 'TEST AGENT BEFORE',
+  beforeImage: readFileSync(path.join(HERE, '..', '..', 'docs/design/legacy-held-payments.png')).toString('base64'),
+  tokens: {},
+  conversation: [
+    { role: 'user',    text: 'What is going on with invoice INV-2026-4411?' },
+    { role: 'agent',   text: 'Payment MT-2026-08822 to Lion City Trading is PENDING - PO mismatch, 11 days old.' },
+    { role: 'user',    text: 'Release it.' },
+    { role: 'refusal', text: 'I cannot release payments - my identity has read-only scope. I can note it for a clerk.' },
+  ],
+  meta: { footnote: 'f' },
+};
+await import('data:text/javascript,' + encodeURIComponent(src) + '//agent-variant');
+await new Promise((r) => setTimeout(r, 60));
+const chat = created.find((n) => n.name === 'chat panel');
+if (!chat) { console.error('FAIL: agent variant drew no chat panel'); process.exit(1); }
+const bubbles = created.filter((n) => n.name.endsWith(' bubble'));
+if (bubbles.length < 4) { console.error(`FAIL: expected 4 chat bubbles, got ${bubbles.length}`); process.exit(1); }
+const agentBefore = created.filter((n) => n.type === 'FRAME' && n.name === 'TEST AGENT BEFORE');
+if (!agentBefore.length) { console.error('FAIL: agent variant lost the BEFORE frame'); process.exit(1); }
+console.log('PASS — agent variant:', bubbles.length, 'bubbles, chat panel + BEFORE frame present');

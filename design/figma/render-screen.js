@@ -174,6 +174,53 @@ const C = {
   rect({ x: 1300, y: 16, w: 108, h: 24, fill: '#1e2532', radius: 4, name: 'user chip' });
   text('D. WHITAKER', { x: 1300, y: 16, w: 108, h: 24, size: 10, color: '#c7cdd8', align: 'CENTER', mono: true });
 
+  if ((PARAMS.variant || '') === 'agent') {
+    // ---- agent-experience mock (POTENTIAL UI, not build scope) ------------
+    // Drawn from the same tokens as everything else. The conversation comes
+    // from PARAMS so the mock can show the actual demo script: a real
+    // question, a real answer, and the refusal that proves the boundary.
+    const A = PARAMS.agent || {};
+    rect({ x: PAD, y: 88, w: 400, h: 764, fill: C.surface, radius: 8, stroke: C.border, name: 'context panel' });
+    text(A.title || 'Meridian AP Assistant', { x: PAD + 24, y: 116, w: 352, size: 22, style: 'Semi Bold' });
+    text(A.subtitle || 'Ask about any held payment - status, hold reason, timeline.',
+         { x: PAD + 24, y: 152, w: 352, h: 44, size: 13, color: C.muted });
+    rect({ x: PAD + 24, y: 216, w: 352, h: 92, fill: C.subdued, radius: 6, name: 'identity card' });
+    text('IDENTITY', { x: PAD + 40, y: 228, w: 200, size: 10, style: 'Semi Bold', color: C.muted, spacing: 0.6 });
+    text(A.identity || 'ap-inquiry-agent - read-only', { x: PAD + 40, y: 250, w: 320, size: 13, mono: true });
+    text(A.phone || 'Voice: +1 (415) 338-9157', { x: PAD + 40, y: 276, w: 320, size: 13 });
+    const caps = A.capabilities || [
+      'Payment status by reference or invoice',
+      'Hold reasons and ageing',
+      'Risk score, explained',
+      'Cannot release or modify payments',
+    ];
+    text('WHAT IT CAN DO', { x: PAD + 24, y: 336, w: 300, size: 10, style: 'Semi Bold', color: C.muted, spacing: 0.6 });
+    caps.forEach((cap, k) => text('-  ' + cap, {
+      x: PAD + 24, y: 360 + k * 28, w: 352, size: 13,
+      color: k === caps.length - 1 ? C.critical : C.text,
+    }));
+    const cx = PAD + 424, cw = W - PAD - cx;
+    rect({ x: cx, y: 88, w: cw, h: 764, fill: C.surface, radius: 8, stroke: C.border, name: 'chat panel' });
+    let cy = 120;
+    for (const m of (PARAMS.conversation || [])) {
+      const isUser = m.role === 'user';
+      const isRefusal = m.role === 'refusal';
+      const lines = Math.max(1, Math.ceil(String(m.text || '').length / 58));
+      const bh = lines * 20 + 20;
+      const bw = Math.min(cw - 160, 620);
+      const bx = isUser ? cx + cw - 40 - bw : cx + 40;
+      rect({ x: bx, y: cy, w: bw, h: bh, radius: 8, name: (m.role || 'agent') + ' bubble',
+             fill: isUser ? C.action : (isRefusal ? '#fdecea' : C.canvas),
+             stroke: isUser ? undefined : (isRefusal ? C.critical : C.border) });
+      text(m.text, { x: bx + 14, y: cy + 10, w: bw - 28, h: bh - 20, size: 13,
+                     color: isUser ? C.inverse : (isRefusal ? C.critical : C.text) });
+      cy += bh + 18;
+    }
+    rect({ x: cx + 40, y: 788, w: cw - 80, h: 40, fill: C.canvas, radius: 20, stroke: C.border, name: 'input bar' });
+    text('Ask about a payment...', { x: cx + 58, y: 788, w: 300, h: 40, size: 13, color: C.muted });
+    text((PARAMS.meta && PARAMS.meta.footnote) || 'Concept mock - potential agent experience. Not in build scope for this phase.',
+         { x: PAD, y: 872, w: 1000, size: 11, color: C.muted });
+  } else {
   // ---- breadcrumb + title -------------------------------------------------
   rect({ x: 0, y: 56, w: W, h: 94, fill: C.surface, name: 'title band' });
   text('Dashboard  /  Held Payments', { x: PAD, y: 70, w: 400, size: 11, color: C.muted });
@@ -246,6 +293,8 @@ const C = {
   });
   text(PARAMS.meta?.pageNote || '', { x: PAD + 220, y: py, w: 400, h: 32, size: 12, color: C.muted });
   text(PARAMS.meta?.footnote || '', { x: PAD, y: py + 52, w: W - PAD * 2, size: 11, color: C.muted });
+
+  }
 
   figma.currentPage.selection = [frame];
   const beforeFrame = page.findChild((n) => n.name === PARAMS.beforeFrameName);
