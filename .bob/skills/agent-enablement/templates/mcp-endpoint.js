@@ -1,3 +1,11 @@
+/* ---------------------------------------------------------------------------
+ * Function: POST /mcp (JSON-RPC tools/list, tools/call)
+ * Owner:    payments-platform-team
+ * Control:  AC-6 (authorization/operator entitlements), AC-2, IA-2 (identity)
+ *           SOX/PCI: SOX 404 segregation of duties; PCI Req. 8
+ * Reviewed: <YYYY-MM-DD>
+ * ------------------------------------------------------------------------- */
+
 /**
  * mcp-endpoint.js — assistant tool interface for the modernized AP payments API.
  *
