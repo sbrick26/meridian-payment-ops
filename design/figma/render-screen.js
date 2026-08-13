@@ -88,7 +88,8 @@ const C = {
   // mid-sequence, and when it dropped between creating this frame and filling
   // it, what was left on the canvas was a black rectangle. One call either
   // produces both frames or produces neither, which is the honest outcome.
-  if (PARAMS.beforeImage && PARAMS.beforeFrameName) {
+  let beforeRect = null;
+  if (PARAMS.beforeFrameName) {
     const oldBefore = page.findChild((n) => n.name === PARAMS.beforeFrameName);
     if (oldBefore) oldBefore.remove();
     const bf = figma.createFrame();
@@ -101,10 +102,20 @@ const C = {
     const shot = figma.createRectangle();
     shot.name = 'legacy-screenshot';
     shot.resize(1440, 920);
-    shot.x = bf.x; shot.y = bf.y;
-    const img = figma.createImage(b64ToBytes(PARAMS.beforeImage));
-    shot.fills = [{ type: 'IMAGE', scaleMode: 'FILL', imageHash: img.hash }];
+    shot.x = 0; shot.y = 0;
+    // The image is NOT applied here. Decoding 400KB of base64 inside the
+    // plugin sandbox produced an image node whose fill rendered blank - the
+    // bytes were verified identical, the geometry was verified exact, and it
+    // still drew white. The upstream figma_set_image_fill tool decodes in the
+    // browser bridge instead, and that path has rendered this same file
+    // correctly on canvas. So this script leaves a named rectangle and
+    // returns its id, and the caller applies the image with the proven tool.
+    if (PARAMS.beforeImage) {
+      const img = figma.createImage(b64ToBytes(PARAMS.beforeImage));
+      shot.fills = [{ type: 'IMAGE', scaleMode: 'FILL', imageHash: img.hash }];
+    }
     bf.appendChild(shot);
+    beforeRect = shot;
   }
 
   const W = 1440, H = 920, PAD = 32;
@@ -301,6 +312,7 @@ const C = {
   const result = {
     ok: true, page: page.name,
     beforeFrameId: beforeFrame ? beforeFrame.id : null,
+    beforeRectId: beforeRect ? beforeRect.id : null,
     afterFrameId: frame.id,
     rows: (PARAMS.rows || []).length,
   };
