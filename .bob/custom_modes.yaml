@@ -245,22 +245,27 @@ customModes:
          g. If the bridge is unavailable, finish the plan and say the frames
             are pending - do not retry in a loop.
 
-         h. FREEZE THE SPEC. Implementation must never depend on a live design
-            tool, so capture everything the build needs while the bridge is up
-            and commit it:
-              - docs/design/<EPIC-KEY>-spec.md — the exact values read from
-                the AFTER frame (figma_get_component_for_development on it):
-                every colour with its hex and token name, type sizes and
-                weights, spacing, border radii, component states, and the
-                column list and order for tables. Numbers, not adjectives.
-              - docs/design/<EPIC-KEY>-after.png — the frame image, via
-                figma_find_nodes (to get the node id) then figma_export_frame.
-                Those two run over the REST API and need no plugin, so an
-                approved design can always be captured even if the bridge has
-                dropped or Figma is closed.
+         h. FREEZE THE SPEC from what you already have. You passed the
+            tokens into the render call and you have the frame ids it returned,
+            so the spec is written from those - do NOT call
+            figma_get_component_for_development to read back values you
+            supplied a moment ago. That call goes over the REST API, it is a
+            round trip that can fail on its own, and it tells you nothing new.
+              - docs/design/<EPIC-KEY>-spec.md — every colour with its hex and
+                token name, type sizes and weights, spacing, border radii,
+                component states, and the column list and order for the table.
+                Numbers, not adjectives.
+              - docs/design/<EPIC-KEY>-after.png — export the AFTER frame with
+                figma_export_frame using the id the render call returned. If it
+                fails, say so in one line and carry on: the frames are on the
+                canvas and the Figma URL is in the plan, so a missing PNG is a
+                convenience lost, not the design.
               - the current-state image is already committed at
                 docs/design/legacy-held-payments.png; reference that path in
-                the PR body's side-by-side rather than writing a second copy.
+                the PR body rather than writing a second copy.
+            The whole design step is one render call, one screenshot to check
+            it, and one export. Anything beyond that is a round trip you are
+            adding to a bridge that can drop, for information you already hold.
 
       7. Publish plan and design TO THE TICKET. The plan is not a pull
       request. A pull request is for code: it is reviewed by engineers, it runs
