@@ -5,7 +5,7 @@
 | **Epic** | KAN-51 |
 | **Author** | bobdev |
 | **Date** | 2026-08-13 |
-| **Status** | Awaiting approval |
+| **Status** | Approved |
 
 ## Current state
 
@@ -71,15 +71,15 @@ _(none — no blockers)_
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Recorded on** | KAN-51 |
-| **Approving comment** | (pending) |
+| **Approving comment** | "approved - plan and design look good. Proceed with the subtasks." (KAN-51 comment 10334) |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending — approver of this plan reviewed BEFORE/AFTER frames attached to KAN-51) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik (approver of this plan reviewed BEFORE/AFTER frames attached to KAN-51) |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-51 BEFORE / AFTER frames, https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu/ |
