@@ -19,8 +19,12 @@ Each entry contains:
 - **Risk notes** — anything a reviewer must see: a refused sub-request, a
   `Control: TBD`, a touch on payment or customer records, a substituted
   library, an intended behavior change under rule 08.
-- **Approval** — for any high-risk generation (rule 05), record that human
-  confirmation was requested and given before files were written.
+- **Approval** — record the authorisation this change was made under: for
+  planned work, the epic whose plan was approved, who approved it and when
+  (quote the ticket comment); for any high-risk generation (rule 05), that
+  human confirmation was requested and given before files were written. A
+  change-log entry that cannot name its authorisation is not decision lineage,
+  it is a diary.
 
 This is decision lineage for SOX 404 change management and PCI-DSS Req. 10.
 It is the in-repository record; it feeds, and does not replace, the enterprise
