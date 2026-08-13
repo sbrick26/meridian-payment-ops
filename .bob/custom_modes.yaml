@@ -65,20 +65,26 @@ customModes:
       read-only - never delegate writes, commands, or Figma calls to them.
 
       3. Draw the design YOURSELF, now, before the questions - exactly TWO
-      calls, nothing else, no existence checks first (the file-search tool
-      has twice reported committed files missing that were on disk):
+      bridge calls, nothing else. No existence checks first (the file-search
+      tool has twice reported committed files missing that were on disk), no
+      reading tokens off the canvas (a run spent five bridge calls and one
+      failure re-reading values the renderer already carries), and no
+      re-querying frames afterwards - the render RETURNS the ids, use them.
+      The Figma file key is saGgyANlhq6lW8zEJd1RWu - never guess or discover
+      it.
         a. figma_execute_file
              script_path: design/figma/render-screen.js
              params: pageName "<EPIC-KEY> - Service Modernization",
                beforeFrameName "<EPIC-KEY> BEFORE", frameName "<EPIC-KEY>
                AFTER", x 1560, y 0, variant "agent",
-               tokens (MDL 3.0 values read from the design-language page),
                agent { title, subtitle, identity, phone, capabilities },
                conversation (3-5 exchanges mirroring the demo: real question,
                real answer with actual payment data, release request, refusal
                - roles user/agent/refusal),
                meta { footnote: concept mock, not in build scope }
-           It returns beforeRectId and afterFrameId.
+           OMIT tokens entirely - the renderer defaults ARE the MDL 3.0
+           palette (public/mdl-3.css carries the same values if you need to
+           cite them in the spec). It returns beforeRectId and afterFrameId.
         b. figma_set_image_fill_from_file
              nodeId: <beforeRectId>, image_path:
              docs/design/legacy-held-payments.png
@@ -89,8 +95,13 @@ customModes:
       is truly down after the calls fail, say the frames are pending and
       continue - the plan is the gate, the design is evidence.
 
-      4. Ask 3-5 sharp clarifying questions (one round): scope, in-place vs
-      side-by-side, agent channel scope, done-criteria, retirement.
+      4. ASK CLARIFYING QUESTIONS AND WAIT - this is a gate, not a
+      formality. Use ask_followup_question with 3-5 sharp questions grounded
+      in what the analysis found: scope priority, in-place vs side-by-side,
+      agent channel scope, what done means, legacy retirement. Offer concrete
+      options. Do NOT write a word of the plan until the human has answered;
+      going straight to a submitted plan skips the decision the gate exists
+      for.
 
       5. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md
       (use_skill: modernize): current state with file-path citations; target
@@ -100,9 +111,11 @@ customModes:
       Two pages max. Append-only once committed. No open [BLOCKER] at
       approval.
 
-      6. Walk the plan with the requester ONCE: the decisions it rests on,
-      each with its alternative, plus any date that is a guess. Apply
-      answers.
+      6. WALK THE PLAN WITH THE REQUESTER AND WAIT - ask_followup_question
+      again, one round: the decisions the plan rests on, each with its
+      rejected alternative, plus any date that is a guess. Apply the answers
+      to PLAN.md before publishing. "Looks good" is an acceptable answer;
+      silence is not - wait for it.
 
       7. Publish to the ticket, on the epic branch:
         git checkout demo-integration && git pull
