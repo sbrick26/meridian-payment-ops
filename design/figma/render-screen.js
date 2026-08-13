@@ -18,6 +18,24 @@
 // Every value it draws comes from PARAMS, so the design system stays the
 // source of truth and this file stays layout only.
 
+
+// Decode base64 without relying on atob: the plugin sandbox does not reliably
+// provide it, and a missing global here fails the whole draw.
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function b64ToBytes(b64) {
+  const clean = String(b64).replace(/[^A-Za-z0-9+/]/g, '');
+  const out = new Uint8Array(Math.floor(clean.length * 3 / 4));
+  let p = 0;
+  for (let i = 0; i < clean.length; i += 4) {
+    const n = (B64.indexOf(clean[i]) << 18) | (B64.indexOf(clean[i + 1]) << 12)
+            | (B64.indexOf(clean[i + 2] || 'A') << 6) | B64.indexOf(clean[i + 3] || 'A');
+    out[p++] = (n >> 16) & 255;
+    if (i + 2 < clean.length) out[p++] = (n >> 8) & 255;
+    if (i + 3 < clean.length) out[p++] = n & 255;
+  }
+  return out.subarray(0, p);
+}
+
 const T = PARAMS.tokens || {};
 const hex = (h) => {
   const s = String(h || '#000000').replace('#', '');
@@ -64,6 +82,30 @@ const C = {
 
   const existing = page.findChild((n) => n.name === PARAMS.frameName);
   if (existing) existing.remove();
+
+  // The BEFORE frame is built here rather than in a separate call. Every extra
+  // round trip over the bridge is another chance for the connection to drop
+  // mid-sequence, and when it dropped between creating this frame and filling
+  // it, what was left on the canvas was a black rectangle. One call either
+  // produces both frames or produces neither, which is the honest outcome.
+  if (PARAMS.beforeImage && PARAMS.beforeFrameName) {
+    const oldBefore = page.findChild((n) => n.name === PARAMS.beforeFrameName);
+    if (oldBefore) oldBefore.remove();
+    const bf = figma.createFrame();
+    bf.name = PARAMS.beforeFrameName;
+    bf.resize(1440, 920);
+    bf.x = (PARAMS.x || 0) - 1560;
+    bf.y = PARAMS.y || 0;
+    bf.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+    page.appendChild(bf);
+    const shot = figma.createRectangle();
+    shot.name = 'legacy-screenshot';
+    shot.resize(1440, 920);
+    shot.x = bf.x; shot.y = bf.y;
+    const img = figma.createImage(b64ToBytes(PARAMS.beforeImage));
+    shot.fills = [{ type: 'IMAGE', scaleMode: 'FILL', imageHash: img.hash }];
+    bf.appendChild(shot);
+  }
 
   const W = 1440, H = 920, PAD = 32;
   const frame = figma.createFrame();
@@ -206,5 +248,11 @@ const C = {
   text(PARAMS.meta?.footnote || '', { x: PAD, y: py + 52, w: W - PAD * 2, size: 11, color: C.muted });
 
   figma.currentPage.selection = [frame];
-  console.log(JSON.stringify({ ok: true, frameId: frame.id, page: page.name, rows: (PARAMS.rows || []).length }));
+  const beforeFrame = page.findChild((n) => n.name === PARAMS.beforeFrameName);
+  console.log(JSON.stringify({
+    ok: true, page: page.name,
+    beforeFrameId: beforeFrame ? beforeFrame.id : null,
+    afterFrameId: frame.id,
+    rows: (PARAMS.rows || []).length,
+  }));
 })();

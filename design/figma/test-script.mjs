@@ -50,6 +50,12 @@ globalThis.figma = {
   createText: () => node('TEXT'),
   createRectangle: () => node('RECTANGLE'),
   loadFontAsync: async (f) => { loaded.add(`${f.family}|${f.style}`); },
+  createImage: (bytes) => {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 8) {
+      throw new Error(`createImage got ${bytes && bytes.length} bytes - base64 decode failed`);
+    }
+    return { hash: 'stub-image-hash' };
+  },
 };
 
 const rows = JSON.parse(
@@ -59,6 +65,8 @@ const rows = JSON.parse(
 
 globalThis.PARAMS = {
   pageName: 'TEST - Held Payments', frameName: 'TEST AFTER', x: 0, y: 0,
+  beforeFrameName: 'TEST BEFORE',
+  beforeImage: readFileSync(path.join(HERE, '..', '..', 'docs/design/legacy-held-payments.png')).toString('base64'),
   tokens: { action: '#1f5fd6', navy900: '#101827', surface: '#ffffff', surfaceSubdued: '#edeff3',
             canvas: '#f7f8fa', border: '#d6dae2', textPrimary: '#10151f', textSecondary: '#5a6577',
             textInverse: '#ffffff', success: '#1e7a52', warning: '#a66a0a', critical: '#b3261e' },
@@ -75,7 +83,12 @@ await new Promise((r) => setTimeout(r, 60));
 
 if (failed) process.exit(1);
 const frame = created.find((n) => n.type === 'FRAME' && n.name === PARAMS.frameName);
-if (!frame) { console.error('FAIL: frame was never created'); process.exit(1); }
+if (!frame) { console.error('FAIL: after frame was never created'); process.exit(1); }
+const before = created.find((n) => n.type === 'FRAME' && n.name === PARAMS.beforeFrameName);
+if (!before) { console.error('FAIL: before frame was never created'); process.exit(1); }
+if (!before.children.some((c) => (c.fills || []).some((f) => f.type === 'IMAGE'))) {
+  console.error('FAIL: before frame has no image fill - this is the black rectangle'); process.exit(1);
+}
 
 // A frame that draws its masthead and then throws still "exists", so assert on
 // substance: the row data has to have made it onto the canvas.
@@ -85,4 +98,5 @@ const missing = rows.filter((r) => !chars.some((c) => c.includes(r.ref)));
 console.log(`nodes: ${created.length} · frame children: ${frame.children.length} · text nodes: ${texts.length}`);
 if (missing.length) { console.error('FAIL: rows missing from canvas:', missing.map((m) => m.ref)); process.exit(1); }
 if (frame.children.length < 40) { console.error(`FAIL: only ${frame.children.length} nodes in frame - draw aborted early`); process.exit(1); }
-console.log('PASS — script runs clean, all', rows.length, 'rows rendered');
+console.log('PASS — both frames in one call: BEFORE has an image fill, AFTER has',
+  frame.children.length, 'nodes,', rows.length, 'rows');
