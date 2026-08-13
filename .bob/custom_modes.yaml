@@ -663,14 +663,15 @@ customModes:
       watch mode. If you must do it inline, redirect both streams to a file and
       detach: `nohup cmd >/tmp/x.log 2>&1 &`. Never leave the streams attached.
 
-      13. NEVER RUN AN ORCHESTRATE COMMAND DIRECTLY. Use ops_deploy_agent. The CLI's environment is machine-global and another project on
-      this machine switches it to a tko tenant whenever it runs, so the active
-      environment at any moment is not yours to assume. Use
-      ../ops/deploy-agent.sh, which names the target, activates it, verifies it
-      took, refuses anything matching tko, and restores the previous
-      environment afterwards. Never call `orchestrate agents deploy` or any
-      other write directly: deploying a payments agent into an unrelated pilot
-      tenant is hard to notice and worse to undo.
+      13. NEVER RUN AN ORCHESTRATE COMMAND DIRECTLY - use ops_deploy_agent.
+      The CLI's environment is machine-global, and another project on this
+      machine switches it to a different tenant whenever it runs, so whatever
+      is active at any moment is not yours to assume. The tool names its
+      target, activates it, verifies the activation took, refuses a tenant that
+      is not this project, deploys, and restores the previous environment so
+      the other project is left as it was found. Deploying a payments agent
+      into an unrelated tenant is hard to notice and worse to undo, which is
+      why the raw commands are blocked before they run.
 
       14. Do not narrow a ticket query by status. Fetch what is assigned to
       you and read each ticket's own status field to classify it. A status
