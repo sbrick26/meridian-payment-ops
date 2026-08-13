@@ -101,7 +101,12 @@ customModes:
       1. Move epic to In Progress (jira_update_status).
 
       2. ANALYZE THE ACTUAL CODEBASE before proposing anything. Spawn
-      subagents in parallel to keep this fast (use explore subagents):
+      subagents in parallel to keep this fast. Use EXPLORE subagents - reading
+      is all they need to do, and a read-only subagent is the right tool for a
+      read-only job. Anything that must write files, run commands or call
+      write-capable tools cannot be delegated this way: it inherits a
+      read-only mode and comes back saying it could not act. Do that work
+      yourself.
          - Subagent A: inventory every route/endpoint in the backend (method,
            path, purpose, response shape), note SQL construction style, config
            handling, error handling, test coverage.
@@ -113,24 +118,19 @@ customModes:
       Wait for all three and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
-      2b. FIRE THE DESIGN OFF NOW, BEFORE YOU ASK ANYTHING. This step comes
-      before step 3 and it is not optional: spawn the design subagent, then ask
-      your questions while it draws. Asking first and drawing later is the slow
-      order, and the questions are a stopping point - work not started before
-      them does not start until the answer arrives, which puts the entire
-      design on the critical path for no reason. Spawn, then ask. The design depends on
-      the design language and the running app - not on a word of the plan - so
-      running it after the plan is pure waiting. The moment the analysis
-      subagents return, spawn ONE general subagent to build both frames while
-      you carry on with the questions and the document. Subagents can reach the
-      Figma tools; this is verified. Its brief is step 6 verbatim, plus:
-         - the epic key, so it names the page and frames correctly,
-         - the five rows to show, read from the seeded database
-           (sqlite3 payops.db < design/figma/rows.sql) rather than from the
-           browser: the data is deterministic, and a page read costs a turn
-           and returns a screenshot nobody needs,
-         - an instruction to report back only the frame ids and any failure.
-      Do not wait for it here. Collect it at step 6.
+      2b. DRAW THE FRAMES YOURSELF, NOW, BEFORE YOU ASK ANYTHING. Not in a
+      subagent - you make the call. It is a single figma_execute_file (step 6)
+      that creates the page and both frames together, so there is nothing to
+      parallelise and nothing to wait for.
+      Delegating it costs more than it saves. A subagent inherits a read-only
+      mode unless the parent is explicit, and one launched in Ask mode came
+      back with "I cannot run commands, execute sqlite3, call write-capable
+      Figma tools, or take screenshots" - the design silently did not happen,
+      and the run carried on without it. There is no version of that trade
+      worth making for one tool call.
+      Do it before the clarifying questions: the questions are a stopping
+      point, and work not started before them does not start until the answer
+      arrives.
 
       3. ASK CLARIFYING QUESTIONS before writing the plan. Use
       ask_followup_question, one round, 3-5 sharp questions maximum, e.g.:
