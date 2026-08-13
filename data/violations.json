@@ -1,5 +1,38 @@
 [
   {
+    "id": "31661178362-8e8eb32",
+    "timestamp": "2026-08-13T02:34:15Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 2,
+    "violations": [
+      {
+        "file": "change-log/2026-08-12_1930_KAN-39-api-v2.md",
+        "rule": "03-audit-and-change-log.md",
+        "detail": "The change-log entry is missing the required Approval section \u2014 there is no record that human confirmation was requested and given before files were written.",
+        "severity": "medium"
+      },
+      {
+        "file": "docs/modernization/KAN-39/PLAN.md",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "Application code was added but no plan document exists under docs/modernization/ for this epic and none is introduced by this diff.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "9",
+    "pr_title": "[KAN-39] Backend API v2: payment-status and risk-score",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/9",
+    "branch": "feature/KAN-39-api-v2",
+    "base_ref": "demo-integration",
+    "sha": "8e8eb32",
+    "commit_message": "[KAN-39] Backend API v2: payment-status and risk-score",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31661178362"
+  },
+  {
     "id": "31660415852-083f9e8",
     "timestamp": "2026-08-13T02:19:08Z",
     "verdict": "PASS",
