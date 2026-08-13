@@ -320,9 +320,15 @@ customModes:
             demo-integration. The pull request comes once the code is written,
             and it carries the plan, the design and the implementation
             together.
-         b. Attach PLAN.md and <EPIC-KEY>-after.png to the epic with
-            jira_attach_file, so the approver has both without leaving the
-            tracker.
+         b. Attach the plan to the epic as a Word document. The approver
+            reads a document, not markdown source:
+              pandoc docs/modernization/<EPIC-KEY>/PLAN.md -o /tmp/<EPIC-KEY>-PLAN.docx
+            then jira_attach_file the .docx. The .md stays committed in git as
+            the source of truth; the .docx is its readable rendering. If
+            pandoc fails for any reason, attach the .md and say so - never
+            block publishing on formatting.
+            The design is NOT attached: the Figma link in the approval comment
+            is the design deliverable, and the frames are live on the canvas.
       Capture the Figma page URL and the attachment filenames. Every code pull
       request opened later cites the committed plan path and the Figma page,
       which is how the code carries its approval with it.
@@ -332,8 +338,8 @@ customModes:
          ```
          📋 Modernization Plan and Design Ready for Review
 
-         **Plan document:** attached to this issue (PLAN.md)
-         **Design:** <FIGMA_URL> (before/after frames; after-frame attached)
+         **Plan document:** attached to this issue (<EPIC-KEY>-PLAN.docx)
+         **Design:** <FIGMA_URL> - BEFORE and AFTER frames on the epic's page
          **Committed:** docs/modernization/<EPIC-KEY>/PLAN.md on
          feature/<EPIC-KEY>-implementation
 
