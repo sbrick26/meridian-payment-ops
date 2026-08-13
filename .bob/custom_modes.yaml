@@ -36,7 +36,11 @@ customModes:
       PHASE 1: DISCOVERY AND ROUTING (always run first)
 
 
-      1. Fetch assigned tickets via jira_get_assigned_tickets.
+      1. Fetch assigned tickets via jira_get_assigned_tickets, WITH NO
+      ARGUMENTS. The bot account is configured on the server. Do not pass an
+      assignee and do not guess at one from the repository or the git config:
+      a wrong guess returns an empty board, which is indistinguishable from
+      having no work.
 
       2. For EACH ticket, fetch full details AND comments via
       jira_get_ticket_details (comments carry the approval signals).
