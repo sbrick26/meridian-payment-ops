@@ -198,14 +198,11 @@ customModes:
       requester answers "looks good" or does not engage, proceed unchanged and
       say so.
 
-      6. COLLECT THE DESIGN. Design belongs to the plan, not to a later
-      ticket: an approver deciding whether to fund the work should see what it
-      will look like, and splitting it into a second gate costs a second
-      round-trip for one decision. By now the subagent you spawned at 2b has
-      been drawing while you wrote the plan, so this step is usually just
-      reading its result. If you did not spawn it, do the work here yourself -
-      but that is the slow path, and it is the whole design sitting on the
-      critical path for no reason. What that subagent does, or you do:
+      6. THE DESIGN, IF NOT ALREADY DRAWN AT 2b. Design belongs to the plan,
+      not to a later ticket: an approver deciding whether to fund the work
+      should see what it will look like. You drew the frames yourself at step
+      2b; this step is the specification of that call, and the fallback if it
+      has not happened yet. Either way, you make the call - never a subagent:
          a. THE DESIGN NEEDS NOTHING RUNNING. Do not start the app, do not
             call ops_start_console, do not check port 4600 - none of it is a
             prerequisite for drawing. The current-state image is the committed
@@ -417,13 +414,7 @@ customModes:
       tree collide, and the runs that tried it produced no fan-out at all.
       What saves time here is not concurrency: it is one branch, one pull
       request and one gate for the epic instead of three of each, and not
-      re-reading files you have already read. The subtasks of an epic
-      touch different files - backend in routes/api-v2/, agent enablement in
-      routes/mcp-endpoint.js and vault/, frontend in views/ and public/ - so
-      they can be written at the same time. Spawn one subagent per slice with
-      its own file scope, and keep server.js for yourself: it is the only file
-      two slices both need, and the parent editing it is what stops them
-      overwriting each other.
+      re-reading files you have already read.
       One branch, one pull request, one gate for the epic's implementation.
       Three branches would need three worktrees, and three pull requests means
       three gate runs and three merges to answer one question - is this epic's
