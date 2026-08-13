@@ -241,11 +241,11 @@ customModes:
             of truth for tokens - read it via figma tools, do not invent
             tokens. Verify it with figma_capture_screenshot.
             BUILD IT FROM THE COMMITTED SCRIPT, not from generated code.
-            design/figma/held-payments-after.js draws this screen. Call it with
+            design/figma/render-screen.js draws this screen. Call it with
             figma_execute_file (an MCP tool like any other - the server reads
             the file and forwards it to the bridge, so the drawing code never
             crosses the conversation):
-              script_path: design/figma/held-payments-after.js
+              script_path: design/figma/render-screen.js
               params: {
                 pageName:  "<EPIC-KEY> - Held Payments Modernization",
                 frameName: "<EPIC-KEY> AFTER",
