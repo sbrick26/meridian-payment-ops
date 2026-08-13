@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score?ref=MT-2026-09698",
+  "status": 200,
+  "body": "{\"REF\":\"MT-2026-09698\",\"INV\":\"INV-2026-5294\",\"SCORE\":\"67\",\"BAND\":\"MEDIUM\",\"amt_cents\":\"10936865\",\"ccy\":\"USD\",\"TYPE\":\"ACH\",\"ctry\":\"GB\",\"age\":\"57\",\"dup_suspect\":\"N\",\"bank_chg_days\":\"-1\",\"over_limit\":\"Y\",\"round_amt\":\"N\",\"new_vend\":\"N\",\"model\":\"APRSK01\",\"retcode\":\"0000\"}"
+}

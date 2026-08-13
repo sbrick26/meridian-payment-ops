@@ -24,6 +24,8 @@ var express = require('express');
 var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
+var apiV2PaymentStatus = require('./routes/api-v2/payment-status');
+var apiV2RiskScore     = require('./routes/api-v2/risk-score');
 
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
@@ -60,6 +62,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
+/* v2 API routes — modern replacements for /api/payment-status and
+ * /api/risk-score. Legacy routes remain mounted (deprecated) below.
+ * The v2 routes read db from app.locals; that is set in openDatabase(). */
+app.use('/api/v2/payment-status', apiV2PaymentStatus);
+app.use('/api/v2/risk-score',     apiV2RiskScore);
+
 /* ------------------------------------------------------------------
  * database
  * ------------------------------------------------------------------ */
@@ -70,6 +78,7 @@ function openDatabase() {
 		seed.build();
 	}
 	db = new Database(DB_FILE);
+	app.locals.db = db;   /* expose to v2 route modules via req.app.locals.db */
 }
 
 function queryAll(sql) {

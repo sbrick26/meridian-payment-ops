@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09507",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09507\",\"InvoiceNo\":\"INV-2026-5098\",\"PO_NUM\":\"PO-41089\",\"sts\":\"RESOLVED\",\"sts_desc\":\"Closed - released or returned\",\"amt_cents\":\"51106\",\"Amount_Formatted\":\"511.06\",\"ccy\":\"EUR\",\"Type\":\"SEPA\",\"vendorName\":\"Rheinbach Werke\",\"vend_ctry\":\"DE\",\"VendorNo\":\"V100342\",\"remit_TO\":\"Rheinbach Werke - Accounts Receivable\",\"BankBIC\":\"WFBIUS6S\",\"rsn\":\"H63\",\"rsnText\":\"Tax certificate expired\",\"age_days\":\"72\",\"CreatedDate\":\"2026-05-21\",\"invoice_dt\":\"2026-05-05\",\"due_dt\":\"2026-06-04\",\"expected_pay_dt\":\"2026-05-27\",\"value_dt\":\"2026-05-22\",\"PaymentRun\":\"PR-2026-097-ACH\",\"risk\":\"LOW\",\"Clerk\":\"ROK\",\"resolved_dt\":\"2026-05-27\",\"Resolution\":\"CORRECTED\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

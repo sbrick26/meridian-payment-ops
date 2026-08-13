@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?invoice=INV-UNKNOWN-00000",
+  "status": 404,
+  "body": "{\"ERR\":\"NOT_FOUND\",\"PaymentRef\":\"\",\"InvoiceNo\":\"INV-UNKNOWN-00000\"}"
+}

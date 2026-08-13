@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-08924",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-08924\",\"InvoiceNo\":\"INV-2026-4520\",\"PO_NUM\":\"PO-40282\",\"sts\":\"REVIEW\",\"sts_desc\":\"Under review by an AP clerk\",\"amt_cents\":\"1275965\",\"Amount_Formatted\":\"12,759.65\",\"ccy\":\"USD\",\"Type\":\"WIRE\",\"vendorName\":\"Villalobos Coffee\",\"vend_ctry\":\"MX\",\"VendorNo\":\"V100886\",\"remit_TO\":\"Villalobos Coffee - Lockbox 4385\",\"BankBIC\":\"BNMXMXMM\",\"rsn\":\"H52\",\"rsnText\":\"Vendor onboarding incomplete\",\"age_days\":\"20\",\"CreatedDate\":\"2026-07-12\",\"invoice_dt\":\"2026-06-22\",\"due_dt\":\"2026-07-22\",\"expected_pay_dt\":\"2026-08-12\",\"value_dt\":\"2026-07-13\",\"PaymentRun\":\"PR-2026-146-ACH\",\"risk\":\"MED\",\"Clerk\":\"PAD\",\"resolved_dt\":\"\",\"Resolution\":\"\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

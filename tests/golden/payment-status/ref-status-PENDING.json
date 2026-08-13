@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-09328",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-09328\",\"InvoiceNo\":\"INV-2026-4934\",\"PO_NUM\":\"PO-40852\",\"sts\":\"PENDING\",\"sts_desc\":\"Awaiting first review\",\"amt_cents\":\"506836\",\"Amount_Formatted\":\"5,068.36\",\"ccy\":\"USD\",\"Type\":\"ACH\",\"vendorName\":\"Fairmont Bearings\",\"vend_ctry\":\"US\",\"VendorNo\":\"V100427\",\"remit_TO\":\"Fairmont Bearings - Lockbox 1161\",\"BankBIC\":\"CITIUS33\",\"rsn\":\"H18\",\"rsnText\":\"Invoice exceeds remaining PO balance\",\"age_days\":\"21\",\"CreatedDate\":\"2026-07-11\",\"invoice_dt\":\"2026-07-09\",\"due_dt\":\"2026-08-08\",\"expected_pay_dt\":\"2026-08-03\",\"value_dt\":\"2026-07-12\",\"PaymentRun\":\"PR-2026-114-ACH\",\"risk\":\"LOW\",\"Clerk\":\"PAD\",\"resolved_dt\":\"\",\"Resolution\":\"\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

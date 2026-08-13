@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status?ref=MT-2026-08952",
+  "status": 200,
+  "body": "{\"PaymentRef\":\"MT-2026-08952\",\"InvoiceNo\":\"INV-2026-4541\",\"PO_NUM\":\"PO-40315\",\"sts\":\"HOLD\",\"sts_desc\":\"Held - awaiting vendor or goods receipt\",\"amt_cents\":\"494050\",\"Amount_Formatted\":\"4,940.50\",\"ccy\":\"USD\",\"Type\":\"WIRE\",\"vendorName\":\"Sedgewick Plastics\",\"vend_ctry\":\"GB\",\"VendorNo\":\"V100903\",\"remit_TO\":\"Sedgewick Plastics - Lockbox 9396\",\"BankBIC\":\"HSBCGB2L\",\"rsn\":\"H41\",\"rsnText\":\"Over approval limit - second sign-off required\",\"age_days\":\"11\",\"CreatedDate\":\"2026-07-21\",\"invoice_dt\":\"2026-07-04\",\"due_dt\":\"2026-08-03\",\"expected_pay_dt\":\"2026-08-11\",\"value_dt\":\"2026-07-22\",\"PaymentRun\":\"PR-2026-146-WIRE\",\"risk\":\"LOW\",\"Clerk\":\"ROK\",\"resolved_dt\":\"\",\"Resolution\":\"\",\"over_approval_limit\":\"N\",\"retcode\":\"0000\",\"asOfDate\":\"2026-08-01\"}"
+}

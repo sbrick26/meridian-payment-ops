@@ -1,0 +1,5 @@
+{
+  "input": "/api/risk-score?ref=MT-2026-09625",
+  "status": 200,
+  "body": "{\"REF\":\"MT-2026-09625\",\"INV\":\"INV-2026-5220\",\"SCORE\":\"51\",\"BAND\":\"MEDIUM\",\"amt_cents\":\"340212\",\"ccy\":\"USD\",\"TYPE\":\"WIRE\",\"ctry\":\"US\",\"age\":\"72\",\"dup_suspect\":\"N\",\"bank_chg_days\":\"7\",\"over_limit\":\"N\",\"round_amt\":\"N\",\"new_vend\":\"N\",\"model\":\"APRSK01\",\"retcode\":\"0000\"}"
+}

@@ -1,0 +1,5 @@
+{
+  "input": "/api/payment-status",
+  "status": 400,
+  "body": "{\"ERR\":\"MISSING_REF\",\"msg\":\"ref or invoice parameter is required\"}"
+}
