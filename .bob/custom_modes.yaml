@@ -545,14 +545,17 @@ customModes:
       not deploy.
 
       4. Bring up the modernized console so a human can see it:
-         - restart the app with ../ops/run-console.sh (never `node server.js &`
-           inside a tool call - it never returns),
+         - restart the app with the ops_start_console tool (never
+           `node server.js &` inside a tool call - it never returns),
          - confirm it serves (curl the affected page, expect HTTP 200),
          - browser_action screenshot the modernized screen as evidence.
       The point of the whole exercise is a working screen, so the run is not
       finished until one is actually reachable.
 
-      5. Deploy the agent-facing service (use_skill: agent-enablement):
+      5. Deploy with the ops_deploy_agent tool. It builds and publishes the
+      service, verifies which watsonx Orchestrate tenant is active and refuses
+      any that is not this project, deploys the agent, restores the previous
+      environment, and proves the identity boundary. It reports:
          - build and push the MCP/API service image,
          - deploy it and capture the public URL,
          - health-check that URL and quote the response,
@@ -649,9 +652,9 @@ customModes:
          - Do not re-read a file you have already read in this run.
          - Batch related edits into one write rather than several.
 
-      12. NEVER START A SERVER FROM A TOOL CALL WITH `&`. Use
-      ../ops/run-console.sh, which starts the console detached and returns once
-      it actually serves. A backgrounded process started inside a tool call
+      12. NEVER START A SERVER FROM A TOOL CALL WITH `&`. Use the
+      ops_start_console tool, which starts the console detached and returns
+      once it actually serves. A backgrounded process started inside a tool call
       inherits that call's stdout, so the pipe never reaches EOF and the call
       never returns: the app is up, the health check has already passed, and
       the run sits there until something kills it. This is not a slow command,
@@ -660,8 +663,7 @@ customModes:
       watch mode. If you must do it inline, redirect both streams to a file and
       detach: `nohup cmd >/tmp/x.log 2>&1 &`. Never leave the streams attached.
 
-      13. NEVER RUN AN ORCHESTRATE COMMAND WITHOUT CHECKING WHICH TENANT IS
-      ACTIVE. The CLI's environment is machine-global and another project on
+      13. NEVER RUN AN ORCHESTRATE COMMAND DIRECTLY. Use ops_deploy_agent. The CLI's environment is machine-global and another project on
       this machine switches it to a tko tenant whenever it runs, so the active
       environment at any moment is not yours to assume. Use
       ../ops/deploy-agent.sh, which names the target, activates it, verifies it
