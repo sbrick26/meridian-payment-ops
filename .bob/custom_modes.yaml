@@ -124,14 +124,16 @@ customModes:
       spawning the next is sequential with extra steps, and a run that did
       exactly that took three times as long over the same ground. Issue all
       three, then wait for all three.
-         - Subagent A: inventory every route/endpoint in the backend (method,
+         - Subagent A: inventory every route/endpoint of the service (method,
            path, purpose, response shape), note SQL construction style, config
            handling, error handling, test coverage.
-         - Subagent B: inventory frontend pages/templates, CSS/JS approach,
-           interaction patterns, accessibility problems.
-         - Subagent C: dependency and risk audit - package versions and age,
-           known-vulnerable patterns (SQL concatenation, hardcoded secrets,
-           XML endpoints), data model summary from the schema.
+         - Subagent B: data model and risk - schema, indexes, the queries that
+           touch money, known-vulnerable patterns (SQL concatenation,
+           hardcoded secrets), package versions and age.
+         - Subagent C: documentation and dependents - read the README as the
+           consumers would, list every claim it makes that the code
+           contradicts, and identify who depends on which endpoint (headers,
+           feeds, integrations referenced in code or docs).
       EXPLORE subagents only: reading is all they need, and anything that must
       write files, run commands or call write-capable tools cannot be
       delegated - it inherits a read-only mode and comes back saying it could
@@ -248,31 +250,34 @@ customModes:
             page with await figma.setCurrentPageAsync(page) - assigning
             figma.currentPage is rejected by the bridge.
          e. BUILD BOTH FRAMES IN ONE CALL. Every extra round trip over the
-            bridge is another chance for the connection to drop mid-sequence,
-            and a drop between creating the BEFORE frame and filling it leaves
-            a black rectangle on the canvas - which has happened. One call
-            either produces both frames or produces neither.
-            Read the five rows first:
-              sqlite3 payops.db design/figma/rows.sql
-            Then call figma_execute_file ONCE:
+            bridge is another chance for the connection to drop mid-sequence.
+            One call either produces both frames or produces neither.
+            The AFTER frame for this programme is the AGENT EXPERIENCE MOCK -
+            the potential UI for the assistant this epic actually ships. It is
+            a concept for the approver, not build scope: the deliverable is
+            the modernized service and the governed agent, and the mock shows
+            where that leads.
+            Call figma_execute_file ONCE:
               script_path: design/figma/render-screen.js
               params:
-                pageName:        "<EPIC-KEY> - Held Payments Modernization"
+                pageName:        "<EPIC-KEY> - Service Modernization"
                 beforeFrameName: "<EPIC-KEY> BEFORE"
                 frameName:       "<EPIC-KEY> AFTER"
                 x: 1560, y: 0
-                beforeImage_path: docs/design/legacy-held-payments.png
+                variant: "agent"
                 tokens: the MDL 3.0 values you read from the design-language page
-                rows:   the JSON from the query, unchanged
-                meta:   { subtitle, summary, pageNote, footnote }
-            The _path suffix means the MCP server loads that file and hands the
-            script its contents, so the screenshot never crosses the
-            conversation. It creates the page, builds the BEFORE frame with the
-            legacy screenshot in it, renders the AFTER frame from the tokens,
-            and returns both node ids.
-            Do NOT call figma_set_image_fill, figma_set_image_fill_from_file or
-            any separate frame-creation execute for this. They are what turned
-            one step into a sequence that kept breaking.
+                agent:  { title, subtitle, identity, phone, capabilities }
+                conversation: three to five exchanges that mirror the demo -
+                  a real question about a real payment (role user), the answer
+                  with actual data (role agent), a release request (role user),
+                  and the refusal (role refusal). Real references from the
+                  database, not lorem ipsum.
+                meta:   { footnote: state plainly that this is a concept mock,
+                          not in build scope for this phase }
+            The BEFORE frame needs no parameter: the committed legacy
+            screenshot is loaded automatically, and the call fails loudly if
+            the fixture is missing - report that as a setup failure, never
+            capture a new screenshot.
          f. Verify with ONE figma_capture_screenshot of the page, and check the
             BEFORE frame shows the old screen rather than a solid rectangle.
          g. If the bridge is unavailable, finish the plan and say the frames
@@ -402,8 +407,10 @@ customModes:
       feature/<EPIC-KEY>-implementation was created in PHASE 2 and already
       carries the plan and the design - check it out, do not create another.
       Do this yourself, now: do not create the subtasks and stop, and do not
-      work one slice and leave the others. Take them in order of dependency:
-      backend first, then the agent layer that calls it, then the frontend.
+      work one slice and leave the others. This epic has TWO slices, in order
+      of dependency: the modernized service first, then the agent layer that
+      calls it. There is no frontend slice - the UI exists only as the concept
+      mock attached to the plan.
       Write the code yourself rather than delegating it. Analysis fans out
       well - reading is safe to do concurrently, which is why the codebase
       review uses three explore subagents - but three writers in one working
