@@ -49,8 +49,10 @@ customModes:
 
       1. Epic to In Progress.
 
-      2. Spawn THREE explore subagents IN ONE MESSAGE. Each brief is AT MOST
-      40 WORDS and its first words are its label:
+      2. Spawn THREE explore subagents IN ONE MESSAGE. Each brief is as long
+      as the task needs but DIRECT - what to read, what to report, no
+      preamble, no restating the mission - and its first words are its label
+      (the IDE titles the card from them):
         "Subagent A - routes and endpoints: list every route in server.js
          (method, path, purpose); note SQL construction, config, tests."
         "Subagent B - data model and risk: schema and indexes from seed.js,
