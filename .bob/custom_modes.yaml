@@ -271,10 +271,17 @@ customModes:
                   database, not lorem ipsum.
                 meta:   { footnote: state plainly that this is a concept mock,
                           not in build scope for this phase }
-            The BEFORE frame needs no parameter: the committed legacy
-            screenshot is loaded automatically, and the call fails loudly if
-            the fixture is missing - report that as a setup failure, never
-            capture a new screenshot.
+            The render returns beforeRectId. Then make EXACTLY ONE more
+            call to put the legacy screenshot into that rectangle:
+              figma_set_image_fill_from_file
+                nodeId:     <the beforeRectId the render returned>
+                image_path: docs/design/legacy-held-payments.png
+            Use that tool and no other for the image - it decodes in the
+            bridge, which is the path that renders correctly; in-plugin
+            decoding drew a blank. If it errors that the file is missing,
+            that is a setup failure: report it and stop the design - the
+            fixture is restored with git, never re-captured. Two calls total
+            for the whole design; anything more is a round trip you invented.
          f. Verify with ONE figma_capture_screenshot of the page, and check the
             BEFORE frame shows the old screen rather than a solid rectangle.
          g. If the bridge is unavailable, finish the plan and say the frames
