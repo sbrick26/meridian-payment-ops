@@ -33,6 +33,24 @@ customModes:
       approval", "check pr feedback", "address pr comments".
 
 
+      THE BRANCH MODEL (true for every phase)
+
+      main               the source of truth. You never commit to it, ever.
+      demo-integration   the integration trunk. A copy of main between runs,
+                         and the only branch pull requests target. You never
+                         commit to it directly either - it receives work by
+                         merge, after review.
+      feature/<EPIC-KEY>-implementation
+                         one branch per epic, cut from demo-integration, and
+                         the only place you write. It carries the plan and the
+                         design from PHASE 2 and the code from PHASE 3, and it
+                         becomes one pull request into demo-integration.
+
+      Start every run by making sure you are on demo-integration and up to date
+      (git checkout demo-integration && git pull) before deciding anything, so
+      the branch you cut and the state you read are the same.
+
+
       PHASE 1: DISCOVERY AND ROUTING (always run first)
 
 
@@ -267,22 +285,24 @@ customModes:
             it, and one export. Anything beyond that is a round trip you are
             adding to a bridge that can drop, for information you already hold.
 
-      7. Publish plan and design TO THE TICKET. The plan is not a pull
-      request. A pull request is for code: it is reviewed by engineers, it runs
-      the guardrail gate, and it merges. A plan is approved by the person who
-      owns the work, in the tracker, in a sentence - and putting it through a
-      code review surface only buys a second place to look and a second thing
-      to keep in sync.
-         a. Commit the plan and the design artifacts straight to the
-            integration trunk, no branch and no pull request:
+      7. Publish plan and design TO THE TICKET, on the epic's feature branch.
+      One branch carries this epic from first sketch to merge: the plan, the
+      design, and later the code. The plan is approved on the ticket - not
+      through a pull request, which is a code review surface and would always
+      pass - but it still lives on the branch, because the branch is the unit
+      of work and demo-integration only ever receives finished, reviewed work.
+         a. Branch from the integration trunk and commit the artifacts there:
               git checkout demo-integration && git pull
+              git checkout -b feature/<EPIC-KEY>-implementation
               git add docs/modernization/<EPIC-KEY>/PLAN.md
                       docs/design/<EPIC-KEY>-spec.md
                       docs/design/<EPIC-KEY>-after.png
               git commit -m "[<EPIC-KEY>] Modernization plan and design"
-              git push origin demo-integration
-            They are still versioned and still diffable - they simply are not
-            gated by a code review they would always pass.
+              git push -u origin feature/<EPIC-KEY>-implementation
+            Do NOT open a pull request yet and do NOT commit to
+            demo-integration. The pull request comes once the code is written,
+            and it carries the plan, the design and the implementation
+            together.
          b. Attach PLAN.md and <EPIC-KEY>-after.png to the epic with
             jira_attach_file, so the approver has both without leaving the
             tracker.
@@ -297,7 +317,8 @@ customModes:
 
          **Plan document:** attached to this issue (PLAN.md)
          **Design:** <FIGMA_URL> (before/after frames; after-frame attached)
-         **Committed:** docs/modernization/<EPIC-KEY>/PLAN.md on demo-integration
+         **Committed:** docs/modernization/<EPIC-KEY>/PLAN.md on
+         feature/<EPIC-KEY>-implementation
 
          **Grounding:** analyzed <N> endpoints, <N> pages, <N> dependencies
          (details in PLAN.md)
@@ -324,8 +345,8 @@ customModes:
       (never rewrite committed history). For the design: update the EXISTING
       frames on the epic's Figma page rather than creating a second set - a
       review is against a moving artifact, not a gallery - then re-freeze the
-      spec and re-export the AFTER png. Either way, commit and push to
-      demo-integration, re-attach the updated artifacts to the epic, post a
+      spec and re-export the AFTER png. Either way, commit and push to the
+      epic's feature branch, re-attach the updated artifacts to the epic, post a
       comment mapping each revision to the quoted feedback, and move back to
       In Review. STOP.
 
@@ -346,7 +367,7 @@ customModes:
             before any user-visible change is implemented. The person who
             approved the plan approved the frames attached to it; name them and
             use the same date.
-         c. Commit both to demo-integration:
+         c. Commit both to the epic's feature branch (you are already on it):
             git commit -m "[<EPIC-KEY>] Record plan approval and design review"
       This is the moment the plan stops being a proposal. Do it before creating
       a single subtask.
@@ -362,11 +383,12 @@ customModes:
       4. Comment on the epic listing created subtask keys. Move epic to In
       Progress.
 
-      5. WORK ALL THE SLICES IN ONE RUN, ON ONE BRANCH. Do this yourself, now
-      - do not create the subtasks and stop, and do not work one and leave the
-      others. Create feature/<EPIC-KEY>-implementation and take the slices in
-      order of dependency: backend first, then the agent layer that calls it,
-      then the frontend.
+      5. WORK ALL THE SLICES IN ONE RUN, ON THE BRANCH THAT ALREADY EXISTS.
+      feature/<EPIC-KEY>-implementation was created in PHASE 2 and already
+      carries the plan and the design - check it out, do not create another.
+      Do this yourself, now: do not create the subtasks and stop, and do not
+      work one slice and leave the others. Take them in order of dependency:
+      backend first, then the agent layer that calls it, then the frontend.
       Write the code yourself rather than delegating it. Analysis fans out
       well - reading is safe to do concurrently, which is why the codebase
       review uses three explore subagents - but three writers in one working
