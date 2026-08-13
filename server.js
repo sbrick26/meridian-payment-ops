@@ -532,6 +532,8 @@ function scoreRow(row) {
  * ------------------------------------------------------------------ */
 
 app.get('/api/payment-status', function (req, res) {
+	res.set('Deprecation', 'true');
+	res.set('Link', '</api/v2/payment-status>; rel="successor-version"');
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
 	if (!ref && !invoice) {
@@ -595,6 +597,8 @@ app.get('/api/payment-status', function (req, res) {
 });
 
 app.get('/api/risk-score', function (req, res) {
+	res.set('Deprecation', 'true');
+	res.set('Link', '</api/v2/risk-score>; rel="successor-version"');
 	var ref = req.query.ref;
 	if (!ref) {
 		res.status(400).json({ ERR: 'MISSING_REF' });
