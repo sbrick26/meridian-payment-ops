@@ -284,7 +284,13 @@ customModes:
                 image_path: docs/design/legacy-held-payments.png
             Use that tool and no other for the image - it decodes in the
             bridge, which is the path that renders correctly; in-plugin
-            decoding drew a blank. If it errors that the file is missing,
+            decoding drew a blank.
+            DO NOT CHECK WHETHER THE FIXTURE EXISTS FIRST. No file search, no
+            glob, no ls - the file-search tool has twice reported this exact
+            committed file missing while it sat on disk, and each false
+            negative cost the design. The fill tool reads the real disk and is
+            the only authority: make the call, and only ITS error message
+            means the fixture is missing. If it errors that the file is missing,
             that is a setup failure: report it and stop the design - the
             fixture is restored with git, never re-captured. Two calls total
             for the whole design; anything more is a round trip you invented.
