@@ -1,5 +1,44 @@
 [
   {
+    "id": "31672225375-4705751",
+    "timestamp": "2026-08-13T06:01:00Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 3,
+    "violations": [
+      {
+        "file": "routes/mcp-endpoint.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "The new router module opens with a narrative doc-comment block but is missing the required structured compliance header fields (Function, Owner, Control with NIST 800-53 and SOX/PCI references, and Reviewed date).",
+        "severity": "medium"
+      },
+      {
+        "file": "docs/modernization/KAN-41/PLAN.md",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "The committed plan document's Approval section still contains '(pending)' placeholders for both Approver and Date, so no recorded plan approval exists in the repository and implementation must not have begun.",
+        "severity": "high"
+      },
+      {
+        "file": "docs/modernization/KAN-41/PLAN.md",
+        "rule": "09-design-system-fidelity.md",
+        "detail": "The plan document contains no entry recording a reviewing designer and date for the user-visible changes to views and public assets, which is required before implementation begins.",
+        "severity": "medium"
+      }
+    ],
+    "actor": "Swayam Barik",
+    "triggered_by": "sbrick26",
+    "pr_number": "10",
+    "pr_title": "[KAN-44 + KAN-42] Held Payments \u2014 MDL 3.0 frontend + MCP agent enablement",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/10",
+    "branch": "feature/KAN-41-implementation",
+    "base_ref": "demo-integration",
+    "sha": "4705751",
+    "commit_message": "Merge demo-integration to pick up the rulebook already landed there",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31672225375"
+  },
+  {
     "id": "31672124807-df96151",
     "timestamp": "2026-08-13T05:58:14Z",
     "verdict": "FAIL",
