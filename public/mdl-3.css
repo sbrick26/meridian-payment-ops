@@ -186,3 +186,9 @@ tr.risk-high, tr.risk-HIGH, tr.escalated { background: var(--mdl-surface) !impor
 @media (prefers-reduced-motion: no-preference) {
   .btn, table.table tbody tr { transition: background-color 120ms ease; }
 }
+
+/* --- keyboard row focus (WCAG 2.2 AA — 2.4.7 Focus Visible) ----------- */
+tr[tabindex="0"]:focus {
+  outline: 2px solid var(--mdl-action);
+  outline-offset: -2px;
+}

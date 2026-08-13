@@ -1,3 +1,12 @@
+<%#
+  ---------------------------------------------------------------------------
+  View:     detail
+  Owner:    payments-platform-team
+  Control:  AC-3 (data access), SI-10 (input validation), AU-2 (audit)
+            SOX/PCI: PCI Req. 7 (access control), PCI Req. 6.5 (input validation)
+  Reviewed: 2026-08-13
+  ---------------------------------------------------------------------------
+%>
 <%- include('partials/header', { pageTitle: 'Held payment ' + row.payment_ref }) %>
 
   <ul class="breadcrumb">
@@ -24,29 +33,29 @@
       <div class="detail-box">
         <h4>Payment</h4>
         <table class="field-table">
-          <tr><th>Reference</th><td><code><%= row.payment_ref %></code></td></tr>
-          <tr><th>Amount</th>
+          <tr><th scope="row">Reference</th><td><code><%= row.payment_ref %></code></td></tr>
+          <tr><th scope="row">Amount</th>
               <td><span class="bigamount"><%= row.currency %> <%= u.money(row.amount_cents) %></span>
                 <% if (row.amount_cents >= approvalLimit) { %>
                   &nbsp;<span class="label label-warning">OVER APPROVAL LIMIT</span>
                 <% } %>
               </td></tr>
-          <tr><th>Method / source</th><td><%= row.ptype %> &middot; <%= row.channel %></td></tr>
-          <tr><th>Status</th><td><%- u.statusLabel(row.status) %></td></tr>
-          <tr><th>Flag</th><td><%- u.riskLabel(row.risk_flag) %></td></tr>
-          <tr><th>Age on queue</th><td><%- u.ageCell(row.age_days) %> (held since <%= row.created_date %>)</td></tr>
-          <tr><th>Payment run</th><td><code><%= row.payment_run_id %></code></td></tr>
-          <tr><th>Expected pay date</th><td><b><%= row.expected_pay_date %></b> <span class="muted">(quote this if the vendor rings)</span></td></tr>
-          <tr><th>Value date</th><td><%= row.value_date %></td></tr>
-          <tr><th>Hold reason</th><td><b><%= row.reason_code %></b> &mdash; <%= row.reason_text %></td></tr>
-          <tr><th>Remit to</th><td><%= row.remit_to %></td></tr>
-          <tr><th>Vendor bank</th><td><code><%= row.bank_bic %></code>
+          <tr><th scope="row">Method / source</th><td><%= row.ptype %> &middot; <%= row.channel %></td></tr>
+          <tr><th scope="row">Status</th><td><span class="chip chip-<%= row.status.toLowerCase() %>" aria-label="Status: <%= row.status %>"><%= row.status %></span></td></tr>
+          <tr><th scope="row">Flag</th><td><span class="chip chip-<%= row.risk_flag.toLowerCase() %>" aria-label="Risk: <%= row.risk_flag %>"><%= row.risk_flag %></span></td></tr>
+          <tr><th scope="row">Age on queue</th><td><%- u.ageCell(row.age_days) %> (held since <%= row.created_date %>)</td></tr>
+          <tr><th scope="row">Payment run</th><td><code><%= row.payment_run_id %></code></td></tr>
+          <tr><th scope="row">Expected pay date</th><td><b><%= row.expected_pay_date %></b> <span class="muted">(quote this if the vendor rings)</span></td></tr>
+          <tr><th scope="row">Value date</th><td><%= row.value_date %></td></tr>
+          <tr><th scope="row">Hold reason</th><td><b><%= row.reason_code %></b> &mdash; <%= row.reason_text %></td></tr>
+          <tr><th scope="row">Remit to</th><td><%= row.remit_to %></td></tr>
+          <tr><th scope="row">Vendor bank</th><td><code><%= row.bank_bic %></code>
               <% if (row.bank_chg_days >= 0 && row.bank_chg_days <= 90) { %>
                 &nbsp;<span class="label label-warning">BANK DETAILS CHANGED <%= row.bank_chg_days %>d AGO</span>
               <% } %>
               </td></tr>
           <% if (row.resolution) { %>
-          <tr><th>Outcome</th><td><%= row.resolution %> on <%= row.resolved_date %></td></tr>
+          <tr><th scope="row">Outcome</th><td><%= row.resolution %> on <%= row.resolved_date %></td></tr>
           <% } %>
         </table>
       </div>
@@ -54,22 +63,22 @@
       <div class="detail-box">
         <h4>Invoice</h4>
         <table class="field-table">
-          <tr><th>Invoice number</th><td><code><%= row.invoice_no %></code></td></tr>
-          <tr><th>Purchase order</th><td><code><%= row.po_no %></code></td></tr>
-          <tr><th>Invoice date</th><td><%= row.invoice_date %></td></tr>
-          <tr><th>Due date</th><td><%= row.due_date %></td></tr>
+          <tr><th scope="row">Invoice number</th><td><code><%= row.invoice_no %></code></td></tr>
+          <tr><th scope="row">Purchase order</th><td><code><%= row.po_no %></code></td></tr>
+          <tr><th scope="row">Invoice date</th><td><%= row.invoice_date %></td></tr>
+          <tr><th scope="row">Due date</th><td><%= row.due_date %></td></tr>
         </table>
       </div>
 
       <div class="detail-box">
         <h4>Vendor</h4>
         <table class="field-table">
-          <tr><th>Name</th><td><%= row.vendor %></td></tr>
-          <tr><th>Vendor number</th><td><code><%= row.vendor_no %></code></td></tr>
-          <tr><th>Country</th><td><%= row.country %></td></tr>
-          <tr><th>Category</th><td><%= row.category %></td></tr>
-          <tr><th>New vendor</th><td><%= (row.new_vendor == 'Y' ? 'Yes - onboarded this year' : 'No') %></td></tr>
-          <tr><th>Assigned to</th>
+          <tr><th scope="row">Name</th><td><%= row.vendor %></td></tr>
+          <tr><th scope="row">Vendor number</th><td><code><%= row.vendor_no %></code></td></tr>
+          <tr><th scope="row">Country</th><td><%= row.country %></td></tr>
+          <tr><th scope="row">Category</th><td><%= row.category %></td></tr>
+          <tr><th scope="row">New vendor</th><td><%= (row.new_vendor == 'Y' ? 'Yes - onboarded this year' : 'No') %></td></tr>
+          <tr><th scope="row">Assigned to</th>
               <td><% if (row.clerk_name) { %><%= row.clerk_name %> (<%= row.clerk_initials %>, <%= row.clerk_team %>)<% } else { %><span class="muted">unassigned</span><% } %></td></tr>
         </table>
       </div>
@@ -119,9 +128,12 @@
 
       <div class="section-title">Interfaces</div>
       <ul style="margin-left:16px">
-        <li><a href="/api/payment-status?ref=<%= row.payment_ref %>">Payment status enquiry by reference (JSON)</a></li>
-        <li><a href="/api/payment-status?invoice=<%= row.invoice_no %>">Payment status enquiry by invoice (JSON)</a></li>
-        <li><a href="/api/risk-score?ref=<%= row.payment_ref %>">Payment risk score (JSON)</a></li>
+        <li><a href="/api/v2/payment-status?ref=<%= row.payment_ref %>">Payment status enquiry by reference — v2 (JSON)</a></li>
+        <li><a href="/api/v2/payment-status?invoice=<%= row.invoice_no %>">Payment status enquiry by invoice — v2 (JSON)</a></li>
+        <li><a href="/api/v2/risk-score?ref=<%= row.payment_ref %>">Payment risk score — v2 (JSON)</a></li>
+        <li><a href="/api/payment-status?ref=<%= row.payment_ref %>">Payment status by reference — legacy (deprecated)</a></li>
+        <li><a href="/api/payment-status?invoice=<%= row.invoice_no %>">Payment status by invoice — legacy (deprecated)</a></li>
+        <li><a href="/api/risk-score?ref=<%= row.payment_ref %>">Payment risk score — legacy (deprecated)</a></li>
         <li><a href="/api/exceptions.xml">ERP nightly extract (XML)</a></li>
       </ul>
 
@@ -150,7 +162,7 @@
             <td><%= related[i].invoice_no %></td>
             <td class="num"><%= u.money(related[i].amount_cents) %></td>
             <td><%= related[i].currency %></td>
-            <td><%- u.statusLabel(related[i].status) %></td>
+            <td><span class="chip chip-<%= related[i].status.toLowerCase() %>" aria-label="Status: <%= related[i].status %>"><%= related[i].status %></span></td>
             <td class="num"><%= related[i].age_days %>d</td>
           </tr>
         <% } %>

@@ -1,3 +1,12 @@
+<%#
+  ---------------------------------------------------------------------------
+  View:     reports
+  Owner:    payments-platform-team
+  Control:  AC-3 (data access), AU-2 (audit)
+            SOX/PCI: PCI Req. 7 (access control), PCI Req. 10 (audit trail)
+  Reviewed: 2026-08-13
+  ---------------------------------------------------------------------------
+%>
 <%- include('partials/header', { pageTitle: 'Reports' }) %>
 
   <ul class="breadcrumb">
@@ -89,7 +98,9 @@
             <td><%= byAge[i].bucket %></td>
             <td class="num"><%= byAge[i].n %></td>
             <td class="num"><%= u.money(byAge[i].v) %></td>
-            <td><span class="bar" style="width: <%= byAge[i].n %>px">&nbsp;</span></td>
+            <td><span class="bar" role="img"
+                  aria-label="<%= byAge[i].bucket %>: <%= byAge[i].n %> items"
+                  style="width: <%= byAge[i].n %>px">&nbsp;</span></td>
           </tr>
         <% } %>
         </tbody>
@@ -108,7 +119,9 @@
         <td><b><%= byReason[i].reason_code %></b></td>
         <td><%= byReason[i].reason_text %></td>
         <td class="num"><%= byReason[i].n %></td>
-        <td><span class="bar" style="width: <%= byReason[i].n * 4 %>px">&nbsp;</span></td>
+        <td><span class="bar" role="img"
+              aria-label="<%= byReason[i].reason_code %>: <%= byReason[i].n %> items"
+              style="width: <%= byReason[i].n * 4 %>px">&nbsp;</span></td>
       </tr>
     <% } %>
     </tbody>

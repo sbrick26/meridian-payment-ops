@@ -1,23 +1,32 @@
-/* payops.js
- * AP Payment Operations Console - screen behaviour
- * Meridian Corp IT Dept
- *
- * Requires jQuery 1.9.1 (loaded before this file).
- * Most of the screens are plain form posts - what is here is only the
- * bits the desk asked for after UAT: row highlighting, the confirm
- * prompts, the select-all box and the clock in the masthead.
- */
+/* ---------------------------------------------------------------------------
+ * Function: AP Payment Ops console — client-side behaviour
+ * Owner:    payments-platform-team
+ * Control:  AU-2 (audit)   (SOX/PCI: PCI Req. 6.5)
+ * Reviewed: 2026-08-13
+ * ------------------------------------------------------------------------- */
 
 var PAYOPS_ROW_SELECTED = null;
 
 /* called from onclick= on every row of the held payments queue */
 function selectRow(el, id) {
 	if (PAYOPS_ROW_SELECTED != null) {
-		$('#row-' + PAYOPS_ROW_SELECTED).removeClass('row-selected');
+		var prev = document.getElementById('row-' + PAYOPS_ROW_SELECTED);
+		if (prev) {
+			prev.classList.remove('row-selected');
+			prev.setAttribute('aria-selected', 'false');
+		}
 	}
 	PAYOPS_ROW_SELECTED = id;
-	$('#row-' + id).addClass('row-selected');
-	$('#selected-ref').html($('#ref-' + id).html());
+	var row = document.getElementById('row-' + id);
+	if (row) {
+		row.classList.add('row-selected');
+		row.setAttribute('aria-selected', 'true');
+	}
+	var refCell = document.getElementById('ref-' + id);
+	var selectedSpan = document.getElementById('selected-ref');
+	if (refCell && selectedSpan) {
+		selectedSpan.innerHTML = refCell.innerHTML;
+	}
 }
 
 /* row double click opens the item - asked for by the AP-DESK-1 team */
@@ -68,13 +77,14 @@ function confirmAction(action) {
 }
 
 function toggleBlock(id, linkEl) {
-	var el = $('#' + id);
-	if (el.is(':visible')) {
-		el.hide();
-		$(linkEl).html('[show]');
+	var el = document.getElementById(id);
+	if (!el) { return false; }
+	if (el.style.display === 'none') {
+		el.style.display = '';
+		linkEl.innerHTML = '[hide]';
 	} else {
-		el.show();
-		$(linkEl).html('[hide]');
+		el.style.display = 'none';
+		linkEl.innerHTML = '[show]';
 	}
 	return false;
 }
@@ -102,20 +112,31 @@ function payopsClock() {
 	if (hh < 10) { hh = '0' + hh; }
 	if (mm < 10) { mm = '0' + mm; }
 	if (ss < 10) { ss = '0' + ss; }
-	$('#clock').html(hh + ':' + mm + ':' + ss);
+	var clock = document.getElementById('clock');
+	if (clock) { clock.innerHTML = hh + ':' + mm + ':' + ss; }
 }
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
 	payopsClock();
 	setInterval(payopsClock, 1000);
 
-	$('.exc-table tbody tr').each(function () {
-		var tr = $(this);
-		tr.attr('title', 'Click to select, double click to open');
+	document.querySelectorAll('.exc-table tbody tr').forEach(function (tr) {
+		tr.setAttribute('title', 'Click to select, double click to open');
+	});
+
+	/* keyboard navigation: Enter or Space on a focused row fires click */
+	document.querySelectorAll('.exc-table tbody tr').forEach(function (tr) {
+		tr.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				tr.click();
+			}
+		});
 	});
 
 	/* keep the focus in the search box after a filter reload */
-	if ($('#q').length > 0 && $('#q').val() != '') {
-		$('#q').focus();
+	var q = document.getElementById('q');
+	if (q && q.value !== '') {
+		q.focus();
 	}
 });
