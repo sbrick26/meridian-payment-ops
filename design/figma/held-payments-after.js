@@ -35,10 +35,20 @@ const C = {
 };
 
 (async () => {
-  await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-  await figma.loadFontAsync({ family: 'Inter', style: 'Medium' });
-  await figma.loadFontAsync({ family: 'Inter', style: 'Semi Bold' });
-  await figma.loadFontAsync({ family: 'Roboto Mono', style: 'Regular' });
+  // Load every family/style pair this script can ask for. Assigning a
+  // fontName that has not been loaded throws, and the throw aborts the whole
+  // script mid-draw - which is how a run once produced a frame containing
+  // nothing but its masthead. Roboto Mono has no "Semi Bold", so mono text is
+  // clamped to the weights that exist.
+  const FONTS = [
+    { family: 'Inter', style: 'Regular' },
+    { family: 'Inter', style: 'Medium' },
+    { family: 'Inter', style: 'Semi Bold' },
+    { family: 'Roboto Mono', style: 'Regular' },
+    { family: 'Roboto Mono', style: 'Medium' },
+  ];
+  for (const f of FONTS) await figma.loadFontAsync(f);
+  const MONO_OK = { Regular: 'Regular', Medium: 'Medium', 'Semi Bold': 'Medium', Bold: 'Medium' };
 
   // Reuse the page the caller names so a re-run replaces its own work rather
   // than stacking a second copy beside it.
@@ -62,7 +72,10 @@ const C = {
   // laid out by flow, because flow is what makes neighbours collide.
   const text = (s, o) => {
     const t = figma.createText();
-    t.fontName = { family: o.mono ? 'Roboto Mono' : 'Inter', style: o.style || 'Regular' };
+    const style = o.style || 'Regular';
+    t.fontName = o.mono
+      ? { family: 'Roboto Mono', style: MONO_OK[style] || 'Regular' }
+      : { family: 'Inter', style };
     t.fontSize = o.size || 13;
     t.characters = String(s);
     t.textAutoResize = 'NONE';
