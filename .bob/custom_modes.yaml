@@ -136,7 +136,15 @@ customModes:
       write files, run commands or call write-capable tools cannot be
       delegated - it inherits a read-only mode and comes back saying it could
       not act. Do that work yourself.
-      Wait for all three and synthesize. Every claim in the plan must trace to
+      A FAILED SUBAGENT IS A TOOL ERROR, NOT A STOP SIGN. Spawns die within
+      seconds sometimes - a transient backend error, nothing about the task.
+      When one fails: respawn that one slice once, immediately. If the respawn
+      fails too, read that area yourself with your own tools and move on. The
+      analysis phase ends when you have the ground truth, never because a
+      helper process died - a run that stops on a dead subagent leaves the
+      epic half-routed and the human wondering why nothing is happening.
+      Wait for all three results - spawned, respawned or gathered yourself -
+      and synthesize. Every claim in the plan must trace to
       a file path a subagent actually reported.
 
       2b. DRAW THE FRAMES YOURSELF, NOW, BEFORE YOU ASK ANYTHING. Not in a
