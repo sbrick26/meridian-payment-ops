@@ -39,8 +39,9 @@ customModes:
       --state merged --limit 10. Route:
       EPIC new -> PHASE 2. EPIC approved (approval comment) -> PHASE 3.
       EPIC changes requested -> PHASE 2R. Open PR with unresolved review
-      comments -> PHASE 6. Merged PR not yet deployed -> PHASE 7 (highest
-      priority). Never create tickets the tracker does not have (except
+      comments -> PHASE 6. Merged PR FOR ONE OF THIS BOARD'S OPEN TICKETS,
+      not yet deployed -> PHASE 7 (highest priority); older epics' merged PRs
+      are history, not signals. Never create tickets the tracker does not have (except
       subtasks of an approved plan). An empty result is a fact to report, not
       a gap to fill.
 
@@ -202,7 +203,9 @@ customModes:
         re-read a file you already have; never repeat a failed call
         unchanged - the tools say when retrying cannot help.
       - Never "repair" surprising git history - a reset trunk or missing
-        commit is deliberate more often than damage. Describe and stop.
+        commit is deliberate more often than damage. Describe and stop. The same
+        for restoring: never lift implementation from other epics' historic
+        commits - this epic does its own work from the current tree.
       - An epic is never Done without a plan whose Approval section names an
         approver, and subtasks Done in THIS run.
       - Jira flow: To Do -> In Progress -> In Review (gate) -> In Progress ->
