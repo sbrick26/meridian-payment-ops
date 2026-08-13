@@ -68,9 +68,16 @@ customModes:
          - EPIC, AWAITING APPROVAL (plan comment posted, no approval) → log, skip
          - EPIC, APPROVED (approval comment on the plan) → PHASE 3: CREATE SUBTASKS
          - EPIC, CHANGES REQUESTED → PHASE 2R: REVISE PLAN OR DESIGN
-         - SUBTASK, NEW frontend → PHASE 4: IMPLEMENT FRONTEND (design is
-           already approved and frozen - it was produced in PHASE 2)
-         - SUBTASK, NEW backend → PHASE 5: IMPLEMENT BACKEND
+         - TWO OR MORE SUBTASKS of the same epic NEW at once → PHASE 3 step 5:
+           work them in parallel on one branch. This is the common case
+           straight after approval and it takes priority over the per-subtask
+           routes below, which exist for a subtask arriving on its own. Working
+           three slices one after another when they touch different
+           directories is the single largest avoidable cost in a run - one run
+           spent fourteen minutes doing sequentially what fans out.
+         - SUBTASK, NEW frontend, alone → PHASE 4: IMPLEMENT FRONTEND (design
+           is already approved and frozen - it was produced in PHASE 2)
+         - SUBTASK, NEW backend, alone → PHASE 5: IMPLEMENT BACKEND
          - ANY with PR OPEN + unresolved review comments → PHASE 6: ADDRESS PR FEEDBACK
          - ANY with PR MERGED and not yet deployed → PHASE 7: DEPLOY AND ACTIVATE
 
@@ -388,7 +395,11 @@ customModes:
       4. Comment on the epic listing created subtask keys. Move epic to In
       Progress.
 
-      5. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. The subtasks of an epic
+      5. WORK THE SLICES IN PARALLEL, ON ONE BRANCH. Do this yourself, now,
+      in this run - do not create the subtasks and stop, and do not pick one up
+      and work it alone. Create the branch, then spawn the subagents together
+      in a single message so they run at the same time rather than one after
+      another; waiting for each in turn is the same as not fanning out at all. The subtasks of an epic
       touch different files - backend in routes/api-v2/, agent enablement in
       routes/mcp-endpoint.js and vault/, frontend in views/ and public/ - so
       they can be written at the same time. Spawn one subagent per slice with
