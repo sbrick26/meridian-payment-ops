@@ -61,3 +61,12 @@ regardless of whether the new behavior is better.
 
 Retirement of the legacy path requires the equivalence suite to be green and the
 result recorded in the change log (rule 03).
+
+## Ordering evidence within one pull request
+
+Fixtures and implementation may arrive in the same pull request. Capture-first
+is then evidenced by commit history, not by the diff: the commit introducing
+`tests/golden/` must touch only the fixtures, and must precede every commit
+that modifies legacy code. The gate verifies this ordering mechanically from
+the branch history; a same-diff appearance of fixtures and implementation is
+not, by itself, a violation.
