@@ -47,7 +47,17 @@ jobs:
         # forever on a runner with no terminal. --pm npm skips that prompt. It
         # installs via `npm install -g`, so the npm global bin goes on PATH.
         run: |
-          curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
+          # The install is a network fetch against a service that has real bad
+          # minutes - one CI run died here with every governance check unrun.
+          # Three attempts with backoff, and only then fail the job.
+          for attempt in 1 2 3; do
+            if curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm; then
+              break
+            fi
+            [ "$attempt" = 3 ] && { echo "::error title=install failed::Bob Shell install failed after 3 attempts."; exit 1; }
+            echo "install attempt $attempt failed - retrying in $((attempt * 20))s"
+            sleep $((attempt * 20))
+          done
           echo "$(npm prefix -g)/bin" >> "$GITHUB_PATH"
 
       - name: Verify Bob is on PATH
