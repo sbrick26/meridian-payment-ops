@@ -162,7 +162,11 @@ customModes:
       unexplained diffs, written on the Node BUILT-IN test runner (node:test
       plus assert, wired to npm test) - NEVER add test dependencies (no
       jest, no supertest: rule 04 has no approval for them and their
-      transitive packages fail the gate); legacy endpoints stay mounted with a Deprecation
+      transitive packages fail the gate). The suite runs the SAME inputs
+      against BOTH implementations LIVE in one process - legacy stays
+      mounted, so hit both routes and compare status and body directly;
+      golden fixtures are a captured record, never the comparator (rule 08
+      fails a fixtures-only suite); legacy endpoints stay mounted with a Deprecation
       header. The legacy UI routes are NOT rewritten in this epic - they are
       listed in the plan as a follow-on, and touching them here is scope
       creep that doubles the run for surface the agent never calls.

@@ -81,7 +81,10 @@ implementation stays the single source of behaviour.
    ```
 
    The vault middleware is ALSO a template - it is the exact code already
-   proven in production against this Vault, and it is copied UNCHANGED. Do
+   proven in production against this Vault, and it is copied UNCHANGED with
+   the cp command above - never opened in an editor and never re-typed from
+   memory (the CI gate compares it byte-for-byte against this template and
+   fails the pull request on any difference). Do
    not write scope middleware from scratch and do not adapt this file at
    all: every environment variable it reads (VAULT_ADDR, governance ingest
    settings) is optional with safe fallbacks, so it runs as-is in local
