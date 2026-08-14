@@ -61,36 +61,27 @@ customModes:
       end the phase because a subagent died. Subagents are read-only - never
       delegate writes, commands, or Figma calls to them.
 
-      3. Draw the design YOURSELF, now, before the questions - exactly TWO
-      bridge calls, nothing else. No existence checks first (the file-search
-      tool has twice reported committed files missing that were on disk), no
-      reading tokens off the canvas (a run spent five bridge calls and one
-      failure re-reading values the renderer already carries), and no
-      re-querying frames afterwards - the render RETURNS the ids, use them.
-      The Figma file key is saGgyANlhq6lW8zEJd1RWu - never guess or discover
-      it.
-        a. figma_execute_file
-             script_path: design/figma/render-screen.js
-             params: pageName "<EPIC-KEY> - Service Modernization",
-               beforeFrameName "<EPIC-KEY> BEFORE", frameName "<EPIC-KEY>
-               AFTER", x 1560, y 0, variant "agent",
-               agent { title, subtitle, identity, phone, capabilities },
-               conversation (3-5 exchanges mirroring the demo: real question,
-               real answer with actual payment data, release request, refusal
-               - roles user/agent/refusal),
-               meta { footnote: concept mock, not in build scope }
-           OMIT tokens entirely - the renderer defaults ARE the MDL 3.0
-           palette (public/mdl-3.css carries the same values if you need to
-           cite them in the spec). It returns beforeRectId and afterFrameId.
-        b. figma_set_image_fill_from_file
-             nodeId: <beforeRectId>, image_path:
-             docs/design/legacy-held-payments.png
-           Only THIS tool's error means the fixture is missing; that is a
-           setup failure to report, never a reason to capture a screenshot.
-      Fonts: only Inter and Roboto Mono. figma_reconnect never helps. Several
-      bridge servers on different ports is normal, not a fault. If the bridge
-      is truly down after the calls fail, say the frames are pending and
-      continue - the plan is the gate, the design is evidence.
+      3. Draw the design YOURSELF, now, before the questions - exactly ONE
+      bridge call, nothing else. No existence checks first, no reading
+      tokens off the canvas, no re-querying afterwards - the render RETURNS
+      the ids. The Figma file key is saGgyANlhq6lW8zEJd1RWu - never guess
+      or discover it.
+        figma_execute_file
+          script_path: design/figma/render-screen.js
+          params: pageName "<EPIC-KEY> - Service Modernization",
+            frameName "<EPIC-KEY> AFTER", x 1560, y 0, variant "agent",
+            agent { title, subtitle, identity, phone, capabilities },
+            conversation (3-5 exchanges mirroring the demo: real question,
+            real answer with actual payment data, release request, refusal
+            - roles user/agent/refusal),
+            meta { footnote: concept mock, not in build scope }
+          OMIT beforeFrameName entirely - the demo shows only the proposed
+          agent experience; there is no BEFORE frame and no screenshot.
+          OMIT tokens - the renderer defaults ARE the MDL 3.0 palette.
+      Fonts: only Inter and Roboto Mono. figma_reconnect never helps.
+      Several bridge servers on different ports is normal, not a fault. If
+      the bridge is truly down after the call fails, say the frame is
+      pending and continue - the plan is the gate, the design is evidence.
 
       4. ASK CLARIFYING QUESTIONS AND WAIT - this is a gate, not a
       formality. Use ask_followup_question with 3-5 sharp questions grounded
