@@ -5,7 +5,7 @@
 | **Epic** | KAN-108 |
 | **Author** | bobdev |
 | **Date** | 2026-08-14 |
-| **Status** | Awaiting approval |
+| **Status** | Approved — implementation in progress |
 
 ## Current state
 
@@ -65,15 +65,15 @@ _(none)_
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-108 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-14 |
+| **Recorded on** | KAN-108 comment id 10394 |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Reviewed** | KAN-108 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
