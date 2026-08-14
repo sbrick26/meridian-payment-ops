@@ -66,15 +66,15 @@ The modernized service will expose secure, parameterized `/api/v2/payment-status
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Recorded on** | KAN-105 |
-| **Approving comment** | (pending) |
+| **Approving comment** | "approved" (comment id 10390, posted 2026-08-13T23:45:02-0700) |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-105 AFTER frame (ID 159:718), page "KAN-105 - Service Modernization" on Figma file `saGgyANlhq6lW8zEJd1RWu` |
