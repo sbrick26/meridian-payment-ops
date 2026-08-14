@@ -1,5 +1,25 @@
 [
   {
+    "id": "31769176296-5e35617",
+    "timestamp": "2026-08-14T04:14:08Z",
+    "verdict": "PASS",
+    "severity": "none",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "16",
+    "pr_title": "[KAN-95] Modernize payment-status service and governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/16",
+    "branch": "feature/KAN-95-implementation",
+    "base_ref": "demo-integration",
+    "sha": "5e35617",
+    "commit_message": "fix(KAN-95): parameterize legacy handlers in equivalence test (rule 01)",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31769176296"
+  },
+  {
     "id": "31769056086-76f5887",
     "timestamp": "2026-08-14T04:11:44Z",
     "verdict": "FAIL",
