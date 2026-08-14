@@ -1,0 +1,9 @@
+{
+  "captured": "pre-change legacy response",
+  "path": "/api/risk-score?ref=MT-2026-09441",
+  "status": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "REF": "MT-2026-09441"
+  }
+}

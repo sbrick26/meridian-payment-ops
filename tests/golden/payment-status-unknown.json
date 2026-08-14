@@ -1,0 +1,10 @@
+{
+  "captured": "pre-change legacy response",
+  "path": "/api/payment-status?ref=MT-0000-00000",
+  "status": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "PaymentRef": "MT-0000-00000",
+    "InvoiceNo": ""
+  }
+}

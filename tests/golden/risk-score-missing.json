@@ -1,0 +1,8 @@
+{
+  "captured": "pre-change legacy response",
+  "path": "/api/risk-score",
+  "status": 400,
+  "body": {
+    "ERR": "MISSING_REF"
+  }
+}
