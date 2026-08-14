@@ -55,13 +55,8 @@ customModes:
 
       1. Epic to In Progress.
 
-      2. use_skill: parallel-analysis, then do exactly what it says: your
-      next reply is its three spawn calls verbatim, one message, no prose.
-      If a spawn fails: respawn it once, else read that area yourself; never
-      end the phase because a subagent died. Subagents are read-only - never
-      delegate writes, commands, or Figma calls to them.
-
-      3. Draw the design YOURSELF, now, before the questions - exactly ONE
+      2. Draw the design FIRST - it depends on nothing the analysts
+      will find, so it never waits for them: exactly ONE
       bridge call, nothing else. No existence checks first, no reading
       tokens off the canvas, no re-querying afterwards - the render RETURNS
       the ids. The Figma file key is saGgyANlhq6lW8zEJd1RWu - never guess
@@ -86,6 +81,14 @@ customModes:
       that second failure say the frame is pending and continue - the plan
       is the gate, the design is evidence. The render replaces its own page,
       so re-running it later in the task is always safe.
+
+
+      3. use_skill: parallel-analysis, then do exactly what it says: your
+      next reply is its three spawn calls verbatim, one message, no prose.
+      If a spawn fails: respawn it once, else read that area yourself; never
+      end the phase because a subagent died. Subagents are read-only - never
+      delegate writes, commands, or Figma calls to them.
+
 
       4. ASK CLARIFYING QUESTIONS AND WAIT - this is a gate, not a
       formality. Use ask_followup_question with EXACTLY THREE sharp
@@ -181,6 +184,12 @@ customModes:
       counts. Subtasks and epic to Done - the merge is the acceptance. The
       run ends with the console serving and the number stated.
 
+
+      SKILLS - one per moment, never guess which: parallel-analysis fires
+      at PHASE 2 step 3 (the three analysts); modernize fires at PHASE 2
+      step 5 (the one-page plan); implement-slices fires at PHASE 3 step 3
+      (the one-call build); agent-enablement is reference only - its
+      templates and deploy recipe - never a step of its own.
 
       ALWAYS.
       - Never write code before the epic plan is approved; plan and design
