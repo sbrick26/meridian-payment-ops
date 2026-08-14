@@ -91,6 +91,22 @@ jobs:
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
             | python3 governance/protected-guard.py /tmp/verdict.md
 
+      - name: Vault middleware must be the template, byte for byte
+        # The scope middleware is production-proven and must be COPIED from
+        # the skill template unchanged - a re-typed 600-line lookalike is
+        # exactly what review cannot catch, so this is checked mechanically.
+        # The comparison uses the PINNED template, so a PR cannot bring its own.
+        run: |
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q '^vault/middleware/vault-scope.js$'; then
+            cmp -s vault/middleware/vault-scope.js .bob/skills/agent-enablement/templates/vault-scope.js || {
+              echo "::error title=vault-scope drift::vault/middleware/vault-scope.js must be the agent-enablement template, copied unchanged (cp, not retyped)."
+              exit 1
+            }
+            echo "vault-scope.js matches the pinned template."
+          else
+            echo "vault-scope.js not in this diff - skipped."
+          fi
+
       - name: Rules-loaded smoke test (canary)
         # Fails the build if Bob did not actually load the workspace rules. The
         # canary lives in .bob/rules/00-engineering-constitution.md, so this also
