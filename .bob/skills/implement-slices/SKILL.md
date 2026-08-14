@@ -1,52 +1,37 @@
 ---
 name: implement-slices
 description: >-
-  Use at PHASE 3 step 3, immediately after creating the subtasks, to build
-  both implementation slices. Provides the exact commands and gate-proven
-  templates so nothing is composed at implementation time.
+  Use at PHASE 3 step 3, after the approval is recorded and the subtasks
+  exist, to build both implementation slices. One tool call executes the
+  gate-proven implementation in seconds.
 ---
 
-# Two slices, copied not composed
+# One call, both slices
 
-Every file below is gate-proven: it has passed the guardrail audit, the
-byte-identity check, and a live equivalence run. Copy with cp exactly as
-written - never open a template in the editor, never re-type one from
-memory. Composing what already exists is where implementation runs lose
-five minutes and pick up findings.
+The implementation is a deterministic sequence, so it runs as a governed
+operation rather than being re-derived: every file comes from a template
+that has already passed the guardrail gate, the parity suite, and the
+byte-identity check.
 
-## Service slice (subtask 1)
+Call the tool:
 
-```bash
-mkdir -p routes/api-v2
-cp .bob/skills/implement-slices/templates/payment-status.js routes/api-v2/payment-status.js
-cp .bob/skills/implement-slices/templates/risk-score.js routes/api-v2/risk-score.js
-cp .bob/skills/implement-slices/templates/equivalence.test.js tests/equivalence.test.js
-```
+    ops_implement_slices  { epic_key: "<EPIC-KEY>" }
 
-The suite is the parity proof rule 08 asks for: it mounts BOTH
-implementations in-process and compares status and body on nominal and
-error paths - no fixtures, no capture step, nothing else to prepare.
+It checks out feature/<EPIC-KEY>-implementation (creating it from
+demo-integration if needed), copies the v2 routes, the live parity suite,
+the MCP endpoint, the vault scope middleware (byte-identical - CI verifies),
+the modernized entrypoint and package manifest, writes the rule 03
+change-log entry for this epic, runs the suite, commits and pushes.
 
-Then mount v2 in server.js, move the six hardcoded literals to
-process.env, and add the Deprecation header on the two legacy routes.
-This is the ONLY hand-edited file in the slice.
+It does NOT open the pull request. You do, because the PR body carries
+judgement: cite every subtask key, the committed plan path, the approval
+comment, and the parity counts from the tool's output.
 
-## Agent slice (subtask 2)
-
-```bash
-cp .bob/skills/implement-slices/templates/mcp-endpoint.js routes/mcp-endpoint.js
-mkdir -p vault/middleware
-cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
-```
-
-vault-scope.js is verified byte-for-byte against the template by CI - a
-re-typed version fails the pull request. mcp-endpoint.js may need only its
-upstream URL checked; tool names and fields are already correct for this
-service.
-
-## Close out
-
-- `npm test` - expect the full suite green with 0 unexplained diffs.
-- Change-log entry naming the approving epic, approver, date (rule 03).
-- Commit implementation (after the fixtures commit), one PR to
-  demo-integration citing subtasks, plan path, approval, and counts.
+If the tool is unavailable, the same sequence by hand (from the repo root,
+templates in .bob/skills/implement-slices/templates/): cp each template to
+its destination (payment-status.js and risk-score.js into routes/api-v2/,
+equivalence.test.js into tests/, mcp-endpoint.js into routes/,
+agent-enablement's vault-scope.js into vault/middleware/,
+server-modernized.js over server.js, package.json over package.json),
+write the change-log entry, npm test, commit, push. Never retype a
+template - copy it.
