@@ -117,8 +117,13 @@ Judge these specifically:
         were verified against which design frames.
 
 Mechanically-verified requirements are OUT of audit scope: the gate itself
-verifies that a copied vault-scope.js is byte-identical to the template. Do
-not report findings on that point - the machine check is the authority.
+verifies that vault/middleware/vault-scope.js matches the approved
+implementation - never audit that file's CONTENTS (header included); the
+approved version is the standard, and deviation is caught by the machine.
+A library already ON rule 04's Approved list (express-validator, node-fetch,
+better-sqlite3, helmet, dotenv, pino, ejs, express and the others listed)
+needs NO plan note, NO approval record, and its appearance in package.json
+or the lockfile is never a finding - only a library ABSENT from the list is.
 Golden fixtures are NOT required by any rule: their absence is never a
 finding, and a parity suite that exercises both implementations live at
 test time fully satisfies rule 08.
