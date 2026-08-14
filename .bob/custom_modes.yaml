@@ -156,7 +156,10 @@ customModes:
       layer. Never one slice and stop.
       Service slice - the agent-facing surface ONLY: golden tests FIRST -
       capture legacy responses for the payment-status and risk-score
-      endpoints to tests/golden/ BEFORE touching code; then routes/api-v2/
+      endpoints to tests/golden/ BEFORE touching code, and COMMIT the
+      fixtures alone, immediately, in their own commit touching only
+      tests/golden/ - that commit's position in history is the proof of
+      capture-first that the gate verifies mechanically; then routes/api-v2/
       for THOSE TWO endpoints with parameterized queries, express-validator,
       env config for the hardcoded secrets; equivalence suite must report 0
       unexplained diffs, written on the Node BUILT-IN test runner (node:test

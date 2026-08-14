@@ -116,6 +116,12 @@ Judge these specifically:
         and date recorded in the plan document, and no statement of which screens
         were verified against which design frames.
 
+Mechanically-verified requirements are OUT of audit scope: the gate itself
+verifies (a) that a copied vault-scope.js is byte-identical to the template
+and (b) that the golden-fixture commit precedes every legacy-code change in
+the branch history. Do not report findings on those two points - the machine
+check is the authority, and the diff alone cannot show commit order.
+
 Grounding requirement - the pinned rule files are the ONLY authority. Before
 reporting a violation, re-read the named rule file and find the exact sentence
 the diff violates. Include it verbatim in a "quote" field. If no sentence of
