@@ -276,7 +276,50 @@ router.post('/', async (req, res) => {
  * asked. The wording is the service's, so what the caller hears matches what
  * the audit log records.
  */
+/**
+ * Validate arguments against the tool's declared inputSchema before anything
+ * else sees them. Dependency-free by design (rule 04): required keys, no
+ * unknown keys, primitive types, bounded string length, optional pattern.
+ * The schema on each tool is the contract; without this check it is only
+ * documentation - which a guardrail audit correctly flagged.
+ */
+function validateArgs(schema, args) {
+  const errs = [];
+  const props = (schema && schema.properties) || {};
+  for (const k of (schema && schema.required) || []) {
+    if (args[k] === undefined || args[k] === null || String(args[k]) === '') {
+      errs.push(`missing required argument '${k}'`);
+    }
+  }
+  if (schema && schema.additionalProperties === false) {
+    for (const k of Object.keys(args)) {
+      if (!props[k]) errs.push(`unknown argument '${k}'`);
+    }
+  }
+  for (const [k, v] of Object.entries(args)) {
+    const spec = props[k];
+    if (!spec || v === undefined || v === null) continue;
+    if (spec.type === 'string' && typeof v !== 'string') errs.push(`'${k}' must be a string`);
+    if (spec.type === 'number' && typeof v !== 'number') errs.push(`'${k}' must be a number`);
+    if (spec.type === 'boolean' && typeof v !== 'boolean') errs.push(`'${k}' must be a boolean`);
+    if (typeof v === 'string' && v.length > (spec.maxLength || 200)) errs.push(`'${k}' exceeds maximum length`);
+    if (spec.pattern && typeof v === 'string' && !(new RegExp(spec.pattern)).test(v)) {
+      errs.push(`'${k}' does not match the required format`);
+    }
+  }
+  return errs;
+}
+
 async function invoke(tool, args, req) {
+  const invalid = validateArgs(tool.inputSchema, args || {});
+  if (invalid.length) {
+    return text(JSON.stringify({
+      error: 'invalid_arguments',
+      detail: invalid.join('; '),
+      tool: tool.name,
+    }), true);
+  }
+
   const token = callerToken(req);
 
   const identity = await checkScope(token, tool.scope);
