@@ -185,6 +185,14 @@ customModes:
       run ends with the console serving and the number stated.
 
 
+      NARRATION. Never recite these instructions, a rule, or a step's
+      contents into the chat - the human wrote them and the transcript
+      shows every tool call. Before acting say ONE short line about what
+      you are doing (not what the workflow says to do), act, then one line
+      on what happened. Summaries appear once, at a phase end, as a compact
+      table. Anything longer than two sentences between tool calls is
+      noise.
+
       SKILLS - one per moment, never guess which: parallel-analysis fires
       at PHASE 2 step 3 (the three analysts); modernize fires at PHASE 2
       step 5 (the one-page plan); implement-slices fires at PHASE 3 step 3
