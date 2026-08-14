@@ -2,22 +2,24 @@
  * Function: POST /mcp (JSON-RPC tools/list, tools/call) — AP Payment Agent
  * Owner:    payments-platform-team
  * Control:  AC-6 (least privilege), AC-2, IA-2 (agent identity)
- *           SOX/PCI: SOX 404 segregation of duties; PCI Req. 8
+ *           SI-10 (input validation at tool boundary)
+ *           SOX/PCI: SOX 404 segregation of duties; PCI Req. 8; PCI Req. 6.5.1
  * Reviewed: 2026-08-13
  * ------------------------------------------------------------------------- */
 
 /**
  * mcp-endpoint.js — MCP tool interface for the AP Payment Agent (KAN-78).
  *
- * Adapted from .bob/skills/agent-enablement/templates/mcp-endpoint.js.
- * Upstream routes: /api/v2/payment-status and /api/v2/risk-score.
- * Agent data surface: status, risk_band, vendor_name, amount, reason_text.
- * bank_bic and clerk names are NOT surfaced (PCI scope / operator PII).
+ * Re-copied from the updated .bob/skills/agent-enablement/templates/mcp-endpoint.js
+ * after guardrail finding 01-secure-coding: params.arguments were forwarded
+ * unvalidated. The template now includes validateArgs() which enforces inputSchema
+ * at the boundary before scope checks or upstream calls. Re-applied tool-name and
+ * URL adaptations on top.
  *
  * Tool catalogue:
  *   payment_status_lookup  — inquiry scope  — GET /api/v2/payment-status
  *   payment_risk           — inquiry scope  — GET /api/v2/risk-score
- *   payment_release        — ops scope      — permanently refused (no ops identity)
+ *   payment_release        — ops scope      — always refused (no ops identity)
  *
  * Mounted in server.js:
  *   app.use('/mcp', require('./routes/mcp-endpoint'));
@@ -53,8 +55,8 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        ref:     { type: 'string', description: 'Payment reference, e.g. MT-2026-08815' },
-        invoice: { type: 'string', description: 'Invoice number, e.g. INV-2026-4403' },
+        ref:     { type: 'string', description: 'Payment reference, e.g. MT-2026-08815', maxLength: 64 },
+        invoice: { type: 'string', description: 'Invoice number, e.g. INV-2026-4403',    maxLength: 64 },
       },
       additionalProperties: false,
     },
@@ -72,7 +74,7 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        ref: { type: 'string', description: 'Payment reference' },
+        ref: { type: 'string', description: 'Payment reference', maxLength: 64 },
       },
       required: ['ref'],
       additionalProperties: false,
@@ -89,8 +91,8 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        ref:  { type: 'string', description: 'Payment reference' },
-        note: { type: 'string', description: 'Reason for release' },
+        ref:  { type: 'string', description: 'Payment reference', maxLength: 64 },
+        note: { type: 'string', description: 'Reason for release', maxLength: 500 },
       },
       required: ['ref'],
       additionalProperties: false,
@@ -107,7 +109,7 @@ function callerToken(req) {
 }
 
 /* ------------------------------------------------------------------ *
- * Transport plumbing (identical to template)                           *
+ * Transport plumbing                                                   *
  * ------------------------------------------------------------------ */
 
 const rpcResult = (id, result) => ({ jsonrpc: '2.0', id, result });
@@ -176,7 +178,53 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * Validate arguments against the tool's declared inputSchema before anything
+ * else sees them. Dependency-free (rule 04): required keys, no unknown keys,
+ * primitive types, bounded string length, optional pattern.
+ * The schema on each tool is the contract; without this check it is only
+ * documentation — which the guardrail audit correctly flagged (01-secure-coding).
+ */
+function validateArgs(schema, args) {
+  const errs  = [];
+  const props = (schema && schema.properties) || {};
+  for (const k of (schema && schema.required) || []) {
+    if (args[k] === undefined || args[k] === null || String(args[k]) === '') {
+      errs.push(`missing required argument '${k}'`);
+    }
+  }
+  if (schema && schema.additionalProperties === false) {
+    for (const k of Object.keys(args)) {
+      if (!props[k]) errs.push(`unknown argument '${k}'`);
+    }
+  }
+  for (const [k, v] of Object.entries(args)) {
+    const spec = props[k];
+    if (!spec || v === undefined || v === null) continue;
+    if (spec.type === 'string'  && typeof v !== 'string')  errs.push(`'${k}' must be a string`);
+    if (spec.type === 'number'  && typeof v !== 'number')  errs.push(`'${k}' must be a number`);
+    if (spec.type === 'boolean' && typeof v !== 'boolean') errs.push(`'${k}' must be a boolean`);
+    if (typeof v === 'string' && v.length > (spec.maxLength || 200)) errs.push(`'${k}' exceeds maximum length`);
+    if (spec.pattern && typeof v === 'string' && !(new RegExp(spec.pattern)).test(v)) {
+      errs.push(`'${k}' does not match the required format`);
+    }
+  }
+  return errs;
+}
+
 async function invoke(tool, args, req) {
+  // SI-10: validate arguments against declared inputSchema before scope check
+  // or upstream call. Catches type errors, unknown fields, missing required
+  // args, and over-length strings at the boundary.
+  const invalid = validateArgs(tool.inputSchema, args || {});
+  if (invalid.length) {
+    return text(JSON.stringify({
+      error:  'invalid_arguments',
+      detail: invalid.join('; '),
+      tool:   tool.name,
+    }), true);
+  }
+
   const token    = callerToken(req);
   const identity = await checkScope(token, tool.scope);
   if (!identity.allowed) {
