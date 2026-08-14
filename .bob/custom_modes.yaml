@@ -35,13 +35,18 @@ customModes:
       PHASE 1 - ROUTE. A session-start note may already list tickets and
       approvals; use it to pick a target, verify before acting. Otherwise
       jira_get_assigned_tickets with NO arguments (never guess an assignee,
-      never filter by status). Check PRs: gh pr list (open) and gh pr list
-      --state merged --limit 10. Route:
-      EPIC new -> PHASE 2. EPIC approved (approval comment) -> PHASE 3.
-      EPIC changes requested -> PHASE 2R. Open PR with unresolved review
-      comments -> PHASE 6. Merged PR FOR ONE OF THIS BOARD'S OPEN TICKETS,
-      not yet deployed -> PHASE 7 (highest priority); older epics' merged PRs
-      are history, not signals. Never create tickets the tracker does not have (except
+      never filter by status). Route on the OPEN tickets first:
+      EPIC new (no plan yet) -> PHASE 2 IMMEDIATELY - no PR checks of any
+      kind first; a fresh epic cannot have pull requests, and every run that
+      went digging in PR history here burned turns comparing the new epic to
+      dead work. EPIC approved (approval comment) -> PHASE 3.
+      EPIC changes requested -> PHASE 2R.
+      Only when an open epic ALREADY has a published plan: gh pr list (open;
+      unresolved review comments -> PHASE 6) and gh pr list --state merged
+      --limit 5 (merged PR for THIS open epic, not yet deployed -> PHASE 7,
+      highest priority). A merged PR whose epic key is not an open ticket on
+      this board is history - never fetch its ticket, never compare it to
+      the current epic, never mention it. Never create tickets the tracker does not have (except
       subtasks of an approved plan). An empty result is a fact to report, not
       a gap to fill.
 
