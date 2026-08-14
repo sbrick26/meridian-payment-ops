@@ -1,5 +1,50 @@
 [
   {
+    "id": "31759104073-5aa3e4d",
+    "timestamp": "2026-08-14T00:58:36Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 4,
+    "violations": [
+      {
+        "file": "docs/modernization/KAN-78/PLAN.md",
+        "rule": "07-plan-first-delivery.md",
+        "detail": "The application-code change adds only [`docs/modernization/KAN-78/PLAN.md`](docs/modernization/KAN-78/PLAN.md) instead of the required epic planning record with [`01-assessment.md`](docs/modernization/KAN-78/01-assessment.md), [`02-plan.md`](docs/modernization/KAN-78/02-plan.md), and [`03-decisions.md`](docs/modernization/KAN-78/03-decisions.md).",
+        "severity": "high"
+      },
+      {
+        "file": "package-lock.json",
+        "rule": "04-approved-libraries.md",
+        "detail": "The diff adds transitive packages from [`jest`](package.json) and [`supertest`](package.json) including unapproved library [`lodash`](package-lock.json) with no approval note in the plan document naming the library, need, license, maintenance status, and approver.",
+        "severity": "medium"
+      },
+      {
+        "file": "routes/mcp-endpoint.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The new user-facing tool path accepts [`params.arguments`](routes/mcp-endpoint.js:160) and forwards `invoice` without any validation before it reaches the upstream query endpoint.",
+        "severity": "critical"
+      },
+      {
+        "file": "routes/mcp-endpoint.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The new user-facing tool path accepts [`params.arguments`](routes/mcp-endpoint.js:160) and forwards `ref` without any validation before it reaches the upstream query endpoint.",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "13",
+    "pr_title": "[KAN-78] Modernize payment-status service and expose through governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/13",
+    "branch": "feature/KAN-78-implementation",
+    "base_ref": "demo-integration",
+    "sha": "5aa3e4d",
+    "commit_message": "feat(KAN-78): modernize payment-status service and add governed agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31759104073"
+  },
+  {
     "id": "31685556504-30adf05",
     "timestamp": "2026-08-13T09:13:51Z",
     "verdict": "FAIL",
