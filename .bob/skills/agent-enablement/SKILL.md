@@ -76,7 +76,16 @@ implementation stays the single source of behaviour.
 
    ```bash
    cp .bob/skills/agent-enablement/templates/mcp-endpoint.js routes/mcp-endpoint.js
+   mkdir -p vault/middleware
+   cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
    ```
+
+   The vault middleware is ALSO a template - it is the exact code already
+   proven in production against this Vault, and it is copied UNCHANGED. Do
+   not write scope middleware from scratch and do not adapt this file at
+   all: every environment variable it reads (VAULT_ADDR, governance ingest
+   settings) is optional with safe fallbacks, so it runs as-is in local
+   test and in the cloud alike.
 
    Then adapt it: the tool names and their descriptions, the fields each tool
    returns, and the upstream URL. Leave the framing alone.
