@@ -108,7 +108,10 @@ function scoreRow(row) {
 	return { score: score, band: utils.bandFor(score) };
 }
 
-/* Legacy route handlers — mounted at /legacy/* paths */
+/* Legacy route handlers — mounted at /legacy/* paths.
+ * These reproduce the legacy response shape exactly.
+ * SQL is parameterized (rule 01); the string-concatenation form is in server.js
+ * (legacy, unchanged) — this file must not replicate the injection vector. */
 function legacyPaymentStatus(db) {
 	return function (req, res) {
 		var ref     = req.query.ref     || null;
@@ -116,16 +119,22 @@ function legacyPaymentStatus(db) {
 		if (!ref && !invoice) {
 			return res.status(400).json({ ERR: 'MISSING_REF', msg: 'ref or invoice parameter is required' });
 		}
-		var lookup = ref
-			? " AND e.payment_ref = '" + ref + "' "
-			: " AND e.invoice_no = '" + invoice + "' ";
-		var rows = db.prepare(
-			'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
-			'k.initials AS clerk_initials FROM exceptions e, vendors v ' +
-			'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
-			'WHERE e.vendor_id = v.id ' + lookup
-		).all();
-		var row = rows.length ? rows[0] : null;
+		var row;
+		if (ref) {
+			row = db.prepare(
+				'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
+				'k.initials AS clerk_initials FROM exceptions e, vendors v ' +
+				'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
+				'WHERE e.vendor_id = v.id AND e.payment_ref = ?'
+			).get(ref);
+		} else {
+			row = db.prepare(
+				'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
+				'k.initials AS clerk_initials FROM exceptions e, vendors v ' +
+				'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
+				'WHERE e.vendor_id = v.id AND e.invoice_no = ?'
+			).get(invoice);
+		}
 		if (!row) {
 			return res.status(404).json({ ERR: 'NOT_FOUND', PaymentRef: (ref ? ref : ''), InvoiceNo: (invoice ? invoice : '') });
 		}
@@ -171,11 +180,10 @@ function legacyRiskScore(db) {
 		if (!ref) {
 			return res.status(400).json({ ERR: 'MISSING_REF' });
 		}
-		var rows = db.prepare(
+		var row = db.prepare(
 			'SELECT e.*, v.country AS country, v.new_vendor AS new_vendor FROM exceptions e, vendors v ' +
-			"WHERE e.vendor_id = v.id AND e.payment_ref = '" + ref + "'"
-		).all();
-		var row = rows.length ? rows[0] : null;
+			'WHERE e.vendor_id = v.id AND e.payment_ref = ?'
+		).get(ref);
 		if (!row) {
 			return res.status(404).json({ ERR: 'NOT_FOUND', REF: ref });
 		}
