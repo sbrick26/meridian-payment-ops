@@ -9,5 +9,4 @@ npm-debug.log
 .env
 
 # local tool config
-.claude/
 .bob/tmp/
