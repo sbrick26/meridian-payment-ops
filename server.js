@@ -13,10 +13,17 @@
  *   2.3.0  CSV extract on the reports screen
  *   2.4.0  filter + paging on the held payments screen
  *   2.4.1  fix for the blank clerk column
+ *   2.5.0  KAN-95: v2 parameterized endpoints; secrets externalized
  *
  * Contact: finance-apps@meridiancorp.example  (ext 4471)
  * ================================================================== */
 
+/* ---------------------------------------------------------------------------
+ * Function: server bootstrap (KAN-95 modernization)
+ * Owner:    payments-platform-team
+ * Control:  CM-2, CM-6   (SOX: ITGC change management; PCI-DSS Req. 6)
+ * Reviewed: 2026-08-14
+ * ------------------------------------------------------------------------- */
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
@@ -25,6 +32,11 @@ var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
 
+/* v2 route modules (KAN-95) */
+var psV2     = require('./routes/api-v2/payment-status');
+var rsV2     = require('./routes/api-v2/risk-score');
+var mcpRoute = require('./routes/mcp-endpoint');
+
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
  * ------------------------------------------------------------------ */
@@ -32,7 +44,7 @@ var seed = require('./seed');
 var PORT = 4600;
 var APP_NAME = 'AP Payment Operations';
 var APP_VERSION = '2.4.1';
-var ENVIRONMENT = 'PROD-DR';
+var ENVIRONMENT = process.env.ENVIRONMENT || 'PROD-DR';
 var DB_FILE = path.join(__dirname, 'payops.db');
 var PAGE_SIZE = 25;
 var AS_OF_DATE = '2026-08-01';
@@ -41,12 +53,12 @@ var AS_OF_DATE = '2026-08-01';
 var SMTP_HOST = 'smtprelay.meridiancorp.internal';
 var SMTP_PORT = 25;
 var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
+var SMTP_PASS = process.env.SMTP_PASSWORD;
 var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
 var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
+var ERP_FEED_KEY = process.env.ERP_FEED_KEY;
 var ERP_FEED_ROWS = 200;
 
 /* the approval limit above which an item must be second-checked */
@@ -59,6 +71,13 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+/* v2 modernized endpoints (KAN-95) — parameterized, validated, parity-tested */
+app.get('/api/v2/payment-status', psV2.validators, psV2.handler(function () { return db; }));
+app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(function () { return db; }));
+
+/* MCP tool layer (KAN-95) — governed agent access, read-only scope */
+app.use('/mcp', mcpRoute);
 
 /* ------------------------------------------------------------------
  * database
@@ -523,6 +542,8 @@ function scoreRow(row) {
  * ------------------------------------------------------------------ */
 
 app.get('/api/payment-status', function (req, res) {
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/payment-status>; rel="successor-version"');
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
 	if (!ref && !invoice) {
@@ -586,6 +607,8 @@ app.get('/api/payment-status', function (req, res) {
 });
 
 app.get('/api/risk-score', function (req, res) {
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/risk-score>; rel="successor-version"');
 	var ref = req.query.ref;
 	if (!ref) {
 		res.status(400).json({ ERR: 'MISSING_REF' });

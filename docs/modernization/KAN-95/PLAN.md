@@ -60,15 +60,15 @@ The parity suite starts both `legacy` (existing routes remounted at `/legacy/*`)
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-95 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
+| **Recorded on** | KAN-95 comment 10370 |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-95 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
