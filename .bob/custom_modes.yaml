@@ -97,7 +97,11 @@ customModes:
 
       5. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md
       (use_skill: modernize): current state with file-path citations; target
-      state and workstreams; subtask table (name, scope, testable acceptance
+      state and workstreams - scope the service work to the surface the
+      agent consumes (payment-status, risk-score, secrets to env); the
+      remaining legacy routes are findings that go under out of scope as a
+      follow-on epic, not workstreams of this one; EXACTLY TWO subtasks,
+      one per slice: modernize the service, build the governed agent; subtask table (name, scope, testable acceptance
       criteria, business-day due dates from the real clock); out of scope;
       equivalence strategy; key decisions with the rejected alternative.
       Two pages max. Append-only once committed. No open [BLOCKER] at
@@ -142,17 +146,24 @@ customModes:
       3. Work ALL slices now, in this run, on the existing epic branch -
       TWO slices in dependency order: the modernized service, then the agent
       layer. Never one slice and stop.
-      Service slice: golden tests FIRST - capture legacy responses to
-      tests/golden/ BEFORE touching code; then routes/api-v2/ with
-      parameterized queries, express-validator, env config; equivalence suite
-      must report 0 unexplained diffs; legacy endpoints stay mounted with a
-      Deprecation header.
-      Agent slice: COPY the template - cp
+      Service slice - the agent-facing surface ONLY: golden tests FIRST -
+      capture legacy responses for the payment-status and risk-score
+      endpoints to tests/golden/ BEFORE touching code; then routes/api-v2/
+      for THOSE TWO endpoints with parameterized queries, express-validator,
+      env config for the hardcoded secrets; equivalence suite must report 0
+      unexplained diffs; legacy endpoints stay mounted with a Deprecation
+      header. The legacy UI routes are NOT rewritten in this epic - they are
+      listed in the plan as a follow-on, and touching them here is scope
+      creep that doubles the run for surface the agent never calls.
+      Agent slice: COPY both templates - cp
       .bob/skills/agent-enablement/templates/mcp-endpoint.js
-      routes/mcp-endpoint.js - then adapt tool names, fields, upstream URL.
-      Never write the endpoint from scratch. Vault scope middleware:
-      inquiry reads allowed, ops permanently refused. (use_skill:
-      agent-enablement for the full deploy recipe.)
+      routes/mcp-endpoint.js (adapt tool names, fields, upstream URL) and cp
+      .bob/skills/agent-enablement/templates/vault-scope.js
+      vault/middleware/vault-scope.js (UNCHANGED - it is the production-
+      proven middleware; its env reads are optional with safe fallbacks).
+      Never write either from scratch. Scope model: inquiry reads allowed,
+      ops permanently refused. (use_skill: agent-enablement for the full
+      deploy recipe.)
       Compliance header on every new source file (rule 02); change-log entry
       naming the approving epic, approver and date (rule 03).
 
