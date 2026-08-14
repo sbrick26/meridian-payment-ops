@@ -1,5 +1,25 @@
 [
   {
+    "id": "31778980363-1bb7585",
+    "timestamp": "2026-08-14T07:11:48Z",
+    "verdict": "ERROR",
+    "severity": "high",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "20",
+    "pr_title": "[KAN-108] Modernize payment-status service + governed MCP agent layer",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/20",
+    "branch": "feature/KAN-108-implementation",
+    "base_ref": "demo-integration",
+    "sha": "1bb7585",
+    "commit_message": "fix: PR #20 gate findings \u2014 compliance header format + node-fetch plan note [KAN-108]",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31778980363"
+  },
+  {
     "id": "31778835982-69182ce",
     "timestamp": "2026-08-14T07:09:51Z",
     "verdict": "FAIL",
