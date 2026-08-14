@@ -145,13 +145,13 @@ customModes:
       business-day due dates), comment the keys on the epic, epic to In
       Progress.
 
-      3. use_skill: implement-slices, then do exactly what it says: ONE
-      ops_implement_slices call executes both slices from gate-proven
-      templates in seconds - never re-derive what the templates already
-      carry. Work ALL slices in this run - never one slice and stop.
+      3. use_skill: implement-slices, then do exactly what it says: TWO
+      implementer-persona subagents build the slices SIMULTANEOUSLY - the
+      next reply is exactly their two spawn calls, nothing else - and when
+      both report DONE the parent finishes in the main conversation: suite
+      green, one commit, push. Never re-derive what the templates carry.
 
-      4. The tool output shows the suite green - quote its counts. One PR:
-      gh pr create, base demo-integration, title
+      4. With the suite green - quote its counts. One PR: gh pr create, base demo-integration, title
       "[<EPIC-KEY>] <summary>", body cites every subtask key, the committed
       plan path and the approval comment, tests and equivalence counts.
       Subtasks to In Review with the PR URL. STOP - merging is the human's,

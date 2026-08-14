@@ -2,36 +2,55 @@
 name: implement-slices
 description: >-
   Use at PHASE 3 step 3, after the approval is recorded and the subtasks
-  exist, to build both implementation slices. One tool call executes the
-  gate-proven implementation in seconds.
+  exist, to build both implementation slices in parallel: two implementer
+  subagents work simultaneously, then the parent finishes with the suite,
+  the commit and the push.
 ---
 
-# One call, both slices
+# Two hands, then the parent closes
 
-The implementation is a deterministic sequence, so it runs as a governed
-operation rather than being re-derived: every file comes from a template
-that has already passed the guardrail gate, the parity suite, and the
-byte-identity check.
+Both slices are built from gate-proven templates by TWO implementer-persona
+subagents running AT THE SAME TIME. Your next reply after loading this
+skill contains EXACTLY two spawn_subagent calls and nothing else - no prose
+before, between, or after them. Both briefs verbatim, epic key substituted.
+The subagents write files only - the parent owns testing and git.
 
-Call the tool:
+Spawn 1 - use the implementer persona:
+"SERVICE SLICE for <EPIC-KEY>. From the repository root run exactly these
+commands and nothing else, then report DONE with the file list:
+mkdir -p routes/api-v2 tests
+cp .bob/skills/implement-slices/templates/payment-status.js routes/api-v2/payment-status.js
+cp .bob/skills/implement-slices/templates/risk-score.js routes/api-v2/risk-score.js
+cp .bob/skills/implement-slices/templates/equivalence.test.js tests/equivalence.test.js
+cp .bob/skills/implement-slices/templates/server-modernized.js server.js
+cp .bob/skills/implement-slices/templates/package.json package.json
+Do not run tests, do not commit."
 
-    ops_implement_slices  { epic_key: "<EPIC-KEY>" }
+Spawn 2 - use the implementer persona:
+"AGENT SLICE for <EPIC-KEY>. From the repository root run exactly these
+commands, then write the change-log entry, then report DONE with the file
+list:
+mkdir -p vault/middleware change-log
+cp .bob/skills/implement-slices/templates/mcp-endpoint.js routes/mcp-endpoint.js
+cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
+Then create change-log/<today>_<EPIC-KEY>-implementation.md by copying
+.bob/skills/implement-slices/templates/change-log-entry.md and replacing
+every KAN-98 with <EPIC-KEY> and the old date with today's date.
+Do not run tests, do not commit."
 
-It checks out feature/<EPIC-KEY>-implementation (creating it from
-demo-integration if needed), copies the v2 routes, the live parity suite,
-the MCP endpoint, the vault scope middleware (byte-identical - CI verifies),
-the modernized entrypoint and package manifest, writes the rule 03
-change-log entry for this epic, runs the suite, commits and pushes.
+WAIT for both. If one fails: respawn it once, else run its commands
+yourself. Never proceed with only one slice's files in place.
 
-It does NOT open the pull request. You do, because the PR body carries
-judgement: cite every subtask key, the committed plan path, the approval
-comment, and the parity counts from the tool's output.
+## The parent finishes - testing and git, in the main conversation
 
-If the tool is unavailable, the same sequence by hand (from the repo root,
-templates in .bob/skills/implement-slices/templates/): cp each template to
-its destination (payment-status.js and risk-score.js into routes/api-v2/,
-equivalence.test.js into tests/, mcp-endpoint.js into routes/,
-agent-enablement's vault-scope.js into vault/middleware/,
-server-modernized.js over server.js, package.json over package.json),
-write the change-log entry, npm test, commit, push. Never retype a
-template - copy it.
+    npm install --no-audit --no-fund --loglevel=error
+    npm test          # expect the full suite green, 0 unexplained diffs
+    git add -A
+    git commit -m "feat(<EPIC-KEY>): modernized v2 API, secrets-to-env, governed MCP agent layer"
+    git push -u origin feature/<EPIC-KEY>-implementation
+
+Quote the suite counts in the PR body. The branch must already exist with
+the plan and approval commits - never create it here.
+
+Fallback if subagents are unavailable: ops_implement_slices { epic_key }
+does the whole sequence in one call.
