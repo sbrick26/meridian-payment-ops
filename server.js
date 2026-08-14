@@ -25,6 +25,17 @@ var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
 
+/* ---------------------------------------------------------------------------
+ * Function: v2 route loader
+ * Owner:    payments-platform-team
+ * Control:  SI-10, AC-3   (SOX: ITGC change management; PCI-DSS Req. 6.5.1)
+ * Reviewed: 2026-08-14
+ * Approved under KAN-98, Swayam Barik, 2026-08-13.
+ * ------------------------------------------------------------------------- */
+var psV2    = require('./routes/api-v2/payment-status');
+var rsV2    = require('./routes/api-v2/risk-score');
+var mcpRouter = require('./routes/mcp-endpoint');
+
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
  * ------------------------------------------------------------------ */
@@ -522,7 +533,15 @@ function scoreRow(row) {
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
  * ------------------------------------------------------------------ */
 
+/* v2 endpoints — parameterized, validated, env-configured (KAN-98) */
+app.get('/api/v2/payment-status', psV2.validators, psV2.handler(function () { return db; }));
+app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(function () { return db; }));
+
+/* legacy endpoints retained for dual-stack compatibility; retire in follow-on epic */
 app.get('/api/payment-status', function (req, res) {
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/payment-status>; rel="successor-version"');
+}, function (req, res) {
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
 	if (!ref && !invoice) {
@@ -586,6 +605,9 @@ app.get('/api/payment-status', function (req, res) {
 });
 
 app.get('/api/risk-score', function (req, res) {
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/risk-score>; rel="successor-version"');
+}, function (req, res) {
 	var ref = req.query.ref;
 	if (!ref) {
 		res.status(400).json({ ERR: 'MISSING_REF' });
@@ -699,6 +721,9 @@ app.get('/help', function (req, res) {
 		u: utils
 	});
 });
+
+/* MCP tool layer — governed AI agent identity boundary (KAN-98) */
+app.use('/mcp', mcpRouter);
 
 app.use(function (req, res) {
 	res.status(404).send(
