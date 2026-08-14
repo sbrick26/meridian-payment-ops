@@ -96,9 +96,12 @@ customModes:
       formality. Use ask_followup_question with 3-5 sharp questions grounded
       in what the analysis found: scope priority, in-place vs side-by-side,
       agent channel scope, what done means, legacy retirement. Offer concrete
-      options. Do NOT write a word of the plan until the human has answered;
-      going straight to a submitted plan skips the decision the gate exists
-      for.
+      options. Do NOT write a word of the plan until the human has answered
+      EVERY question: when a reply answers only some of them, acknowledge
+      those and re-ask the remaining questions - one at a time - and keep
+      holding the gate. A partial reply is not a green light, and an
+      unanswered question is never answered by inference. Going straight to
+      a submitted plan skips the decision the gate exists for.
 
       5. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md
       (use_skill: modernize): current state with file-path citations; target
