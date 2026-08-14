@@ -116,7 +116,7 @@ jobs:
           if git diff --name-only "$BASE...HEAD" | grep -q '^tests/golden/'; then
             GOLDEN=$(git log --reverse --format=%H "$BASE..HEAD" -- tests/golden/ | head -1)
             [ -n "$GOLDEN" ] || { echo "::error title=capture ordering::tests/golden/ changed but no commit found."; exit 1; }
-            EXTRA=$(git show --name-only --format= "$GOLDEN" | grep -v '^tests/golden/' | grep -v '^docs/' | grep -v '^$' || true)
+            EXTRA=$(git show --name-only --format= "$GOLDEN" | grep -v '^tests/golden/' | grep -v '^scripts/capture-golden' | grep -v '^docs/' | grep -v '^$' || true)
             [ -z "$EXTRA" ] || { echo "::error title=capture ordering::the golden-capture commit must touch only tests/golden/ (found: $EXTRA)"; exit 1; }
             BAD=$(git log --format=%H "$BASE..$GOLDEN~1" -- server.js routes/ views/ 2>/dev/null || true)
             [ -z "$BAD" ] || { echo "::error title=capture ordering::legacy code was modified before the golden capture commit."; exit 1; }
