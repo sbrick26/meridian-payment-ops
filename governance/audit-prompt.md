@@ -124,6 +124,9 @@ A library already ON rule 04's Approved list (express-validator, node-fetch,
 better-sqlite3, helmet, dotenv, pino, ejs, express and the others listed)
 needs NO plan note, NO approval record, and its appearance in package.json
 or the lockfile is never a finding - only a library ABSENT from the list is.
+Declarative configuration files (.yaml, .yml, .json) are not modules -
+rule 02 compliance headers do NOT apply to them, and their absence there is
+never a finding.
 Golden fixtures are NOT required by any rule: their absence is never a
 finding, and a parity suite that exercises both implementations live at
 test time fully satisfies rule 08.

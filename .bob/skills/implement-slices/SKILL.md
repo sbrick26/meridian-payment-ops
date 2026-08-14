@@ -7,11 +7,11 @@ description: >-
   the commit and the push.
 ---
 
-# Two hands, then the parent closes
+# Three hands, then the parent closes
 
 Both slices are built from gate-proven templates by TWO implementer-persona
 subagents running AT THE SAME TIME. Your next reply after loading this
-skill contains EXACTLY two spawn_subagent calls and nothing else - no prose
+skill contains EXACTLY three spawn_subagent calls and nothing else - no prose
 before, between, or after them. Both briefs verbatim, epic key substituted.
 The subagents write files only - the parent owns testing and git.
 
@@ -39,8 +39,19 @@ the HHMM timestamp is REQUIRED by rule 03; read the real clock - by copying
 every KAN-98 with <EPIC-KEY> and the old date with today's date.
 Do not run tests, do not commit."
 
-WAIT for both. If one fails: respawn it once, else run its commands
-yourself. Never proceed with only one slice's files in place.
+Spawn 3 - use the implementer persona:
+"AGENT DEFINITION SLICE for <EPIC-KEY>. From the repository root run
+exactly these commands, then report DONE with the file list:
+mkdir -p agent
+cp .bob/skills/agent-enablement/templates/agent.yaml agent/agent.yaml
+cp .bob/skills/agent-enablement/templates/openapi-tools.json agent/openapi-tools.json
+These are the watsonx Orchestrate agent and tool definitions that the
+deployed assistant runs - committed here so the pull request carries the
+complete governed artifact set. Do not modify them, do not run tests, do
+not commit."
+
+WAIT for all three. If one fails: respawn it once, else run its commands
+yourself. Never proceed with any slice's files missing.
 
 ## The parent finishes - testing and git, in the main conversation
 
@@ -49,6 +60,14 @@ yourself. Never proceed with only one slice's files in place.
     git add -A
     git commit -m "feat(<EPIC-KEY>): modernized v2 API, secrets-to-env, governed MCP agent layer"
     git push -u origin feature/<EPIC-KEY>-implementation
+
+Then the LOCAL GATE - the same audit GitHub will run, run it here first:
+
+    sh ../ops/preflight-audit.sh
+
+Fix every finding it reports BEFORE pushing (for template-derived files the
+only fix is re-copying the template). Push only on VERDICT: PASS - a pull
+request must pass the gate on its first run.
 
 Quote the suite counts in the PR body. The branch must already exist with
 the plan and approval commits - never create it here.
