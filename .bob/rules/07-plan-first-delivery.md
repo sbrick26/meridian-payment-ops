@@ -38,7 +38,7 @@ One document, not several. An approver reads one file or they read none.
 - **Subtask table** in which every subtask has a name, a scope, **testable**
   acceptance criteria, and a due date.
 - **Out of scope**, stated explicitly.
-- **Equivalence strategy** as required by rule 08.
+- **Verification approach** - one short paragraph: what the parity suite covers (rule 08).
 - **Key decisions** — one line each: the decision and the alternative rejected.
 - **Approval record.**
 

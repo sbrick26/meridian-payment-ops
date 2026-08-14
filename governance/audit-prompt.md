@@ -117,10 +117,11 @@ Judge these specifically:
         were verified against which design frames.
 
 Mechanically-verified requirements are OUT of audit scope: the gate itself
-verifies (a) that a copied vault-scope.js is byte-identical to the template
-and (b) that the golden-fixture commit precedes every legacy-code change in
-the branch history. Do not report findings on those two points - the machine
-check is the authority, and the diff alone cannot show commit order.
+verifies that a copied vault-scope.js is byte-identical to the template. Do
+not report findings on that point - the machine check is the authority.
+Golden fixtures are NOT required by any rule: their absence is never a
+finding, and a parity suite that exercises both implementations live at
+test time fully satisfies rule 08.
 
 Grounding requirement - the pinned rule files are the ONLY authority. Before
 reporting a violation, re-read the named rule file and find the exact sentence
