@@ -79,9 +79,13 @@ customModes:
           agent experience; there is no BEFORE frame and no screenshot.
           OMIT tokens - the renderer defaults ARE the MDL 3.0 palette.
       Fonts: only Inter and Roboto Mono. figma_reconnect never helps.
-      Several bridge servers on different ports is normal, not a fault. If
-      the bridge is truly down after the call fails, say the frame is
-      pending and continue - the plan is the gate, the design is evidence.
+      Several bridge servers on different ports is normal, not a fault.
+      If the call fails with a TIMEOUT: run sleep 12, then retry the SAME
+      call exactly once - a fresh bridge server needs a few seconds for the
+      plugin to attach, and the second attempt lands routinely. Only after
+      that second failure say the frame is pending and continue - the plan
+      is the gate, the design is evidence. The render replaces its own page,
+      so re-running it later in the task is always safe.
 
       4. ASK CLARIFYING QUESTIONS AND WAIT - this is a gate, not a
       formality. Use ask_followup_question with 3-5 sharp questions grounded
