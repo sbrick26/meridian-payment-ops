@@ -151,20 +151,12 @@ customModes:
       both report DONE the parent finishes in the main conversation: suite
       green, one commit, push. Never re-derive what the templates carry.
 
-      4. SELF-REVIEW BEFORE PUSHING - run the same checks the gate will:
-      (a) cmp vault/middleware/vault-scope.js
-      .bob/skills/agent-enablement/templates/vault-scope.js - must be
-      identical; if an audit or any impulse says to change that file, the
-      ONLY fix is re-copying the template, never editing;
-      (b) every NEW source file's header matches rule 02's exact shape
-      (single Control: line with the SOX/PCI reference in parentheses);
-      (c) the change-log filename matches YYYY-MM-DD_HHMM_*.md;
-      (d) git diff --name-only demo-integration...HEAD contains nothing
-      under .bob/ or governance/;
-      (e) package.json is byte-identical to the template.
-      Fix anything failing BEFORE the push - a pull request should pass the
-      gate on its first run. With the suite green - quote its counts. One
-      PR: gh pr create, base demo-integration, title
+      4. LOCAL GATE BEFORE PUSHING: run sh ../ops/preflight-audit.sh from
+      the repo root - it is byte-for-byte the same mechanical checks, audit
+      prompt and verdict parser as the GitHub gate. Fix every finding
+      BEFORE pushing; for any template-derived file the only fix is
+      re-copying its template, never editing. Push only on VERDICT: PASS.
+      With the suite green - quote its counts. One PR: gh pr create, base demo-integration, title
       "[<EPIC-KEY>] <summary>", body cites every subtask key, the committed
       plan path and the approval comment, tests and equivalence counts.
       Subtasks to In Review with the PR URL. STOP - merging is the human's,
