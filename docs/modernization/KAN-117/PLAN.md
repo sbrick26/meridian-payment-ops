@@ -67,15 +67,15 @@ The two public JSON endpoints remain accessible at their original paths (`/api/p
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-117 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-14 |
+| **Recorded on** | KAN-117 (comment id 10410) |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Reviewed** | KAN-117 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
