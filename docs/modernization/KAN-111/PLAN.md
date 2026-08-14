@@ -5,7 +5,7 @@
 | **Epic** | KAN-111 |
 | **Author** | payments-platform-team |
 | **Date** | 2026-08-14 |
-| **Status** | Awaiting approval |
+| **Status** | Approved |
 
 ## Current state
 
@@ -66,15 +66,15 @@ _(none — all questions resolved before plan was written)_
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Recorded on** | KAN-111 |
-| **Approving comment** | (pending) |
+| **Approving comment** | "approved" (comment id 10399, posted 2026-08-14T00:25:05.845-0700) |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Reviewed** | KAN-111 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
