@@ -1,5 +1,33 @@
 [
   {
+    "id": "31780109530-cdb8f81",
+    "timestamp": "2026-08-14T07:31:12Z",
+    "verdict": "FAIL",
+    "severity": "medium",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "change-log/2026-08-14_0726_KAN-111-implementation.md",
+        "rule": "03-audit-and-change-log.md",
+        "detail": "The Approval section records the epic and approver name but does not quote the ticket comment as required; it states only that approval was recorded on the KAN-111 ticket without reproducing the comment text or its identifier.",
+        "quote": "for planned work, the epic whose plan was approved, who approved it and when (quote the ticket comment)",
+        "severity": "medium"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "21",
+    "pr_title": "[KAN-111] Modernize payment-status service and expose governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/21",
+    "branch": "feature/KAN-111-implementation",
+    "base_ref": "demo-integration",
+    "sha": "cdb8f81",
+    "commit_message": "feat(KAN-111): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31780109530"
+  },
+  {
     "id": "31778980363-1bb7585",
     "timestamp": "2026-08-14T07:11:48Z",
     "verdict": "ERROR",
