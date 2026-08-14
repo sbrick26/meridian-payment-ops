@@ -66,15 +66,15 @@ Both public JSON endpoints are replaced with parameterized, equivalence-proven v
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Recorded on** | KAN-114 |
-| **Approving comment** | (pending) |
+| **Approving comment** | "approved" (comment id 10403, 2026-08-14T00:49:41-0700) |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-14 |
 | **Reviewed** | KAN-114 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
