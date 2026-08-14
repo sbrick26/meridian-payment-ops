@@ -1,5 +1,44 @@
 [
   {
+    "id": "31777703122-9dd0c46",
+    "timestamp": "2026-08-14T06:50:41Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 3,
+    "violations": [
+      {
+        "file": ".bob/skills/implement-slices/templates/change-log-entry.md",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      },
+      {
+        "file": ".bob/skills/implement-slices/templates/package.json",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      },
+      {
+        "file": ".bob/skills/implement-slices/templates/server-modernized.js",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "19",
+    "pr_title": "[KAN-105] Modernize payment-status service and expose governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/19",
+    "branch": "feature/KAN-105-implementation",
+    "base_ref": "demo-integration",
+    "sha": "9dd0c46",
+    "commit_message": "The three harvested templates actually committed this time",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31777703122"
+  },
+  {
     "id": "31776357577-d2c1c02",
     "timestamp": "2026-08-14T06:28:41Z",
     "verdict": "PASS",
