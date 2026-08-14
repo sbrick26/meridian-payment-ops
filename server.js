@@ -25,6 +25,17 @@ var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
 
+/* ---------------------------------------------------------------------------
+ * Function: v2 API routes and MCP agent endpoint
+ * Owner:    payments-platform-team
+ * Control:  SI-10, AC-3, AC-6   (SOX: ITGC; PCI-DSS Req. 6.5.1, Req. 7)
+ * Reviewed: 2026-08-14
+ * Approved: KAN-102, Swayam Barik, 2026-08-13
+ * ------------------------------------------------------------------------- */
+var psV2      = require('./routes/api-v2/payment-status');
+var rsV2      = require('./routes/api-v2/risk-score');
+var mcpRouter = require('./routes/mcp-endpoint');
+
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
  * ------------------------------------------------------------------ */
@@ -41,12 +52,12 @@ var AS_OF_DATE = '2026-08-01';
 var SMTP_HOST = 'smtprelay.meridiancorp.internal';
 var SMTP_PORT = 25;
 var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
+var SMTP_PASS = process.env.SMTP_PASS;
 var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
 var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
+var ERP_FEED_KEY = process.env.ERP_FEED_KEY;
 var ERP_FEED_ROWS = 200;
 
 /* the approval limit above which an item must be second-checked */
@@ -699,6 +710,18 @@ app.get('/help', function (req, res) {
 		u: utils
 	});
 });
+
+/* ------------------------------------------------------------------
+ * v2 API routes — parameterized SQL, secrets via process.env (KAN-102)
+ * Legacy /api/payment-status and /api/risk-score remain mounted above;
+ * v2 handlers are served in parallel until consumers migrate.
+ * ------------------------------------------------------------------ */
+function getDb() { return db; }
+app.get('/api/v2/payment-status', psV2.validators, psV2.handler(getDb));
+app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(getDb));
+
+/* MCP agent endpoint — governed read-only identity (KAN-102-ST2) */
+app.use('/mcp', mcpRouter);
 
 app.use(function (req, res) {
 	res.status(404).send(
