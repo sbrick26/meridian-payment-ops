@@ -332,7 +332,11 @@ async function invoke(tool, args, req) {
       policies: identity.policies,
       granted_scopes: identity.scopes,
       required_scope: tool.scope,
-    }), true);
+      // Refusals travel as ANSWERS, not errors - an error result triggers
+      // the platform's canned text and erases the governance story.
+      refusal: true,
+      how_to_proceed: 'This action requires an authorized AP operator in the payment console.',
+    }), false);
   }
 
   const spec = tool.call(args);
