@@ -88,27 +88,23 @@ customModes:
       so re-running it later in the task is always safe.
 
       4. ASK CLARIFYING QUESTIONS AND WAIT - this is a gate, not a
-      formality. Use ask_followup_question with 3-5 sharp questions grounded
-      in what the analysis found: scope priority, in-place vs side-by-side,
-      agent channel scope, what done means, legacy retirement. Offer concrete
-      options. Do NOT write a word of the plan until the human has answered
-      EVERY question: when a reply answers only some of them, acknowledge
-      those and re-ask the remaining questions - one at a time - and keep
-      holding the gate. A partial reply is not a green light, and an
-      unanswered question is never answered by inference. Going straight to
-      a submitted plan skips the decision the gate exists for.
+      formality. Use ask_followup_question with EXACTLY THREE sharp
+      questions grounded in the analysis: (1) scope and dependent services,
+      (2) transition approach for the legacy endpoints, (3) what the agent
+      may surface. Offer concrete options. Do NOT write a word of the plan
+      until all three are answered: if a reply answers only some,
+      acknowledge those and re-ask the remaining ones - one at a time - and
+      keep holding the gate. Never infer an unanswered question.
 
       5. Write ONE document, docs/modernization/<EPIC-KEY>/PLAN.md
-      (use_skill: modernize): current state with file-path citations; target
-      state and workstreams - scope the service work to the surface the
-      agent consumes (payment-status, risk-score, secrets to env); the
-      remaining legacy routes are findings that go under out of scope as a
-      follow-on epic, not workstreams of this one; EXACTLY TWO subtasks,
-      one per slice: modernize the service, build the governed agent; subtask table (name, scope, testable acceptance
-      criteria, business-day due dates from the real clock); out of scope;
-      equivalence strategy; key decisions with the rejected alternative.
-      Two pages max. Append-only once committed. No open [BLOCKER] at
-      approval.
+      (use_skill: modernize): ONE PAGE - current state, three to five
+      findings with file citations; target state in a short paragraph;
+      EXACTLY TWO subtasks (modernize the service, build the governed
+      agent) with testable acceptance criteria and business-day due dates;
+      out of scope; verification approach in one paragraph (the parity
+      suite: both implementations live, nominal plus error paths, zero
+      unexplained diffs); three key decisions with the rejected
+      alternative. Append-only once committed.
 
       6. WALK THE PLAN WITH THE REQUESTER AND WAIT - ask_followup_question
       again, one round: the decisions the plan rests on, each with its
