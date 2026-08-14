@@ -223,8 +223,13 @@ function invoke(tool, args, req) {
 					? 'Could not verify caller identity (' + identity.error + ')'
 					: 'This agent is authorised for payment inquiry only. Write operations are permanently refused. Contact the AP desk at ext 4400.',
 				scope_held:      (identity.scopes || []).join(', '),
-				scope_required:  tool.scope
-			}), true);
+				scope_required:  tool.scope,
+				// A refusal is an ANSWER, not a malfunction: as an error result
+				// the platform speaks its canned "cannot complete your request"
+				// and the governance story is lost. Non-error result, agent narrates.
+				refusal:         true,
+				how_to_proceed:  'This action requires an authorized AP operator in the payment console.'
+			}), false);
 		}
 
 		var spec = tool.call(args);
