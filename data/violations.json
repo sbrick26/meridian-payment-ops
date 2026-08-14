@@ -1,5 +1,33 @@
 [
   {
+    "id": "31776185159-63204f3",
+    "timestamp": "2026-08-14T06:26:19Z",
+    "verdict": "FAIL",
+    "severity": "medium",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "change-log/2026-08-14_KAN-102-implementation.md",
+        "rule": "03-audit-and-change-log.md",
+        "detail": "The added change-log entry is missing the required HHMM timestamp in its filename.",
+        "quote": "File name: `YYYY-MM-DD_HHMM_short-description.md` (read the real clock first \u2014 rule 10).",
+        "severity": "medium"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "18",
+    "pr_title": "[KAN-102] Modernize payment-status service + governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/18",
+    "branch": "feature/KAN-102-implementation",
+    "base_ref": "demo-integration",
+    "sha": "63204f3",
+    "commit_message": "feat(KAN-102): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31776185159"
+  },
+  {
     "id": "31773921207-c04dfae",
     "timestamp": "2026-08-14T05:44:48Z",
     "verdict": "PASS",
