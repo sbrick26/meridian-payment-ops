@@ -5,7 +5,7 @@
 | **Epic** | KAN-102 |
 | **Author** | payments-platform-team |
 | **Date** | 2026-08-14 |
-| **Status** | Awaiting approval |
+| **Status** | Approved |
 
 ## Current state
 
@@ -67,15 +67,15 @@ The two API endpoints are replaced by equivalence-proven v2 handlers mounted at 
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-102 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
+| **Recorded on** | KAN-102 (comment id 10385) |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-102 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
