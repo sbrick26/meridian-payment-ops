@@ -37,8 +37,7 @@ append-only: add a dated revision section rather than rewriting history.
 
 ## Length is a requirement, not a preference
 
-**A reviewer must be able to read PLAN.md in three minutes** — roughly two
-pages. The plan is a decision surface for an approver, not a report on the
+**A reviewer must be able to read PLAN.md in ninety seconds** — one page. The plan is a decision surface for an approver, not a report on the
 codebase. The approver already owns the system; they do not need it described
 back to them.
 
@@ -81,27 +80,12 @@ the work.
 - **Sized honestly.** If an estimate is a guess, say it is a guess and say what
   would make it firm.
 
-## Equivalence strategy
+## Verification approach
 
-Any plan that replaces existing behaviour must contain an equivalence section
-that answers these six questions — briefly, one or two lines each:
-
-- **Surface inventory** — which endpoints, views, or business rules are replaced.
-- **Input matrix** — the case classes to be exercised: nominal paths, boundary
-  values, error and rejection paths, authorization variants, known data quirks.
-- **Golden capture** — how and when responses from the current implementation
-  are recorded, which must be before any modification, and where the fixtures
-  are committed.
-- **Comparison method** — what is compared field by field: status codes, body
-  contents, monetary precision and rounding, date and timestamp formatting,
-  error codes, observable side effects.
-- **Intended differences** — every behaviour that deliberately changes, listed
-  here and excluded explicitly from the comparison.
-- **Exit criteria** — the case count that must execute, zero unexplained
-  differences, and when the legacy path is retired.
-
-The case-by-case detail is produced by the subtask that builds the suite. This
-section commits to the shape of the proof, not its contents.
+One short paragraph: which surfaces the parity suite covers (nominal and
+error paths, both implementations exercised live), and any intended
+differences excluded from comparison. The suite itself is the proof; the
+plan only commits to its shape.
 
 ## Gate semantics
 

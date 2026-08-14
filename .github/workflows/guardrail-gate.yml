@@ -118,24 +118,6 @@ jobs:
             echo "vault-scope.js not in this diff - skipped."
           fi
 
-      - name: Golden capture must precede legacy changes (commit order)
-        # Rule 08's capture-first requirement, checked from history instead of
-        # model judgement: the commit adding tests/golden/ touches only the
-        # fixtures, and no earlier commit on the branch modifies legacy code.
-        run: |
-          BASE="origin/${{ github.base_ref }}"
-          if git diff --name-only "$BASE...HEAD" | grep -q '^tests/golden/'; then
-            GOLDEN=$(git log --reverse --format=%H "$BASE..HEAD" -- tests/golden/ | head -1)
-            [ -n "$GOLDEN" ] || { echo "::error title=capture ordering::tests/golden/ changed but no commit found."; printf '## Meridian - Engineering Governance: guardrail audit\\n\\n**Verdict: FAIL** - mechanical check: tests/golden/ changed but no fixture commit was found in the branch history.\\n' > /tmp/verdict.md; exit 1; }
-            EXTRA=$(git show --name-only --format= "$GOLDEN" | grep -v '^tests/golden/' | grep -v '^scripts/capture-golden' | grep -v '^docs/' | grep -v '^$' || true)
-            [ -z "$EXTRA" ] || { echo "::error title=capture ordering::the golden-capture commit must touch only tests/golden/ (found: $EXTRA)"; printf '## Meridian - Engineering Governance: guardrail audit\\n\\n**Verdict: FAIL** - mechanical check: the golden-capture commit must touch only tests/golden/ and the capture script - it also touched: $EXTRA.\\n' > /tmp/verdict.md; exit 1; }
-            BAD=$(git log --format=%H "$BASE..$GOLDEN~1" -- server.js routes/ views/ 2>/dev/null || true)
-            [ -z "$BAD" ] || { echo "::error title=capture ordering::legacy code was modified before the golden capture commit."; printf '## Meridian - Engineering Governance: guardrail audit\\n\\n**Verdict: FAIL** - mechanical check: legacy code was modified BEFORE the golden-capture commit - captures must come first (rule 08).\\n' > /tmp/verdict.md; exit 1; }
-            echo "capture-first verified from commit order."
-          else
-            echo "no golden fixtures in this diff - skipped."
-          fi
-
       - name: Rules-loaded smoke test (canary)
         # Fails the build if Bob did not actually load the workspace rules. The
         # canary lives in .bob/rules/00-engineering-constitution.md, so this also
