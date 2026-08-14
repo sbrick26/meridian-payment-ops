@@ -1,5 +1,33 @@
 [
   {
+    "id": "31769056086-76f5887",
+    "timestamp": "2026-08-14T04:11:44Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "tests/equivalence.test.js",
+        "rule": "01-secure-coding.md",
+        "detail": "The newly added legacyPaymentStatus and legacyRiskScore functions build SQL by string concatenation with user-supplied req.query values (e.g., \" AND e.payment_ref = '\" + ref + \"' \"), which is prohibited regardless of the file's purpose as a test.",
+        "quote": "Never build SQL by string concatenation, template literals, or any form of interpolation.",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "16",
+    "pr_title": "[KAN-95] Modernize payment-status service and governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/16",
+    "branch": "feature/KAN-95-implementation",
+    "base_ref": "demo-integration",
+    "sha": "76f5887",
+    "commit_message": "feat(KAN-95): modernize payment-status service and governed agent",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31769056086"
+  },
+  {
     "id": "31765685732-1973f16",
     "timestamp": "2026-08-14T03:05:49Z",
     "verdict": "PASS",
