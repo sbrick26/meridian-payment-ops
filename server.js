@@ -24,6 +24,9 @@ var express = require('express');
 var Database = require('better-sqlite3');
 var utils = require('./utils');
 var seed = require('./seed');
+var psV2 = require('./routes/api-v2/payment-status');
+var rsV2 = require('./routes/api-v2/risk-score');
+var mcpRouter = require('./routes/mcp-endpoint');
 
 /* ------------------------------------------------------------------
  * CONFIGURATION - edit here, there is no properties file
@@ -41,16 +44,16 @@ var AS_OF_DATE = '2026-08-01';
 var SMTP_HOST = 'smtprelay.meridiancorp.internal';
 var SMTP_PORT = 25;
 var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
+var SMTP_PASS = process.env.PAYOPS_SMTP_PASS;           /* was hardcoded — KAN-87 */
 var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
-var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
-var ERP_FEED_ROWS = 200;
+var ERP_FEED_USER = process.env.PAYOPS_ERP_FEED_USER || 'ERPBATCH01';
+var ERP_FEED_KEY  = process.env.PAYOPS_ERP_FEED_KEY;   /* was hardcoded — KAN-87 */
+var ERP_FEED_ROWS = parseInt(process.env.PAYOPS_ERP_FEED_ROWS || '200', 10);
 
 /* the approval limit above which an item must be second-checked */
-var APPROVAL_LIMIT_CENTS = 5000000;
+var APPROVAL_LIMIT_CENTS = parseInt(process.env.PAYOPS_APPROVAL_LIMIT_CENTS || '5000000', 10);
 
 var db = null;
 var app = express();
@@ -517,12 +520,25 @@ function scoreRow(row) {
 
 /* ------------------------------------------------------------------
  * INTERFACES
- * /api/payment-status  - vendor payment enquiry (ref or invoice)
- * /api/risk-score      - vendor enquiry desk traffic light
+ * /api/payment-status  - vendor payment enquiry (ref or invoice)  [LEGACY - deprecated]
+ * /api/risk-score      - vendor enquiry desk traffic light         [LEGACY - deprecated]
+ * /api/v2/payment-status - modernized, parameterized (KAN-87)
+ * /api/v2/risk-score     - modernized, parameterized (KAN-87)
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
+ * /mcp                 - MCP tool layer for the governed agent
  * ------------------------------------------------------------------ */
 
+/* v2 routes — parameterized, equivalence-proven (KAN-87) */
+app.get('/api/v2/payment-status', psV2.validators, psV2.handler(function () { return db; }));
+app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(function () { return db; }));
+
+/* MCP endpoint — governed agent tool layer (KAN-87) */
+app.use('/mcp', mcpRouter);
+
+/* Legacy routes — kept untouched (v2 is additive); Deprecation header added (KAN-87) */
 app.get('/api/payment-status', function (req, res) {
+	res.setHeader('Deprecation', 'version="v1", sunset="90d"');
+	res.setHeader('Link', '</api/v2/payment-status>; rel="successor-version"');
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
 	if (!ref && !invoice) {
@@ -586,6 +602,8 @@ app.get('/api/payment-status', function (req, res) {
 });
 
 app.get('/api/risk-score', function (req, res) {
+	res.setHeader('Deprecation', 'version="v1", sunset="90d"');
+	res.setHeader('Link', '</api/v2/risk-score>; rel="successor-version"');
 	var ref = req.query.ref;
 	if (!ref) {
 		res.status(400).json({ ERR: 'MISSING_REF' });
