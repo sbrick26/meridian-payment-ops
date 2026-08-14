@@ -1,0 +1,7 @@
+{
+  "status": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "REF": "MT-DOES-NOT-EXIST"
+  }
+}

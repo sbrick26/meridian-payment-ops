@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "body": {
+    "REF": "MT-2026-08832",
+    "INV": "INV-2026-4419",
+    "SCORE": "38",
+    "BAND": "LOW",
+    "amt_cents": "1497497",
+    "ccy": "USD",
+    "TYPE": "ACH",
+    "ctry": "SG",
+    "age": "6",
+    "dup_suspect": "N",
+    "bank_chg_days": "-1",
+    "over_limit": "N",
+    "round_amt": "N",
+    "new_vend": "N",
+    "model": "APRSK01",
+    "retcode": "0000"
+  }
+}

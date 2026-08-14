@@ -1,0 +1,8 @@
+{
+  "status": 404,
+  "body": {
+    "ERR": "NOT_FOUND",
+    "PaymentRef": "",
+    "InvoiceNo": "INV-DOES-NOT-EXIST"
+  }
+}
