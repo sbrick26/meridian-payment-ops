@@ -1,5 +1,40 @@
 [
   {
+    "id": "31778835982-69182ce",
+    "timestamp": "2026-08-14T07:09:51Z",
+    "verdict": "FAIL",
+    "severity": "medium",
+    "violation_count": 2,
+    "violations": [
+      {
+        "file": "vault/middleware/vault-scope.js",
+        "rule": "02-compliance-headers.md",
+        "detail": "The new JavaScript module does not begin with the required header fields because its opening comment does not include a single `Control:` line in the prescribed format.",
+        "quote": "Every new route handler, exported function, module, or view template must begin with a header comment tying the code to the control it implements.",
+        "severity": "medium"
+      },
+      {
+        "file": "package.json",
+        "rule": "04-approved-libraries.md",
+        "detail": "The diff adds `node-fetch` to package.json without an approval note in the plan document naming the library, the need, the license, the maintenance status, and the approver.",
+        "quote": "Anything genuinely not covered above requires an explicit **approval note in the plan document** (rule 07) naming the library, the need, the license, the maintenance status, and the approver. No approval note, no dependency.",
+        "severity": "medium"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "20",
+    "pr_title": "[KAN-108] Modernize payment-status service + governed MCP agent layer",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/20",
+    "branch": "feature/KAN-108-implementation",
+    "base_ref": "demo-integration",
+    "sha": "69182ce",
+    "commit_message": "feat(KAN-108): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31778835982"
+  },
+  {
     "id": "31777703122-9dd0c46",
     "timestamp": "2026-08-14T06:50:41Z",
     "verdict": "FAIL",
