@@ -56,6 +56,7 @@
 | Mount new handlers at `/api/v2/` paths; keep legacy live | Drop-in replace legacy handlers in-place | Allows side-by-side parity proof without a rollback window |
 | Agent surfaces status, disbursement date, ACH batch ID only | Include risk score and reason codes | Approver decision: minimise data exposure through the agent channel |
 | `/api/exceptions.xml` left untouched | Migrate XML feed in same epic | ERP batch bridge continuity; separate risk profile |
+| `node-fetch` added as dependency for `vault-scope.js` Vault HTTP calls | Native `http` module | `node-fetch` is on the rule 04 approved library list; no additional approval note required. `node-fetch` v3 is Promise-native and ships zero transitive dependencies. |
 
 ## Open items
 
