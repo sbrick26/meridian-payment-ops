@@ -1,5 +1,33 @@
 [
   {
+    "id": "31763304931-a0ffd9c",
+    "timestamp": "2026-08-14T02:19:23Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "tests/golden/",
+        "rule": "08-behavioral-equivalence.md",
+        "detail": "The golden fixture files and the v2 implementation are introduced in the same diff, so there is no evidence the legacy responses were captured before the legacy implementation was changed, as the rule requires.",
+        "quote": "Golden captures taken *after* the implementation was modified are worthless. If captures were not taken first, restore the legacy behavior, capture, then proceed.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "14",
+    "pr_title": "[KAN-84] Modernize payment-status service and governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/14",
+    "branch": "feature/KAN-84-implementation",
+    "base_ref": "demo-integration",
+    "sha": "a0ffd9c",
+    "commit_message": "fix(KAN-84): vault-scope Reviewed date \u2014 template copy with 2026-08-13",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31763304931"
+  },
+  {
     "id": "31763090046-67e306c",
     "timestamp": "2026-08-14T02:14:50Z",
     "verdict": "FAIL",
