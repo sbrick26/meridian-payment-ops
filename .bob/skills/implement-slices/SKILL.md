@@ -19,14 +19,17 @@ five minutes and pick up findings.
 1. Golden fixtures FIRST, committed ALONE (the gate verifies this commit
    order mechanically):
 
+   The console must be serving the UNMODIFIED legacy app (ops_start_console
+   if it is not). Then:
+
    ```bash
-   mkdir -p tests/golden
-   node scripts/capture-golden.js   # if absent: capture with node -e against
-                                    # the seeded db - fixtures for
-                                    # payment-status and risk-score, nominal
-                                    # plus 400 and 404 paths
-   git add tests/golden && git commit -m "test(<EPIC-KEY>): golden fixtures - legacy responses captured before any code change"
+   cp .bob/skills/implement-slices/templates/capture-golden.js scripts/capture-golden.js
+   node scripts/capture-golden.js
+   git add tests/golden scripts/capture-golden.js && git commit -m "test(<EPIC-KEY>): golden fixtures - legacy responses captured before any code change"
    ```
+
+   (The capture script rides in the fixtures commit - the gate's ordering
+   check permits tests/ and scripts/capture-golden there, nothing else.)
 
 2. Copy the modern routes and the suite - these satisfy live-vs-live
    equivalence, express-validator boundaries, env-var config, and carry
