@@ -1,5 +1,33 @@
 [
   {
+    "id": "31762746649-873bf11",
+    "timestamp": "2026-08-14T02:08:16Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "tests/equivalence.test.js",
+        "rule": "08-behavioral-equivalence.md",
+        "detail": "The equivalence test suite compares v2 responses against static pre-recorded golden fixtures only; it does not run the same inputs against the live legacy implementation, so the legacy path is never exercised by the suite.",
+        "quote": "The change must include an automated suite that runs the same inputs against the modern and legacy implementations and compares: HTTP status code; response body, field by field, including field ordering where a consumer depends on it; numeric precision and rounding of all monetary values; date and timestamp formatting and timezone handling; error codes and messages; observable side effects \u2014 rows written, statuses transitioned, events emitted.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "14",
+    "pr_title": "[KAN-84] Modernize payment-status service and governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/14",
+    "branch": "feature/KAN-84-implementation",
+    "base_ref": "demo-integration",
+    "sha": "873bf11",
+    "commit_message": "feat(KAN-84): modernize payment-status service and governed AI agent",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/31762746649"
+  },
+  {
     "id": "31759688547-a32b520",
     "timestamp": "2026-08-14T01:09:49Z",
     "verdict": "PASS",
