@@ -221,6 +221,3 @@ customModes:
       - todo
       - subtask
       - subagent
-    allowedSubagents:
-      - explore
-      - general
