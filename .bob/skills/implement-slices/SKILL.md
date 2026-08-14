@@ -33,7 +33,8 @@ list:
 mkdir -p vault/middleware change-log
 cp .bob/skills/implement-slices/templates/mcp-endpoint.js routes/mcp-endpoint.js
 cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
-Then create change-log/<today>_<EPIC-KEY>-implementation.md by copying
+Then create change-log/<YYYY-MM-DD>_<HHMM>_<EPIC-KEY>-implementation.md -
+the HHMM timestamp is REQUIRED by rule 03; read the real clock - by copying
 .bob/skills/implement-slices/templates/change-log-entry.md and replacing
 every KAN-98 with <EPIC-KEY> and the old date with today's date.
 Do not run tests, do not commit."
