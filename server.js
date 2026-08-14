@@ -37,16 +37,21 @@ var DB_FILE = path.join(__dirname, 'payops.db');
 var PAGE_SIZE = 25;
 var AS_OF_DATE = '2026-08-01';
 
-/* mail relay - used by the overnight vendor chaser job, not by the screens */
-var SMTP_HOST = 'smtprelay.meridiancorp.internal';
+/* mail relay - used by the overnight vendor chaser job, not by the screens
+ * Secrets moved to environment variables (KAN-84).
+ * Required env vars: SMTP_HOST, SMTP_USER, SMTP_PASS
+ * Provisioning: ops team. See docs/modernization/KAN-84/PLAN.md */
+var SMTP_HOST = process.env.SMTP_HOST || '';
 var SMTP_PORT = 25;
-var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
+var SMTP_USER = process.env.SMTP_USER || '';
+var SMTP_PASS = process.env.SMTP_PASS || '';
 var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
 
-/* ERP feed - the batch bridge box, polls the XML endpoint */
-var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
+/* ERP feed - the batch bridge box, polls the XML endpoint
+ * Required env vars: ERP_FEED_USER, ERP_FEED_KEY
+ * Provisioning: ops team. See docs/modernization/KAN-84/PLAN.md */
+var ERP_FEED_USER = process.env.ERP_FEED_USER || '';
+var ERP_FEED_KEY  = process.env.ERP_FEED_KEY  || '';
 var ERP_FEED_ROWS = 200;
 
 /* the approval limit above which an item must be second-checked */
@@ -59,6 +64,21 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+/* ------------------------------------------------------------------
+ * v2 API routes — parameterized, equivalence-proven replacements
+ * KAN-84 modernization. Approved: Swayam Barik, 2026-08-13.
+ * ------------------------------------------------------------------ */
+var psV2  = require('./routes/api-v2/payment-status');
+var rsV2  = require('./routes/api-v2/risk-score');
+/* db is opened after require() — pass a getter so handlers always get the
+ * live connection regardless of mount order. */
+function getDb() { return db; }
+app.get('/api/v2/payment-status', psV2.validators, psV2.handler(getDb));
+app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(getDb));
+
+/* MCP tool layer for the governed AI agent */
+app.use('/mcp', require('./routes/mcp-endpoint'));
 
 /* ------------------------------------------------------------------
  * database
@@ -522,6 +542,14 @@ function scoreRow(row) {
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
  * ------------------------------------------------------------------ */
 
+/* Deprecation header — legacy route sunset 90 days from 2026-08-14.
+ * v2 replacement: GET /api/v2/payment-status  (KAN-84) */
+app.get('/api/payment-status', function (req, res, next) {
+	res.setHeader('Deprecation', 'version="1"');
+	res.setHeader('Sunset', 'Fri, 13 Nov 2026 00:00:00 GMT');
+	res.setHeader('Link', '</api/v2/payment-status>; rel="successor-version"');
+	next();
+});
 app.get('/api/payment-status', function (req, res) {
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
@@ -585,6 +613,14 @@ app.get('/api/payment-status', function (req, res) {
 	res.send(JSON.stringify(out));
 });
 
+/* Deprecation header — legacy route sunset 90 days from 2026-08-14.
+ * v2 replacement: GET /api/v2/risk-score  (KAN-84) */
+app.get('/api/risk-score', function (req, res, next) {
+	res.setHeader('Deprecation', 'version="1"');
+	res.setHeader('Sunset', 'Fri, 13 Nov 2026 00:00:00 GMT');
+	res.setHeader('Link', '</api/v2/risk-score>; rel="successor-version"');
+	next();
+});
 app.get('/api/risk-score', function (req, res) {
 	var ref = req.query.ref;
 	if (!ref) {
