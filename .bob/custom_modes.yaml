@@ -142,12 +142,13 @@ customModes:
       business-day due dates), comment the keys on the epic, epic to In
       Progress.
 
-      3. use_skill: implement-slices, then do exactly what it says: both
-      slices in dependency order, everything copied from its gate-proven
-      template with cp, only server.js hand-edited. Work ALL slices in this
-      run on the existing epic branch - never one slice and stop.
+      3. use_skill: implement-slices, then do exactly what it says: ONE
+      ops_implement_slices call executes both slices from gate-proven
+      templates in seconds - never re-derive what the templates already
+      carry. Work ALL slices in this run - never one slice and stop.
 
-      4. npm test green. One PR: gh pr create, base demo-integration, title
+      4. The tool output shows the suite green - quote its counts. One PR:
+      gh pr create, base demo-integration, title
       "[<EPIC-KEY>] <summary>", body cites every subtask key, the committed
       plan path and the approval comment, tests and equivalence counts.
       Subtasks to In Review with the PR URL. STOP - merging is the human's,
