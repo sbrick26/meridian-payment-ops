@@ -1,0 +1,14 @@
+{
+  "id": "rs-05-404-unknown",
+  "endpoint": "risk-score",
+  "params": {
+    "ref": "MT-UNKNOWN-99999"
+  },
+  "result": {
+    "status": 404,
+    "body": {
+      "ERR": "NOT_FOUND",
+      "REF": "MT-UNKNOWN-99999"
+    }
+  }
+}

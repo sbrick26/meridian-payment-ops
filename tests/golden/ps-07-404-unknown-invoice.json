@@ -1,0 +1,15 @@
+{
+  "id": "ps-07-404-unknown-invoice",
+  "endpoint": "payment-status",
+  "params": {
+    "invoice": "INV-UNKNOWN-99999"
+  },
+  "result": {
+    "status": 404,
+    "body": {
+      "ERR": "NOT_FOUND",
+      "PaymentRef": "",
+      "InvoiceNo": "INV-UNKNOWN-99999"
+    }
+  }
+}

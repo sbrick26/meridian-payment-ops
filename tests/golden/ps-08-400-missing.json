@@ -1,0 +1,12 @@
+{
+  "id": "ps-08-400-missing",
+  "endpoint": "payment-status",
+  "params": {},
+  "result": {
+    "status": 400,
+    "body": {
+      "ERR": "MISSING_REF",
+      "msg": "ref or invoice parameter is required"
+    }
+  }
+}

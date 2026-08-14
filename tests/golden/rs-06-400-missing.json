@@ -1,0 +1,11 @@
+{
+  "id": "rs-06-400-missing",
+  "endpoint": "risk-score",
+  "params": {},
+  "result": {
+    "status": 400,
+    "body": {
+      "ERR": "MISSING_REF"
+    }
+  }
+}

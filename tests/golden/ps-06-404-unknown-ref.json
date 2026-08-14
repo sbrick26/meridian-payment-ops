@@ -1,0 +1,15 @@
+{
+  "id": "ps-06-404-unknown-ref",
+  "endpoint": "payment-status",
+  "params": {
+    "ref": "MT-UNKNOWN-99999"
+  },
+  "result": {
+    "status": 404,
+    "body": {
+      "ERR": "NOT_FOUND",
+      "PaymentRef": "MT-UNKNOWN-99999",
+      "InvoiceNo": ""
+    }
+  }
+}

@@ -13,6 +13,9 @@
  *   2.3.0  CSV extract on the reports screen
  *   2.4.0  filter + paging on the held payments screen
  *   2.4.1  fix for the blank clerk column
+ *   2.5.0  KAN-78: v2 API routes (parameterized SQL), env config for all
+ *          literals, MCP endpoint, legacy routes preserved with Deprecation
+ *          header. Approved: Swayam Barik 2026-08-13.
  *
  * Contact: finance-apps@meridiancorp.example  (ext 4471)
  * ================================================================== */
@@ -26,31 +29,33 @@ var utils = require('./utils');
 var seed = require('./seed');
 
 /* ------------------------------------------------------------------
- * CONFIGURATION - edit here, there is no properties file
+ * CONFIGURATION - all values read from process.env; literals removed.
+ * Set these in .env (local) or the deployment environment (production).
+ * KAN-78 / rule 01: no credential or config literal in source.
  * ------------------------------------------------------------------ */
 
-var PORT = 4600;
+var PORT = process.env.PORT || 4600;
 var APP_NAME = 'AP Payment Operations';
 var APP_VERSION = '2.4.1';
-var ENVIRONMENT = 'PROD-DR';
+var ENVIRONMENT = process.env.ENVIRONMENT || 'PROD-DR';
 var DB_FILE = path.join(__dirname, 'payops.db');
 var PAGE_SIZE = 25;
-var AS_OF_DATE = '2026-08-01';
+var AS_OF_DATE = process.env.AS_OF_DATE || '2026-08-01';
 
 /* mail relay - used by the overnight vendor chaser job, not by the screens */
-var SMTP_HOST = 'smtprelay.meridiancorp.internal';
-var SMTP_PORT = 25;
-var SMTP_USER = 'svc_payops';
-var SMTP_PASS = 'meridian2013!';
-var AP_DISTRIBUTION_LIST = 'ap-desk@meridiancorp.example';
+var SMTP_HOST             = process.env.SMTP_HOST             || '';
+var SMTP_PORT             = process.env.SMTP_PORT             || 25;
+var SMTP_USER             = process.env.SMTP_USER             || '';
+var SMTP_PASS             = process.env.SMTP_PASS             || '';
+var AP_DISTRIBUTION_LIST  = process.env.AP_DISTRIBUTION_LIST  || '';
 
 /* ERP feed - the batch bridge box, polls the XML endpoint */
-var ERP_FEED_USER = 'ERPBATCH01';
-var ERP_FEED_KEY = 'ERP-POLL-KEY-8842';
+var ERP_FEED_USER = process.env.ERP_FEED_USER || '';
+var ERP_FEED_KEY  = process.env.ERP_FEED_KEY  || '';
 var ERP_FEED_ROWS = 200;
 
 /* the approval limit above which an item must be second-checked */
-var APPROVAL_LIMIT_CENTS = 5000000;
+var APPROVAL_LIMIT_CENTS = Number(process.env.APPROVAL_LIMIT_CENTS) || 5000000;
 
 var db = null;
 var app = express();
@@ -59,6 +64,16 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+/* ------------------------------------------------------------------
+ * KAN-78 — modernized v2 API routes and MCP agent endpoint
+ * Mounted before the legacy /api/* routes so the v2 paths are
+ * reached first. Legacy routes remain mounted with a Deprecation
+ * header for backwards compatibility until consumers migrate.
+ * ------------------------------------------------------------------ */
+app.use('/api/v2/payment-status', require('./routes/api-v2/payment-status'));
+app.use('/api/v2/risk-score',     require('./routes/api-v2/risk-score'));
+app.use('/mcp',                   require('./routes/mcp-endpoint'));
 
 /* ------------------------------------------------------------------
  * database
@@ -516,15 +531,21 @@ function scoreRow(row) {
 }
 
 /* ------------------------------------------------------------------
- * INTERFACES
+ * INTERFACES (LEGACY — preserved for backwards compatibility)
  * /api/payment-status  - vendor payment enquiry (ref or invoice)
  * /api/risk-score      - vendor enquiry desk traffic light
  * /api/exceptions.xml  - ERP nightly extract (ERPBATCH01)
+ *
+ * These routes carry a Deprecation header per KAN-78. Consumers should
+ * migrate to /api/v2/payment-status and /api/v2/risk-score.
+ * Retirement is a separate migration epic — not in scope for KAN-78.
  * ------------------------------------------------------------------ */
 
 app.get('/api/payment-status', function (req, res) {
 	var ref = req.query.ref;
 	var invoice = req.query.invoice;
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/payment-status>; rel="successor-version"');
 	if (!ref && !invoice) {
 		res.status(400).json({ ERR: 'MISSING_REF', msg: 'ref or invoice parameter is required' });
 		return;
@@ -546,7 +567,7 @@ app.get('/api/payment-status', function (req, res) {
 
 	if (row === null) {
 		res.status(404).json({ ERR: 'NOT_FOUND', PaymentRef: (ref ? ref : ''), InvoiceNo: (invoice ? invoice : '') });
-		return;
+		return; // Deprecation header already set above
 	}
 
 	var out = {};
@@ -587,6 +608,8 @@ app.get('/api/payment-status', function (req, res) {
 
 app.get('/api/risk-score', function (req, res) {
 	var ref = req.query.ref;
+	res.setHeader('Deprecation', 'true');
+	res.setHeader('Link', '</api/v2/risk-score>; rel="successor-version"');
 	if (!ref) {
 		res.status(400).json({ ERR: 'MISSING_REF' });
 		return;
@@ -598,7 +621,7 @@ app.get('/api/risk-score', function (req, res) {
 	);
 	if (row === null) {
 		res.status(404).json({ ERR: 'NOT_FOUND', REF: ref });
-		return;
+		return; // Deprecation header already set above
 	}
 
 	var scored = scoreRow(row);
@@ -719,12 +742,18 @@ app.use(function (req, res) {
 
 openDatabase();
 
-http.createServer(app).listen(PORT, function () {
-	console.log('====================================================');
-	console.log(' ' + APP_NAME + ' v' + APP_VERSION);
-	console.log(' Meridian Corp - IT Dept - Internal Use Only');
-	console.log(' Environment : ' + ENVIRONMENT);
-	console.log(' Listening   : http://localhost:' + PORT + '/');
-	console.log(' Database    : ' + DB_FILE);
-	console.log('====================================================');
-});
+// Export the app for supertest (equivalence suite). The http server is only
+// started when this file is run directly, not when required by tests.
+module.exports = app;
+
+if (require.main === module) {
+	http.createServer(app).listen(PORT, function () {
+		console.log('====================================================');
+		console.log(' ' + APP_NAME + ' v' + APP_VERSION);
+		console.log(' Meridian Corp - IT Dept - Internal Use Only');
+		console.log(' Environment : ' + ENVIRONMENT);
+		console.log(' Listening   : http://localhost:' + PORT + '/');
+		console.log(' Database    : ' + DB_FILE);
+		console.log('====================================================');
+	});
+}

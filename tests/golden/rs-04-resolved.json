@@ -1,0 +1,28 @@
+{
+  "id": "rs-04-resolved",
+  "endpoint": "risk-score",
+  "params": {
+    "ref": "MT-2026-09439"
+  },
+  "result": {
+    "status": 200,
+    "body": {
+      "REF": "MT-2026-09439",
+      "INV": "INV-2026-5049",
+      "SCORE": "58",
+      "BAND": "MEDIUM",
+      "amt_cents": "1273200",
+      "ccy": "USD",
+      "TYPE": "WIRE",
+      "ctry": "GB",
+      "age": "29",
+      "dup_suspect": "Y",
+      "bank_chg_days": "-1",
+      "over_limit": "N",
+      "round_amt": "N",
+      "new_vend": "N",
+      "model": "APRSK01",
+      "retcode": "0000"
+    }
+  }
+}
