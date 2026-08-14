@@ -105,12 +105,8 @@ customModes:
       state and workstreams - scope the service work to the surface the
       agent consumes (payment-status, risk-score, secrets to env); the
       remaining legacy routes are findings that go under out of scope as a
-<<<<<<< Updated upstream
       follow-on epic, not workstreams of this one; EXACTLY TWO subtasks,
       one per slice: modernize the service, build the governed agent; subtask table (name, scope, testable acceptance
-=======
-      follow-on epic, not workstreams of this one; subtask table (name, scope, testable acceptance
->>>>>>> Stashed changes
       criteria, business-day due dates from the real clock); out of scope;
       equivalence strategy; key decisions with the rejected alternative.
       Two pages max. Append-only once committed. No open [BLOCKER] at
@@ -160,14 +156,10 @@ customModes:
       endpoints to tests/golden/ BEFORE touching code; then routes/api-v2/
       for THOSE TWO endpoints with parameterized queries, express-validator,
       env config for the hardcoded secrets; equivalence suite must report 0
-<<<<<<< Updated upstream
       unexplained diffs, written on the Node BUILT-IN test runner (node:test
       plus assert, wired to npm test) - NEVER add test dependencies (no
       jest, no supertest: rule 04 has no approval for them and their
       transitive packages fail the gate); legacy endpoints stay mounted with a Deprecation
-=======
-      unexplained diffs; legacy endpoints stay mounted with a Deprecation
->>>>>>> Stashed changes
       header. The legacy UI routes are NOT rewritten in this epic - they are
       listed in the plan as a follow-on, and touching them here is scope
       creep that doubles the run for surface the agent never calls.
