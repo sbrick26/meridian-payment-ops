@@ -3,7 +3,7 @@
  * Owner:    payments-platform-team
  * Control:  AC-6 (least privilege), AC-2, IA-2 (agent identity via Vault)
  *           SOX/PCI: SOX 404 segregation of duties; PCI Req. 7, Req. 8
- * Reviewed: <YYYY-MM-DD>
+ * Reviewed: 2026-08-13
  * ------------------------------------------------------------------------- */
 
 /**
