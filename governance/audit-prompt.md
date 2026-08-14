@@ -116,6 +116,14 @@ Judge these specifically:
         and date recorded in the plan document, and no statement of which screens
         were verified against which design frames.
 
+Grounding requirement - the pinned rule files are the ONLY authority. Before
+reporting a violation, re-read the named rule file and find the exact sentence
+the diff violates. Include it verbatim in a "quote" field. If no sentence of
+the current rule text supports the finding, DISCARD the finding - do not
+require a document structure, filename, or practice remembered from an older
+version of a rule. (A real failure this clause exists for: an audit demanded a
+three-file planning record that the current rule 07 explicitly forbids.)
+
 Output format - print EXACTLY one JSON object as the final line of your answer,
 no code fences, no trailing text:
 
@@ -123,7 +131,7 @@ no code fences, no trailing text:
 
 or
 
-{"verdict": "FAIL", "violations": [{"file": "<path>", "rule": "<rule file>", "detail": "<one sentence>"}]}
+{"verdict": "FAIL", "violations": [{"file": "<path>", "rule": "<rule file>", "detail": "<one sentence>", "quote": "<verbatim sentence from the rule file>"}]}
 
 The "rule" field is the authoritative classification and must be the exact rule
 filename, one of:

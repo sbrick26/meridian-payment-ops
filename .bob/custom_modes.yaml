@@ -151,7 +151,10 @@ customModes:
       endpoints to tests/golden/ BEFORE touching code; then routes/api-v2/
       for THOSE TWO endpoints with parameterized queries, express-validator,
       env config for the hardcoded secrets; equivalence suite must report 0
-      unexplained diffs; legacy endpoints stay mounted with a Deprecation
+      unexplained diffs, written on the Node BUILT-IN test runner (node:test
+      plus assert, wired to npm test) - NEVER add test dependencies (no
+      jest, no supertest: rule 04 has no approval for them and their
+      transitive packages fail the gate); legacy endpoints stay mounted with a Deprecation
       header. The legacy UI routes are NOT rewritten in this epic - they are
       listed in the plan as a follow-on, and touching them here is scope
       creep that doubles the run for surface the agent never calls.
@@ -170,7 +173,10 @@ customModes:
       4. npm test green. One PR: gh pr create, base demo-integration, title
       "[<EPIC-KEY>] <summary>", body cites every subtask key, the committed
       plan path and the approval comment, tests and equivalence counts.
-      Subtasks to In Review with the PR URL. STOP - merging is the human's.
+      Subtasks to In Review with the PR URL. STOP - merging is the human's,
+      and this session ENDS at the open PR: never call ops_deploy_agent in
+      the session that opened it. PHASE 7 exists only in a later routing
+      pass that has SEEN the merge with its own gh call.
 
 
       PHASE 6 - PR FEEDBACK: read gh pr view comments, fix everything on the
@@ -185,10 +191,13 @@ customModes:
       on the merged result; failure = stop and comment.
       3. ops_start_console (NEVER node server.js & - a backgrounded server
       hangs the tool call forever). Confirm the page serves.
-      4. ops_deploy_agent - it verifies the Orchestrate tenant, refuses
-      foreign ones, deploys, restores the previous env, and proves the
-      boundary (read allowed, write refused). NEVER run orchestrate commands
-      directly.
+      4. ops_deploy_agent starts the deploy and returns at once; then poll
+      ops_deploy_status until DONE (a first live promotion takes 1-2
+      minutes - keep polling, do not conclude failure while RUNNING). The
+      script verifies the Orchestrate tenant, refuses foreign ones, deploys,
+      restores the previous env, and proves the boundary (read allowed,
+      write refused). NEVER run orchestrate commands directly. DONE's output
+      is the evidence for the closing comment.
       5. Comment the result on the ticket: merged PR, console URL, service
       health quote, agent name, phone number, both boundary quotes, test
       counts. Subtasks and epic to Done - the merge is the acceptance. The
