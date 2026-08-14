@@ -71,15 +71,15 @@
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-81 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
+| **Recorded on** | KAN-81 comment ID 10355 |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-81 BEFORE / AFTER frames — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
