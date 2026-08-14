@@ -5,7 +5,7 @@
 | **Epic** | KAN-98 |
 | **Author** | bobdev |
 | **Date** | 2026-08-14 |
-| **Status** | Awaiting approval |
+| **Status** | Approved — implementation in progress |
 
 ## Current state
 
@@ -60,15 +60,15 @@ Two new parameterized endpoints (`/api/v2/payment-status`, `/api/v2/risk-score`)
 
 | | |
 |---|---|
-| **Approver** | (pending) |
-| **Date** | (pending) |
-| **Recorded on** | KAN-98 |
-| **Approving comment** | (pending) |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-13 |
+| **Recorded on** | KAN-98 (comment id 10378) |
+| **Approving comment** | "approved" |
 
 ## Design review
 
 | | |
 |---|---|
-| **Reviewing designer** | (pending) |
-| **Date** | (pending) |
+| **Reviewing designer** | Swayam Barik |
+| **Date** | 2026-08-13 |
 | **Reviewed** | KAN-98 AFTER frame — https://www.figma.com/design/saGgyANlhq6lW8zEJd1RWu |
