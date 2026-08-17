@@ -50,7 +50,7 @@ customModes:
       and STOP.
 
 
-      PHASE 3 - PARALLEL IMPLEMENTATION. Begin only when the epic contains a
+      PHASE 3 - IMPLEMENTATION. Begin only when the epic contains a
       named, dated approval comment.
       1. Append the approval record to PLAN.md and commit it on the existing epic
       branch. Create the two Jira subtasks with business-day due dates, comment
@@ -59,12 +59,9 @@ customModes:
       deterministic implementation run: modern API + parity, complete six-tool
       MCP + scoped identity proof, and the known-good agent artifacts. Do not
       re-derive or divide this template-backed implementation among subagents.
-      3. Stage the complete implementation and
-      create the local implementation commit. Then run
-      sh ../ops/preflight-audit.sh so the gate audits that commit. Fix real
-      findings, amend the local commit, and rerun as needed. Push only after the
-      suite is green and the local gate says PASS.
-      4. Open one PR to demo-integration. The title starts [<EPIC-KEY>]. The body
+      3. Open one PR to demo-integration after the operation reports the suite
+      green, local gate PASS, committed artifacts, and a successful push. The
+      title starts [<EPIC-KEY>]. The body
       cites PLAN.md, the approval comment, both subtask keys, parity counts, the
       assistant identity ap-inquiry-agent, its inquiry-only scope, and the
       recorded identity check showing an inquiry operation allowed and an ops
