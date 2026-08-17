@@ -7,6 +7,17 @@
 | **Epic** | KAN-120 |
 | **Author** | payments-platform-team |
 
+## Prompt
+
+> Assess the service and produce a short modernization plan, get it approved,
+> then execute in two subtasks: (1) MODERN API - add side-by-side, parameterized,
+> equivalence-proven v2 implementations of payment-status and risk-score while
+> leaving the legacy endpoints mounted; (2) GOVERNED MCP + AGENT - expose the
+> v2 service through MCP, enforce the dedicated ap-inquiry-agent read-only
+> identity below the model, and commit the complete known-good
+> meridian_ap_assistant agent, toolkit, and connection definitions. After merge,
+> update that existing agent in the align-sf-588 draft environment only.
+
 ## Files changed
 
 - `/api/v2` routes modernize payment status, risk, search, recent, release, and hold operations while preserving the legacy API.
