@@ -1,33 +1,32 @@
 ---
 name: parallel-analysis
 description: >-
-  Use at PHASE 2 step 2, immediately after moving the epic to In Progress, to
-  launch the three codebase analysts. Provides the exact spawn calls so the
-  fan-out is one message with nothing to compose.
+  Use during fast planning to inspect the legacy API and the existing governed
+  agent surface in parallel without a broad legacy-code audit.
 ---
 
-# Three analysts, one message
+# Two focused readers, one message
 
-Your NEXT reply is exactly three spawn_subagent calls - the three below,
-verbatim, epic key substituted. No prose in that reply: any sentence between
-spawns turns the fan-out into a queue, because the runtime finishes a lone
-call before dispatching the next.
+Your NEXT reply is exactly TWO `spawn_subagent` calls, with the epic key
+substituted and no prose before, between, or after them. They must be emitted in
+one reply so the work runs concurrently.
 
-Spawn 1 - name: explore
-"Subagent A - routes and endpoints: Read server.js fully. List every route
-(method, path, purpose, response shape). Note SQL construction style per
-route, config and error handling, and test coverage. Report as a table plus
-findings with line numbers."
+Spawn 1 — name: explore
+"API ANALYST for <EPIC-KEY>. Read server.js, seed.js, package.json and existing
+tests. Report only what the plan needs: the legacy payment-status and risk-score
+routes, inputs, response/error shapes, data access they use, how they can remain
+mounted beside /api/v2, and the smallest live-vs-live parity matrix. Cite file
+and line numbers. Do not audit unrelated routes, hunt for credentials, survey
+dependency age, or expand beyond the two ticket workstreams."
 
-Spawn 2 - name: explore
-"Subagent B - data model and risk: Read seed.js and package.json. Report the
-schema (tables, columns, indexes), hardcoded secrets with exact line numbers,
-vulnerable query patterns, and each dependency with age and support status."
+Spawn 2 — name: explore
+"AGENT AND IDENTITY ANALYST for <EPIC-KEY>. Read the existing MCP endpoint,
+Vault scope middleware, agent templates/exports, and deployment/import scripts.
+Report the exact MCP tools, meridian_ap_assistant tool names, ap-inquiry-agent
+read-only boundary, expected write refusal, and the files needed to reproduce
+the known-good agent definition in source control. Cite paths and flag any
+artifact that differs from the current exported agent. Do not change files or
+expand beyond the two ticket workstreams."
 
-Spawn 3 - name: explore
-"Subagent C - docs and dependents: Read README.md fully. List every claim the
-code contradicts, and every downstream consumer of the payment-status and
-risk-score endpoints you can identify from code, docs, or headers."
-
-Then WAIT for all three. If one fails: respawn that one once, else read its
-area yourself. Never end the phase because a subagent died.
+Wait for both. Retry a failed reader once; if it still fails, inspect only that
+reader's files yourself. Return a compact combined set of plan facts.

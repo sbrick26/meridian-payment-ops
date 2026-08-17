@@ -23,39 +23,6 @@
         "jira_attach_file"
       ]
     },
-    "figma-console": {
-      "command": "node",
-      "args": [
-        "/Users/swayambarik/Documents/CE/align-sf-modernization/mcp-servers/figma-lite/figma-mcp-lite.mjs",
-        "npx",
-        "-y",
-        "figma-console-mcp@1.39.1"
-      ],
-      "env": {
-        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}",
-        "LOG_LEVEL": "warn",
-        "MCP_ALLOW_TOOLS": "figma_get_status,figma_execute,figma_capture_screenshot,figma_navigate,figma_reconnect,figma_get_component_for_development,figma_search_components,figma_post_comment,figma_get_comments,figma_diagnose,figma_set_image_fill",
-        "FIGMA_WS_PORT": "9223"
-      },
-      "timeout": 240,
-      "alwaysAllow": [
-        "figma_get_status",
-        "figma_execute",
-        "figma_capture_screenshot",
-        "figma_navigate",
-        "figma_reconnect",
-        "figma_get_component_for_development",
-        "figma_search_components",
-        "figma_post_comment",
-        "figma_get_comments",
-        "figma_diagnose",
-        "figma_set_image_fill",
-        "figma_find_nodes",
-        "figma_export_frame",
-        "figma_set_image_fill_from_file",
-        "figma_execute_file"
-      ]
-    },
     "meridian-ops": {
       "command": "node",
       "args": [
@@ -64,8 +31,8 @@
       "timeout": 300,
       "alwaysAllow": [
         "ops_start_console",
-        "ops_deploy_agent",
-        "ops_verify_design_script"
+        "ops_update_agent_draft",
+        "ops_implement_slices"
       ]
     }
   }

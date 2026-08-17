@@ -1,76 +1,65 @@
 ---
 name: implement-slices
 description: >-
-  Use at PHASE 3 step 3, after the approval is recorded and the subtasks
-  exist, to build both implementation slices in parallel: two implementer
-  subagents work simultaneously, then the parent finishes with the suite,
-  the commit and the push.
+  After plan approval, build the modern API, MCP identity layer, and complete
+  known-good agent artifacts with three simultaneous implementer subagents.
 ---
 
-# Three hands, then the parent closes
+# Three parallel implementation hands
 
-Both slices are built from gate-proven templates by TWO implementer-persona
-subagents running AT THE SAME TIME. Your next reply after loading this
-skill contains EXACTLY three spawn_subagent calls and nothing else - no prose
-before, between, or after them. Both briefs verbatim, epic key substituted.
-The subagents write files only - the parent owns testing and git.
+Your NEXT reply after loading this skill is exactly THREE `spawn_subagent`
+calls and nothing else. Use the `implementer` persona for all three, substitute
+the epic key, and emit them together. Subagents write files only; the parent
+runs tests, git, and the gate.
 
-Spawn 1 - use the implementer persona:
-"SERVICE SLICE for <EPIC-KEY>. From the repository root run exactly these
-commands and nothing else, then report DONE with the file list:
+Spawn 1:
+"MODERN API SLICE for <EPIC-KEY>. From the repository root run exactly:
 mkdir -p routes/api-v2 tests
 cp .bob/skills/implement-slices/templates/payment-status.js routes/api-v2/payment-status.js
 cp .bob/skills/implement-slices/templates/risk-score.js routes/api-v2/risk-score.js
 cp .bob/skills/implement-slices/templates/equivalence.test.js tests/equivalence.test.js
 cp .bob/skills/implement-slices/templates/server-modernized.js server.js
 cp .bob/skills/implement-slices/templates/package.json package.json
-Do not run tests, do not commit."
+Report DONE with the file list. Do not run tests, commit, or push."
 
-Spawn 2 - use the implementer persona:
-"AGENT SLICE for <EPIC-KEY>. From the repository root run exactly these
-commands, then write the change-log entry, then report DONE with the file
-list:
-mkdir -p vault/middleware change-log
+Spawn 2:
+"MCP AND IDENTITY SLICE for <EPIC-KEY>. From the repository root run exactly:
+mkdir -p routes vault/middleware change-log
 cp .bob/skills/implement-slices/templates/mcp-endpoint.js routes/mcp-endpoint.js
 cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
-Then create change-log/<YYYY-MM-DD>_<HHMM>_<EPIC-KEY>-implementation.md -
-the HHMM timestamp is REQUIRED by rule 03; read the real clock - by copying
-.bob/skills/implement-slices/templates/change-log-entry.md and replacing
-every KAN-98 with <EPIC-KEY> and the old date with today's date.
-Do not run tests, do not commit."
+Read the real clock, copy the change-log template to
+change-log/YYYY-MM-DD_HHMM_<EPIC-KEY>-implementation.md, and replace KAN-98 and
+the template date with this epic and today's date. Report DONE with the file
+list. Do not run tests, commit, or push."
 
-Spawn 3 - use the implementer persona:
-"AGENT DEFINITION SLICE for <EPIC-KEY>. From the repository root run
-exactly these commands, then report DONE with the file list:
+Spawn 3:
+"CANONICAL AGENT ARTIFACTS SLICE for <EPIC-KEY>. From the repository root run
+exactly:
 mkdir -p agent
 cp .bob/skills/agent-enablement/templates/agent.yaml agent/agent.yaml
-cp .bob/skills/agent-enablement/templates/openapi-tools.json agent/openapi-tools.json
-These are the watsonx Orchestrate agent and tool definitions that the
-deployed assistant runs - committed here so the pull request carries the
-complete governed artifact set. Do not modify them, do not run tests, do
-not commit."
+cp .bob/skills/agent-enablement/templates/mcp-toolkit.yaml agent/mcp-toolkit.yaml
+cp .bob/skills/agent-enablement/templates/connection.yaml agent/connection.yaml
+Report DONE with the file list. Do not modify the copies, run tests, import,
+deploy, commit, or push. These are the known-good existing agent, MCP toolkit,
+and secret-free connection definitions; `collaborators` must remain empty."
 
-WAIT for all three. If one fails: respawn it once, else run its commands
-yourself. Never proceed with any slice's files missing.
+Wait for all three. Retry a failed hand once, otherwise perform only its listed
+copies yourself. Never proceed with a slice missing.
 
-## The parent finishes - testing and git, in the main conversation
+The parent then runs:
 
     npm install --no-audit --no-fund --loglevel=error
-    npm test          # expect the full suite green, 0 unexplained diffs
+    npm test
     git add -A
-    git commit -m "feat(<EPIC-KEY>): modernized v2 API, secrets-to-env, governed MCP agent layer"
-    git push -u origin feature/<EPIC-KEY>-implementation
-
-Then the LOCAL GATE - the same audit GitHub will run, run it here first:
-
+    git commit -m "feat(<EPIC-KEY>): modern API and governed MCP agent"
     sh ../ops/preflight-audit.sh
 
-Fix every finding it reports BEFORE pushing (for template-derived files the
-only fix is re-copying the template). Push only on VERDICT: PASS - a pull
-request must pass the gate on its first run.
+Expect the full suite green, zero unexplained parity differences, and `VERDICT:
+PASS`. The implementation must be committed before the gate runs because the
+gate audits committed branch history, not uncommitted files. Fix findings by
+amending that local commit and rerunning the gate. Push only after PASS, then
+open one PR to `demo-integration` citing both Jira subtasks, the plan/approval,
+parity counts, identity, and refused write.
 
-Quote the suite counts in the PR body. The branch must already exist with
-the plan and approval commits - never create it here.
-
-Fallback if subagents are unavailable: ops_implement_slices { epic_key }
-does the whole sequence in one call.
+The skill never imports or deploys an agent. Draft import happens only after a
+human merges the PR, through `ops_update_agent_draft`.
