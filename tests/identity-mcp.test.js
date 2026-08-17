@@ -19,7 +19,10 @@ function listen(app) {
 }
 
 function close(server) {
-  return new Promise((resolve) => server.close(resolve));
+  return new Promise((resolve, reject) => {
+    server.close((error) => (error ? reject(error) : resolve()));
+    server.closeAllConnections();
+  });
 }
 
 test('inquiry identity is allowed to read and refused an ops tool', async (t) => {
