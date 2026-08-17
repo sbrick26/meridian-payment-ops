@@ -1,5 +1,32 @@
 [
   {
+    "id": "32063820753-e04b619",
+    "timestamp": "2026-08-17T20:04:40Z",
+    "verdict": "FAIL",
+    "severity": "critical",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": ".bob/artifacts/kan-114-modernization-plan.html",
+        "rule": "06-governance-protection.md",
+        "detail": "Protected governance file modified in a pull request; the .bob/, .bobignore, governance/, .github/, and dashboard/ paths define the control environment and change only on the governance branch with code-owner review (deterministic block).",
+        "severity": "critical"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "24",
+    "pr_title": "[KAN-120] Modernize payment-status service with governed MCP agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/24",
+    "branch": "feature/KAN-120-implementation",
+    "base_ref": "demo-integration",
+    "sha": "e04b619",
+    "commit_message": "feat(KAN-120): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/32063820753"
+  },
+  {
     "id": "31830538965-1ab0c60",
     "timestamp": "2026-08-14T18:51:32Z",
     "verdict": "PASS",
