@@ -141,6 +141,7 @@ jobs:
           agent/connection.yaml|.bob/skills/agent-enablement/templates/connection.yaml
           server.js|.bob/skills/implement-slices/templates/server-modernized.js
           package.json|.bob/skills/implement-slices/templates/package.json
+          package-lock.json|.bob/skills/implement-slices/templates/package-lock.json
           EOF
 
       - name: Modernization and assistant-identity tests

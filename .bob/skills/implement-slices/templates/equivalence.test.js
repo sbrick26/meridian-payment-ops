@@ -236,11 +236,16 @@ function startServer() {
 }
 
 function stopServer() {
+	if (!server) {
+		if (db) db.close();
+		return Promise.resolve();
+	}
 	return new Promise(function (resolve) {
 		server.close(function () {
 			db.close();
 			resolve();
 		});
+		server.closeAllConnections();
 	});
 }
 
