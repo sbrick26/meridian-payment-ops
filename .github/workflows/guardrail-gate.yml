@@ -148,6 +148,7 @@ jobs:
         timeout-minutes: 3
         run: |
           npm ci --no-audit --no-fund
+          npm run seed
           npm test
 
       - name: Rules-loaded smoke test (canary)
