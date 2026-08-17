@@ -60,7 +60,10 @@ and response body with zero unexplained differences. The identity check exercise
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-17 |
 | **Recorded on** | KAN-120 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — comment on KAN-120, 2026-08-17 |
+
+---
+*Approval appended 2026-08-17 20:02 UTC. Document is append-only from this point.*
