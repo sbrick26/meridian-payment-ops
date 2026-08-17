@@ -53,7 +53,14 @@ The parity suite (`tests/parity/`) runs the same nominal (by `ref`, by `invoice`
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-17 |
 | **Recorded on** | KAN-132 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — Jira comment on KAN-132 (comment id 10423, 2026-08-17) |
+
+---
+
+## Revision — 2026-08-17 (implementation authorized)
+
+Approval received from Swayam Barik on 2026-08-17 via Jira comment on KAN-132.
+Implementation of subtasks Modern API (due 2026-08-19) and Governed MCP + Agent (due 2026-08-20) authorized to begin.
