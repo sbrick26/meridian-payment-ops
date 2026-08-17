@@ -143,6 +143,14 @@ jobs:
           package.json|.bob/skills/implement-slices/templates/package.json
           package-lock.json|.bob/skills/implement-slices/templates/package-lock.json
           EOF
+          if grep -qx 'agent/agent.yaml' /tmp/changed-files.txt; then
+            welcome_len=$(awk -F'"' '/^  welcome_message: "/ { print length($2); exit }' agent/agent.yaml)
+            if [ -z "$welcome_len" ] || [ "$welcome_len" -gt 100 ]; then
+              echo "::error title=invalid agent welcome::welcome_message must be a quoted value of at most 100 characters"
+              exit 1
+            fi
+            echo "agent welcome_message is within the Orchestrate limit."
+          fi
 
       - name: Modernization and assistant-identity tests
         timeout-minutes: 3

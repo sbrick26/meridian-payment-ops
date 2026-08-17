@@ -21,10 +21,7 @@ tools:
   - ap_payments:payment_hold
 
 welcome_content:
-  welcome_message: >-
-    Welcome to Meridian Accounts Payable. Ask me about any vendor payment —
-    status, hold reason, expected release, or risk — and I'll check it for
-    you right away.
+  welcome_message: "Ask about a vendor payment: status, hold reason, risk, or expected release."
   description: AP payment inquiries, self-serve.
   is_default_message: false
 
