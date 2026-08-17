@@ -1,3 +1,9 @@
+/* ---------------------------------------------------------------------------
+ * Function: Modern AP payments API
+ * Owner:    payments-platform-team
+ * Control:  AC-3, AC-6, SI-10   (SOX/PCI: SOX 404; PCI Req. 6.5, Req. 7)
+ * Reviewed: 2026-08-17
+ * ------------------------------------------------------------------------- */
 /**
  * payments.js — the /api/v2 payments contract.
  *

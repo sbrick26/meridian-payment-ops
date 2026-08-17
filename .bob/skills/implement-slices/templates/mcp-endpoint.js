@@ -1,3 +1,9 @@
+/* ---------------------------------------------------------------------------
+ * Function: AP payments MCP tool interface
+ * Owner:    payments-platform-team
+ * Control:  AC-3, AC-6, SI-10   (SOX/PCI: SOX 404; PCI Req. 6.5, Req. 7)
+ * Reviewed: 2026-08-17
+ * ------------------------------------------------------------------------- */
 /**
  * mcp-endpoint.js — assistant tool interface for the modernized AP payments API.
  *
