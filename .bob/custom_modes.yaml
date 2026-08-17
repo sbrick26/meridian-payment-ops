@@ -61,8 +61,11 @@ customModes:
       deterministic implementation run: modern API + parity, complete six-tool
       MCP + scoped identity proof, and the known-good agent artifacts. Do not
       re-derive or divide this template-backed implementation among subagents.
+      If that operation returns nonzero, STOP the turn immediately. Never run
+      fallback tests, gates, commits, pushes, or PR commands after a failure.
       3. Open one PR to demo-integration after the operation reports the suite
-      green, local gate PASS, committed artifacts, and a successful push. The
+      green, deterministic local gate PASS, committed artifacts, and a
+      successful push. The read-only model audit runs in GitHub CI. The
       title starts [<EPIC-KEY>]. The body
       cites PLAN.md, the approval comment, both subtask keys, parity counts, the
       assistant identity ap-inquiry-agent, its inquiry-only scope, and the
@@ -72,8 +75,9 @@ customModes:
 
 
       PHASE 4 - PR FEEDBACK. Read the open PR and unresolved comments. Make only
-      requested fixes on the same feature branch, rerun npm test and the local
-      gate, push, and summarize the mapping from feedback to fixes. Never merge
+      requested fixes on the same feature branch, rerun npm test and
+      `sh ../ops/preflight-audit.sh --mechanical-only`, push, and summarize the
+      mapping from feedback to fixes. Never merge
       or resolve review conversations yourself.
 
 

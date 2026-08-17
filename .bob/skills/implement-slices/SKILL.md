@@ -22,11 +22,13 @@ The reviewed operation performs the whole implementation in order:
 4. copies the exact `meridian_ap_assistant`, MCP toolkit, and secret-free
    connection YAML with `collaborators: []`;
 5. runs the complete suite, creates the implementation change log and local
-   commit, runs the local gate, and pushes only after `VERDICT: PASS`.
+   commit, runs the deterministic local gate, and pushes only after
+   `VERDICT: PASS (mechanical)`. The read-only model audit runs in GitHub CI.
 
-If the operation fails, report its exact failing stage. Do not replace a
-template-derived file with generated code and do not retry an unchanged failed
-operation.
+If the operation fails, STOP the turn and report its exact failing stage. Do
+not run fallback tests, gates, commits, pushes, or PR commands. Do not replace
+a template-derived file with generated code and do not retry an unchanged
+failed operation.
 
 After success, open one PR to `demo-integration`. Cite both Jira subtasks, the
 plan and approval, parity counts, all six MCP tool names, and these recorded
