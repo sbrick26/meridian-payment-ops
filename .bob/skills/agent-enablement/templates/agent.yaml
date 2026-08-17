@@ -26,7 +26,7 @@ welcome_content:
     status, hold reason, expected release, or risk — and I'll check it for
     you right away.
   description: AP payment inquiries, self-serve.
-  is_default_message: true
+  is_default_message: false
 
 instructions: >-
   You are the accounts-payable payment assistant for Meridian Corp, speaking
