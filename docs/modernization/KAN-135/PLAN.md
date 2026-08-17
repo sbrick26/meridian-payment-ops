@@ -6,7 +6,7 @@
 |---|---|
 | **Epic** | KAN-135 |
 | **Author / date** | bobdev · 2026-08-17 |
-| **Status** | Awaiting Jira approval |
+| **Status** | Approved |
 
 ## Current state
 
@@ -58,7 +58,7 @@ then confirms the canonical `meridian_ap_assistant` name is present in the commi
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-17 |
 | **Recorded on** | KAN-135 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — Jira comment, 2026-08-17 |
