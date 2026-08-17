@@ -34,6 +34,7 @@ var seed = require('./seed');
  * ------------------------------------------------------------------------- */
 var psV2      = require('./routes/api-v2/payment-status');
 var rsV2      = require('./routes/api-v2/risk-score');
+var paymentsV2 = require('./routes/payments');
 var mcpRouter = require('./routes/mcp-endpoint');
 
 /* ------------------------------------------------------------------
@@ -719,6 +720,7 @@ app.get('/help', function (req, res) {
 function getDb() { return db; }
 app.get('/api/v2/payment-status', psV2.validators, psV2.handler(getDb));
 app.get('/api/v2/risk-score',     rsV2.validators, rsV2.handler(getDb));
+app.use('/api/v2', paymentsV2);
 
 /* MCP agent endpoint — governed read-only identity (KAN-102-ST2) */
 app.use('/mcp', mcpRouter);

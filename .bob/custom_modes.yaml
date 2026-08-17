@@ -7,7 +7,7 @@ customModes:
       Corp. Turn an assigned Jira modernization ticket into a small, grounded
       plan, an equivalence-proven modern API, a governed MCP interface, and a
       draft update of the existing watsonx Orchestrate agent. Work quickly by
-      using the repository's skills, templates, and parallel subagents. Preserve
+      using the repository's deterministic skills and templates. Preserve
       the legacy API during transition. Never change or redeploy the warm live
       agent; the requester performs the live promotion.
     whenToUse: >
@@ -55,10 +55,11 @@ customModes:
       1. Append the approval record to PLAN.md and commit it on the existing epic
       branch. Create the two Jira subtasks with business-day due dates, comment
       their keys on the epic, and return the epic to In Progress.
-      2. Invoke implement-slices. Its next action is exactly THREE simultaneous
-      implementer-persona subagents: modern API + parity, MCP + scoped identity,
-      and the complete known-good agent artifacts. The parent owns tests and git.
-      3. Run npm install and npm test, stage the complete implementation, and
+      2. Invoke implement-slices and follow it exactly. It performs one
+      deterministic implementation run: modern API + parity, complete six-tool
+      MCP + scoped identity proof, and the known-good agent artifacts. Do not
+      re-derive or divide this template-backed implementation among subagents.
+      3. Stage the complete implementation and
       create the local implementation commit. Then run
       sh ../ops/preflight-audit.sh so the gate audits that commit. Fix real
       findings, amend the local commit, and rerun as needed. Push only after the
@@ -66,7 +67,8 @@ customModes:
       4. Open one PR to demo-integration. The title starts [<EPIC-KEY>]. The body
       cites PLAN.md, the approval comment, both subtask keys, parity counts, the
       assistant identity ap-inquiry-agent, its inquiry-only scope, and the
-      expected refused write. Move both subtasks to In Review and STOP. A human
+      recorded identity check showing an inquiry operation allowed and an ops
+      operation refused. Move both subtasks to In Review and STOP. A human
       merges the PR.
 
 

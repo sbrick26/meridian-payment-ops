@@ -47,7 +47,8 @@ The reviewed script behind that tool must:
    `meridian_ap_assistant` and has an empty collaborator list;
 5. run exactly one remote mutation:
    `orchestrate agents import -f agent/agent.yaml`;
-6. confirm `meridian_ap_assistant` appears in the draft agent list;
+6. require the CLI's successful update acknowledgement and verify the exported
+   draft content matches the imported canonical agent;
 7. restore the previously active CLI environment.
 
 Import updates draft. The script contains no `agents deploy`, `agents undeploy`,
