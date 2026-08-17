@@ -12,7 +12,7 @@ This skill has two separate moments. Never combine them.
 
 ## A. Implementation PR artifacts
 
-During the parallel implementation phase, copy these reviewed templates exactly:
+During the single reviewed implementation operation, copy these templates exactly:
 
 | Template | PR destination | Purpose |
 |---|---|---|
@@ -33,8 +33,9 @@ service-level refusal is part of the acceptance proof.
 
 ## B. Post-merge draft update
 
-After `gh` proves the PR is merged and the merged suite is green, call the MCP
-tool `ops_update_agent_draft`. Do not run raw Orchestrate commands.
+After `gh` proves the PR is merged and the merged suite is green, run exactly
+`sh ../ops/import-agent-draft.sh` with the execute tool. Do not run raw
+Orchestrate commands or call a generic Orchestrate MCP mutation.
 
 The reviewed script behind that tool must:
 
