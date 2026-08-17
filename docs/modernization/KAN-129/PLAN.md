@@ -58,7 +58,14 @@ without touching the live channel.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-17 |
 | **Recorded on** | KAN-129 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — Jira comment on KAN-129, 2026-08-17 |
+
+## Revision history
+
+| Date | Change |
+|---|---|
+| 2026-08-17 | Initial plan committed |
+| 2026-08-17 | Approval recorded — Swayam Barik, Jira comment 2026-08-17 |
