@@ -10,3 +10,11 @@ npm-debug.log
 
 # local tool config
 .bob/tmp/
+
+# Local Orchestrate exports and IDE state
+.bob/artifacts/
+.vscode/
+agents/
+connections/
+tools/
+workspace_config.yaml

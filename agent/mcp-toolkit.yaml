@@ -1,0 +1,12 @@
+spec_version: v1
+kind: mcp
+name: ap_payments
+description: >-
+  Meridian accounts-payable inquiry tools, including scope-gated release and hold
+  operations whose refusal demonstrates the agent identity boundary.
+transport: streamable_http
+url: https://meridian-ap-api.2dg0i10un3vw.ca-tor.codeengine.appdomain.cloud/mcp
+connections:
+  - ap_payments_vault
+tools:
+  - "*"
