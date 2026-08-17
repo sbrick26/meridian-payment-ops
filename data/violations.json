@@ -1,5 +1,25 @@
 [
   {
+    "id": "32066567710-db541ff",
+    "timestamp": "2026-08-17T20:38:09Z",
+    "verdict": "ERROR",
+    "severity": "high",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "Swayam Barik",
+    "triggered_by": "sbrick26",
+    "pr_number": "24",
+    "pr_title": "[KAN-120] Modernize payment-status service with governed MCP agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/24",
+    "branch": "feature/KAN-120-implementation",
+    "base_ref": "demo-integration",
+    "sha": "db541ff",
+    "commit_message": "test(KAN-120): close Node 22 keep-alive connections",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/32066567710"
+  },
+  {
     "id": "32065517629-b0a0ff3",
     "timestamp": "2026-08-17T20:35:32Z",
     "verdict": "ERROR",
