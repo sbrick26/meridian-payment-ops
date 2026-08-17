@@ -37,10 +37,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js 22
+      - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install Bob Shell
         # The installer reads /dev/tty for package-manager selection, which hangs
@@ -144,6 +144,7 @@ jobs:
           EOF
 
       - name: Modernization and assistant-identity tests
+        timeout-minutes: 3
         run: |
           npm ci --no-audit --no-fund
           npm test
