@@ -1,5 +1,25 @@
 [
   {
+    "id": "32073208212-89e63c1",
+    "timestamp": "2026-08-17T21:52:20Z",
+    "verdict": "PASS",
+    "severity": "none",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "26",
+    "pr_title": "[KAN-135] Modernize payment-status service and expose through governed AI agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/26",
+    "branch": "feature/KAN-135-implementation",
+    "base_ref": "demo-integration",
+    "sha": "89e63c1",
+    "commit_message": "feat(KAN-135): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/32073208212"
+  },
+  {
     "id": "32070271998-a95a475",
     "timestamp": "2026-08-17T21:18:08Z",
     "verdict": "PASS",
