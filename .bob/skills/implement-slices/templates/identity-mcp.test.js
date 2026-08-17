@@ -19,18 +19,20 @@ function listen(app) {
 }
 
 function close(server) {
-  return new Promise((resolve, reject) => {
-    server.close((error) => (error ? reject(error) : resolve()));
-    server.closeAllConnections();
-  });
+  server.closeAllConnections();
+  server.close();
 }
 
 test('inquiry identity is allowed to read and refused an ops tool', async (t) => {
+  const servers = [];
+  t.after(() => servers.reverse().forEach(close));
+
   const vault = express();
   vault.get('/v1/auth/token/lookup-self', (req, res) => res.json({
     data: { policies: ['default', 'ap-inquiry-read'] },
   }));
   const vaultServer = await listen(vault);
+  servers.push(vaultServer);
   process.env.VAULT_ADDR = `http://127.0.0.1:${vaultServer.address().port}`;
   process.env.VAULT_SCOPE_CACHE_MS = '0';
 
@@ -38,17 +40,14 @@ test('inquiry identity is allowed to read and refused an ops tool', async (t) =>
   api.use(express.json());
   api.use('/api/v2', require('../routes/payments'));
   const apiServer = await listen(api);
+  servers.push(apiServer);
 
   process.env.API_BASE_URL = `http://127.0.0.1:${apiServer.address().port}`;
 
   const mcp = express();
   mcp.use('/mcp', require('../routes/mcp-endpoint'));
   const mcpServer = await listen(mcp);
-  t.after(async () => {
-    await close(mcpServer);
-    await close(apiServer);
-    await close(vaultServer);
-  });
+  servers.push(mcpServer);
 
   async function rpc(method, params) {
     const response = await fetch(`http://127.0.0.1:${mcpServer.address().port}/mcp`, {
