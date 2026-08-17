@@ -45,12 +45,13 @@ The reviewed script behind that tool must:
    active environment;
 3. refuse any empty, foreign, or `tko` target;
 4. validate that committed `agent/agent.yaml` names only
-   `meridian_ap_assistant` and has an empty collaborator list;
+   `meridian_ap_assistant`, has an empty collaborator list, and keeps the
+   welcome message within Orchestrate's 100-character limit;
 5. run exactly one remote mutation:
    `orchestrate agents import -f agent/agent.yaml`;
 6. require the CLI's successful update acknowledgement and verify the exported
    draft content matches the imported canonical agent;
-7. restore the previously active CLI environment.
+7. leave the CLI on the verified `align-sf-588` project environment.
 
 Import updates draft. The script contains no `agents deploy`, `agents undeploy`,
 promotion, channel, phone, toolkit creation, connection mutation, or live

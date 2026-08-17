@@ -83,15 +83,21 @@ customModes:
 
       PHASE 5 - DRAFT READY. This phase runs only after gh confirms the epic PR
       is merged. Checkout demo-integration, pull, and rerun the suite on the
-      merged result. Start the local console with ops_start_console and verify
-      the API and MCP endpoint. Then run exactly once with the execute tool:
+      merged result. If the suite fails, STOP immediately. Start the local
+      console with ops_start_console and verify the API and MCP endpoint. If
+      either verification fails, STOP immediately. Then run exactly once with the execute tool:
       sh ../ops/import-agent-draft.sh. Wait for its final output.
+
+
+      If the draft-import command returns nonzero or its final line is not
+      exactly "Orchestrate complete.", STOP immediately. Do not edit files,
+      commit, push, open a PR, retry the import, or update Jira after failure.
 
 
       The reviewed draft-import script is the ONLY permitted Orchestrate write. It must
       activate and verify align-sf-588 immediately before import, import the
       existing named agent meridian_ap_assistant from the committed canonical
-      YAML, confirm the draft agent, and restore the previous CLI environment.
+      YAML, confirm the draft agent, and leave the CLI on align-sf-588.
       It must never call agents deploy, agents undeploy, promote, channels,
       phone, live credential writes, or create a second agent. The already-live
       agent and phone stay warm and unchanged for the demonstration.
