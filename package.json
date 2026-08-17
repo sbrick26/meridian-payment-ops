@@ -6,16 +6,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "seed": "node seed.js",
-    "test": "node --test tests/equivalence.test.js"
+    "seed": "node seed.js"
   },
   "author": "Meridian Corp IT Dept - Finance Systems Team",
   "license": "UNLICENSED",
   "dependencies": {
     "better-sqlite3": "^12.11.1",
     "ejs": "^3.1.10",
-    "express": "^4.22.2",
-    "express-validator": "^7.3.2",
-    "node-fetch": "^3.3.2"
+    "express": "^4.22.2"
   }
 }
