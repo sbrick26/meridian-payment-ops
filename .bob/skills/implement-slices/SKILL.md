@@ -8,7 +8,9 @@ description: >-
 # Complete implementation — one reviewed path
 
 Do not spawn implementation subagents and do not re-derive code from the plan.
-From the repository root, call `ops_implement_slices` once with the epic key.
+From the repository root, run exactly one reviewed shell operation with the
+execute tool: `sh ../ops/implement-slices.sh <EPIC-KEY>`. Approve it once and
+wait for its final output; do not use an MCP tool for this long-running step.
 The reviewed operation performs the whole implementation in order:
 
 1. adds the parameterized modern API while preserving the legacy API for live
@@ -34,4 +36,4 @@ identity-check lines from the green suite:
     IDENTITY REFUSE: ap-inquiry-agent lacks ops -> payment_release
 
 The skill never imports or deploys an agent. Draft import happens only after a
-human merges the PR, through `ops_update_agent_draft`.
+human merges the PR, through the reviewed draft-import script.

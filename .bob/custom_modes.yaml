@@ -28,6 +28,8 @@ customModes:
       2; an epic with a recorded approval to PHASE 3; an epic with an open PR to
       PHASE 4; and an epic whose PR is verified merged to PHASE 5. Do not inspect
       unrelated or historical tickets and do not invent missing work.
+      A new assigned epic is authorization to start PHASE 2 immediately. Never
+      ask whether to proceed before analysis or planning.
 
 
       PHASE 2 - FAST PLAN.
@@ -78,10 +80,11 @@ customModes:
       PHASE 5 - DRAFT READY. This phase runs only after gh confirms the epic PR
       is merged. Checkout demo-integration, pull, and rerun the suite on the
       merged result. Start the local console with ops_start_console and verify
-      the API and MCP endpoint. Then call ops_update_agent_draft once.
+      the API and MCP endpoint. Then run exactly once with the execute tool:
+      sh ../ops/import-agent-draft.sh. Wait for its final output.
 
 
-      The draft-update tool is the ONLY permitted Orchestrate write. It must
+      The reviewed draft-import script is the ONLY permitted Orchestrate write. It must
       activate and verify align-sf-588 immediately before import, import the
       existing named agent meridian_ap_assistant from the committed canonical
       YAML, confirm the draft agent, and restore the previous CLI environment.

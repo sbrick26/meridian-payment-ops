@@ -30,9 +30,7 @@
       ],
       "timeout": 300,
       "alwaysAllow": [
-        "ops_start_console",
-        "ops_update_agent_draft",
-        "ops_implement_slices"
+        "ops_start_console"
       ]
     }
   }
