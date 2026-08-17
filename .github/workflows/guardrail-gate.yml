@@ -47,7 +47,17 @@ jobs:
         # forever on a runner with no terminal. --pm npm skips that prompt. It
         # installs via `npm install -g`, so the npm global bin goes on PATH.
         run: |
-          curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
+          # The install is a network fetch against a service that has real bad
+          # minutes - one CI run died here with every governance check unrun.
+          # Three attempts with backoff, and only then fail the job.
+          for attempt in 1 2 3; do
+            if curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm; then
+              break
+            fi
+            [ "$attempt" = 3 ] && { echo "::error title=install failed::Bob Shell install failed after 3 attempts."; exit 1; }
+            echo "install attempt $attempt failed - retrying in $((attempt * 20))s"
+            sleep $((attempt * 20))
+          done
           echo "$(npm prefix -g)/bin" >> "$GITHUB_PATH"
 
       - name: Verify Bob is on PATH
@@ -90,6 +100,53 @@ jobs:
         run: |
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
             | python3 governance/protected-guard.py /tmp/verdict.md
+
+      - name: Vault middleware must be the template, byte for byte
+        # The scope middleware is production-proven and must be COPIED from
+        # the skill template unchanged - a re-typed 600-line lookalike is
+        # exactly what review cannot catch, so this is checked mechanically.
+        # The comparison uses the PINNED template, so a PR cannot bring its own.
+        run: |
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q '^vault/middleware/vault-scope.js$'; then
+            cmp -s vault/middleware/vault-scope.js .bob/skills/agent-enablement/templates/vault-scope.js || {
+              echo "::error title=unapproved deviation::vault/middleware/vault-scope.js deviates from the approved identity-enforcement implementation."
+              printf '## Meridian - Engineering Governance: guardrail audit\n\n**Verdict: FAIL** - supply-chain integrity: vault/middleware/vault-scope.js deviates from the approved, security-reviewed identity-enforcement implementation. Scope-enforcement code is change-controlled: restore the approved version from the platform template and push. Hand modifications to this module require a separate security review.\n' > /tmp/verdict.md
+              exit 1
+            }
+            echo "vault-scope.js matches the pinned template."
+          else
+            echo "vault-scope.js not in this diff - skipped."
+          fi
+
+      - name: Deterministic implementation artifacts must match templates
+        run: |
+          set -eu
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/changed-files.txt
+          while IFS='|' read -r dest template; do
+            grep -qx "$dest" /tmp/changed-files.txt || continue
+            cmp -s "$dest" "$template" || {
+              echo "::error title=template drift::$dest does not match $template"
+              exit 1
+            }
+            echo "template match: $dest"
+          done <<'EOF'
+          routes/api-v2/payment-status.js|.bob/skills/implement-slices/templates/payment-status.js
+          routes/api-v2/risk-score.js|.bob/skills/implement-slices/templates/risk-score.js
+          routes/payments.js|.bob/skills/implement-slices/templates/payments.js
+          routes/mcp-endpoint.js|.bob/skills/implement-slices/templates/mcp-endpoint.js
+          tests/equivalence.test.js|.bob/skills/implement-slices/templates/equivalence.test.js
+          tests/identity-mcp.test.js|.bob/skills/implement-slices/templates/identity-mcp.test.js
+          agent/agent.yaml|.bob/skills/agent-enablement/templates/agent.yaml
+          agent/mcp-toolkit.yaml|.bob/skills/agent-enablement/templates/mcp-toolkit.yaml
+          agent/connection.yaml|.bob/skills/agent-enablement/templates/connection.yaml
+          server.js|.bob/skills/implement-slices/templates/server-modernized.js
+          package.json|.bob/skills/implement-slices/templates/package.json
+          EOF
+
+      - name: Modernization and assistant-identity tests
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
 
       - name: Rules-loaded smoke test (canary)
         # Fails the build if Bob did not actually load the workspace rules. The
@@ -161,7 +218,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          [ -f /tmp/verdict.md ] || printf '## Meridian - Engineering Governance: guardrail audit\n\n**Verdict: ERROR** - the audit job failed before producing a verdict.\n' > /tmp/verdict.md
+          [ -f /tmp/verdict.md ] || printf '## Meridian - Engineering Governance: guardrail audit\n\n**Verdict: ERROR** - the audit did not run (infrastructure failure - Bob install or runner error, NOT a rule violation). Re-run the job: gh run rerun <id> --failed\n' > /tmp/verdict.md
           python3 - <<'EOF'
           import json, os, urllib.request
           body = open("/tmp/verdict.md").read()

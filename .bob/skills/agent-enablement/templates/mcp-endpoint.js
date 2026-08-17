@@ -1,10 +1,9 @@
 /* ---------------------------------------------------------------------------
- * Function: POST /mcp (JSON-RPC tools/list, tools/call)
+ * Function: AP payments MCP tool interface
  * Owner:    payments-platform-team
- * Control:  AC-6 (authorization/operator entitlements), AC-2, IA-2 (identity)   (SOX/PCI: SOX 404 segregation of duties; PCI Req. 8)
- * Reviewed: 2026-08-13
+ * Control:  AC-3, AC-6, SI-10   (SOX/PCI: SOX 404; PCI Req. 6.5, Req. 7)
+ * Reviewed: 2026-08-17
  * ------------------------------------------------------------------------- */
-
 /**
  * mcp-endpoint.js — assistant tool interface for the modernized AP payments API.
  *
@@ -36,7 +35,9 @@
 'use strict';
 
 const express = require('express');
-const { requireScope, checkScope } = require('../vault/middleware/vault-scope');
+const {
+  requireScope, checkScope, emitGovernanceEvent,
+} = require('../vault/middleware/vault-scope');
 
 const router = express.Router();
 router.use(express.json({ limit: '256kb' }));
@@ -95,6 +96,33 @@ const TOOLS = [
       additionalProperties: false,
     },
     call: (a) => ({ method: 'GET', path: `/api/v2/payments${query(a)}` }),
+  },
+  {
+    name: 'payments_recent',
+    scope: 'inquiry',
+    description:
+      "The caller's most recent held payments, newest first. Use this when " +
+      'the caller asks about "my latest invoice" or "my payment" without ' +
+      'giving an invoice number or a payment reference. Pass vendor with the ' +
+      'vendor name if the caller has stated one; leave it empty to see the ' +
+      'most recent held payments across all vendors.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        vendor: {
+          type: 'string',
+          description: 'Vendor name, or part of one, if the caller has said which company they are with',
+        },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 10,
+          description: 'How many payments to return, newest first. Default 3.',
+        },
+      },
+      additionalProperties: false,
+    },
+    call: (a) => ({ method: 'GET', path: `/api/v2/payments/recent${query(a)}` }),
   },
   {
     name: 'payment_risk',
@@ -169,6 +197,25 @@ function query(args) {
   return s ? `?${s}` : '';
 }
 
+/**
+ * Report one tool decision to the governance control plane, named by the tool
+ * the assistant actually asked for rather than the transport path it arrived
+ * on. Fire-and-forget: an unreachable control plane never fails a tool call.
+ */
+function report(identity, tool, eventType, severity, detail) {
+  try {
+    const p = emitGovernanceEvent({
+      event_type: eventType,
+      severity,
+      actor: identity.identity || 'unverified',
+      tool: tool.name,
+      scope: tool.scope,
+      detail,
+    });
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  } catch { /* ignore */ }
+}
+
 /** The caller's credential, as presented. Forwarded verbatim upstream. */
 function callerToken(req) {
   const h = req.headers || {};
@@ -209,7 +256,11 @@ function send(req, res, payload) {
  * read scope. A caller with no identity never reaches the dispatcher; a caller
  * with a real identity gets per-tool enforcement below.
  */
-router.use(requireScope('inquiry'));
+// `emit:false`: this gate is layered in front of the per-tool check below, and
+// the per-tool check reports the decision with the tool's own name. Emitting
+// here as well would put two governance events on the control plane for one
+// tool call, one of them naming a transport path instead of a tool.
+router.use(requireScope('inquiry', { emit: false }));
 
 /** Some clients open a stream before posting. Keep it open and empty. */
 router.get('/', (req, res) => {
@@ -323,20 +374,38 @@ async function invoke(tool, args, req) {
 
   const identity = await checkScope(token, tool.scope);
   if (!identity.allowed) {
+    let error = 'identity_scope_denied';
+    let detail = `Token identity lacks scope '${tool.scope}'`;
+    if (identity.error) {
+      error = 'identity_unverified';
+      detail = `Could not verify caller identity (${identity.error})`;
+    } else if (identity.suspended) {
+      // Standing outranks scope: the identity is not missing a capability, it
+      // has been stood down by the governance control plane.
+      error = 'identity_suspended';
+      detail = `Identity ${identity.identity} is suspended in the governance control plane`;
+    }
+
+    report(identity, tool, 'identity_denied', 'critical', `${tool.name} refused — ${detail}`);
+
+    // A refusal is an ANSWER, not a malfunction. Returned as an error it
+    // triggers the platform's canned "I cannot complete your request",
+    // which erases the whole governance story - so it travels as a normal
+    // result carrying refusal data, and the agent narrates it.
     return text(JSON.stringify({
-      error: identity.error ? 'identity_unverified' : 'identity_scope_denied',
-      detail: identity.error
-        ? `Could not verify caller identity (${identity.error})`
-        : `Token identity lacks scope '${tool.scope}'`,
+      refusal: true,
+      error,
+      detail,
+      identity: identity.identity,
       policies: identity.policies,
       granted_scopes: identity.scopes,
       required_scope: tool.scope,
-      // Refusals travel as ANSWERS, not errors - an error result triggers
-      // the platform's canned text and erases the governance story.
-      refusal: true,
       how_to_proceed: 'This action requires an authorized AP operator in the payment console.',
     }), false);
   }
+
+  report(identity, tool, 'identity_allowed', 'info',
+    `${tool.name} permitted — identity ${identity.identity} holds scope '${tool.scope}'`);
 
   const spec = tool.call(args);
   let upstream;
