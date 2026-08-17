@@ -40,6 +40,20 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
 const PAGE_SIZE = 20;
+const MAX_QUERY_LENGTH = 120;
+
+function boundedQuery(res, value, name) {
+  if (value === undefined || value === null || value === '') return '';
+  const text = String(value).trim();
+  if (text.length > MAX_QUERY_LENGTH) {
+    res.status(400).json({
+      error: 'invalid_request',
+      detail: `${name} must be ${MAX_QUERY_LENGTH} characters or fewer`,
+    });
+    return null;
+  }
+  return text;
+}
 
 /* ------------------------------------------------------------------ *
  * Legacy row -> v2 record                                             *
@@ -104,7 +118,11 @@ const byInvoice = db.prepare(`${SELECT} WHERE e.invoice_no = ?`);
  * reference parse the same shape.
  */
 router.get('/payments', requireScope('inquiry'), (req, res) => {
-  const { invoice, status, vendor, q } = req.query;
+  const invoice = boundedQuery(res, req.query.invoice, 'invoice');
+  const status = boundedQuery(res, req.query.status, 'status');
+  const vendor = boundedQuery(res, req.query.vendor, 'vendor');
+  const q = boundedQuery(res, req.query.q, 'q');
+  if ([invoice, status, vendor, q].includes(null)) return;
 
   if (invoice) {
     const row = byInvoice.get(String(invoice));
@@ -167,7 +185,8 @@ const recentByVendor = db.prepare(
 );
 
 router.get('/payments/recent', requireScope('inquiry'), (req, res) => {
-  const vendor = req.query.vendor ? String(req.query.vendor).trim() : '';
+  const vendor = boundedQuery(res, req.query.vendor, 'vendor');
+  if (vendor === null) return;
   const limit = Math.min(10, Math.max(1, Number(req.query.limit) || 3));
 
   const rows = vendor

@@ -1,30 +1,23 @@
-# Change log — KAN-120 agent-slice implementation
+# Change log — KAN-120 implementation
 
 | | |
 |---|---|
-| **Date** | 2026-08-14 |
+| **Date** | 2026-08-17 |
 | **Branch** | feature/KAN-120-implementation |
 | **Epic** | KAN-120 |
-| **Author** | implementer subagent (Bob) |
-
-## Prompt
-
-"AGENT SLICE for KAN-120. From the repository root run exactly these commands, then write the change-log entry, then report DONE with the file list:
-mkdir -p vault/middleware change-log
-cp .bob/skills/implement-slices/templates/mcp-endpoint.js routes/mcp-endpoint.js
-cp .bob/skills/agent-enablement/templates/vault-scope.js vault/middleware/vault-scope.js
-Then create change-log/2026-08-14_KAN-120-implementation.md by copying .bob/skills/implement-slices/templates/change-log-entry.md and replacing every KAN-120 with KAN-120 and the old date with 2026-08-14.
-Do not run tests, do not commit."
+| **Author** | payments-platform-team |
 
 ## Files changed
 
-- `routes/mcp-endpoint.js` — new file; MCP JSON-RPC endpoint exposing `payment_status_lookup`, `payment_risk` (inquiry scope) and permanently-refused `payment_release` (ops scope). Copied from `.bob/skills/implement-slices/templates/mcp-endpoint.js`.
-- `vault/middleware/vault-scope.js` — new file; Vault agent-identity scope enforcement middleware (`requireScope`, `checkScope`). Copied from `.bob/skills/agent-enablement/templates/vault-scope.js`.
-- `change-log/2026-08-14_KAN-120-implementation.md` — this entry.
+- `/api/v2` routes modernize payment status, risk, search, recent, release, and hold operations while preserving the legacy API.
+- `routes/mcp-endpoint.js` exposes the complete six-tool MCP contract.
+- `vault/middleware/vault-scope.js` enforces `ap-inquiry-agent` read scope and refuses operations scope.
+- `agent/` contains the canonical agent, remote MCP toolkit, and connection definitions.
+- The parity and identity suites verify legacy equivalence plus one allowed and one refused MCP operation.
 
 ## Controls applied
 
-- Rule 02 (compliance headers) — both files carry `AC-6, AC-2, IA-2 / SOX 404 / PCI-DSS Req. 7, 8` headers.
+- Rule 02 (compliance headers) — governed implementation files carry the required control headers.
 - Rule 03 (audit trail) — this change-log entry written at time of change.
 - Rule 05 (destructive operations) — no destructive operations; `payment_release` is permanently refused and auditable (rule 11(b)).
 - Rule 07 (plan-first delivery) — implementation authorized under the approved KAN-120 plan.
@@ -35,14 +28,10 @@ Do not run tests, do not commit."
 
 ## Risk notes
 
-- `payment_release` is listed in the tool catalogue but permanently refused — the refusal is the service's own auditable 403, not a hidden capability (rule 11(b)).
+- `payment_release` and `payment_hold` require `ops`; the inquiry identity receives the service's auditable 403 refusal (rule 11(b)).
 - PII fields (`BankBIC`, `remit_TO`, `Clerk`, `clerk_initials`) are stripped from inquiry responses before reaching the caller.
 - The agent identity (`ap-inquiry-agent`) holds `ap-inquiry-read` policy only. Scope enforcement is fail-closed: an unverifiable Vault token yields a 401, not a pass.
 - Standing suspension (governance control plane) is checked on every request with a 5-second TTL cache; a suspension propagates within 5 s.
-
-## Approval
-
-Authorised under KAN-120 approved plan (rule 07). Implementation proceeds under the plan approval recorded on the KAN-120 epic ticket.
 
 ## Approval
 

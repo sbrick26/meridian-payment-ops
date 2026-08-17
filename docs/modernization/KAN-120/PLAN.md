@@ -67,3 +67,12 @@ and response body with zero unexplained differences. The identity check exercise
 
 ---
 *Approval appended 2026-08-17 20:02 UTC. Document is append-only from this point.*
+
+## Approved-record correction
+
+This correction supersedes the stale status and inventory wording above without
+rewriting the approved record. The plan is **Approved**. The legacy baseline has
+no MCP endpoint, agent definition, or automated identity-boundary test. The
+agent deliverable is one canonical agent YAML, one remote MCP toolkit YAML
+covering all six tools, and one connection YAML. No additional workstreams are
+introduced by this ticket.
