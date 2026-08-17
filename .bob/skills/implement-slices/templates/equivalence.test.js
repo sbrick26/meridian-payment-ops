@@ -117,14 +117,14 @@ function legacyPaymentStatus(db) {
 			return res.status(400).json({ ERR: 'MISSING_REF', msg: 'ref or invoice parameter is required' });
 		}
 		var lookup = ref
-			? " AND e.payment_ref = '" + ref + "' "
-			: " AND e.invoice_no = '" + invoice + "' ";
+			? ' AND e.payment_ref = ? '
+			: ' AND e.invoice_no = ? ';
 		var rows = db.prepare(
 			'SELECT e.*, v.name AS vendor, v.country AS country, v.vendor_no AS vendor_no, ' +
 			'k.initials AS clerk_initials FROM exceptions e, vendors v ' +
 			'LEFT JOIN ap_clerks k ON k.id = e.clerk_id ' +
 			'WHERE e.vendor_id = v.id ' + lookup
-		).all();
+		).all(ref || invoice);
 		var row = rows.length ? rows[0] : null;
 		if (!row) {
 			return res.status(404).json({ ERR: 'NOT_FOUND', PaymentRef: (ref ? ref : ''), InvoiceNo: (invoice ? invoice : '') });
@@ -173,8 +173,8 @@ function legacyRiskScore(db) {
 		}
 		var rows = db.prepare(
 			'SELECT e.*, v.country AS country, v.new_vendor AS new_vendor FROM exceptions e, vendors v ' +
-			"WHERE e.vendor_id = v.id AND e.payment_ref = '" + ref + "'"
-		).all();
+			'WHERE e.vendor_id = v.id AND e.payment_ref = ?'
+		).all(ref);
 		var row = rows.length ? rows[0] : null;
 		if (!row) {
 			return res.status(404).json({ ERR: 'NOT_FOUND', REF: ref });

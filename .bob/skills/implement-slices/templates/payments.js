@@ -41,19 +41,23 @@ db.pragma('journal_mode = WAL');
 
 const PAGE_SIZE = 20;
 const MAX_QUERY_LENGTH = 120;
+const MAX_NOTE_LENGTH = 500;
 
-function boundedQuery(res, value, name) {
+function boundedText(res, value, name, maxLength) {
   if (value === undefined || value === null || value === '') return '';
   const text = String(value).trim();
-  if (text.length > MAX_QUERY_LENGTH) {
+  if (text.length > maxLength) {
     res.status(400).json({
       error: 'invalid_request',
-      detail: `${name} must be ${MAX_QUERY_LENGTH} characters or fewer`,
+      detail: `${name} must be ${maxLength} characters or fewer`,
     });
     return null;
   }
   return text;
 }
+
+const boundedQuery = (res, value, name) =>
+  boundedText(res, value, name, MAX_QUERY_LENGTH);
 
 /* ------------------------------------------------------------------ *
  * Legacy row -> v2 record                                             *
@@ -201,8 +205,10 @@ router.get('/payments/recent', requireScope('inquiry'), (req, res) => {
 });
 
 router.get('/payments/:ref', requireScope('inquiry'), (req, res) => {
-  const row = byRef.get(req.params.ref);
-  if (!row) return notFound(res, `No payment with reference ${req.params.ref}`);
+  const ref = boundedQuery(res, req.params.ref, 'ref');
+  if (ref === null) return;
+  const row = byRef.get(ref);
+  if (!row) return notFound(res, `No payment with reference ${ref}`);
   res.json(toPayment(row));
 });
 
@@ -222,31 +228,39 @@ const addNote = db.prepare(
 );
 
 /** Record the change and who made it, then return the updated record. */
-function write(req, res, { status, reasonText, resolution, noteBody }) {
-  const row = byRef.get(req.params.ref);
-  if (!row) return notFound(res, `No payment with reference ${req.params.ref}`);
+function write(req, res, { status, reasonText, resolution, noteBody }, ref) {
+  const row = byRef.get(ref);
+  if (!row) return notFound(res, `No payment with reference ${ref}`);
 
   const actor = (req.vaultIdentity && req.vaultIdentity.identity) || 'unknown';
   setStatus.run(status, reasonText(row), resolution, row.payment_ref);
   addNote.run(row.id, actor, row.value_date, `${noteBody} (by ${actor})`);
 
-  return res.json({ ...toPayment(byRef.get(req.params.ref)), actedBy: actor });
+  return res.json({ ...toPayment(byRef.get(ref)), actedBy: actor });
 }
 
-router.post('/payments/:ref/release', requireScope('ops'), (req, res) =>
-  write(req, res, {
+router.post('/payments/:ref/release', requireScope('ops'), (req, res) => {
+  const ref = boundedQuery(res, req.params.ref, 'ref');
+  const note = boundedText(res, req.body && req.body.note, 'note', MAX_NOTE_LENGTH);
+  if ([ref, note].includes(null)) return;
+  return write(req, res, {
     status: 'RELEASED',
     reasonText: (row) => row.reason_text,
     resolution: 'RELEASED_FOR_SETTLEMENT',
-    noteBody: `Payment released for settlement. ${(req.body && req.body.note) || ''}`.trim(),
-  }));
+    noteBody: `Payment released for settlement. ${note}`.trim(),
+  }, ref);
+});
 
-router.post('/payments/:ref/hold', requireScope('ops'), (req, res) =>
-  write(req, res, {
+router.post('/payments/:ref/hold', requireScope('ops'), (req, res) => {
+  const ref = boundedQuery(res, req.params.ref, 'ref');
+  const reason = boundedText(res, req.body && req.body.reason, 'reason', MAX_NOTE_LENGTH);
+  if ([ref, reason].includes(null)) return;
+  return write(req, res, {
     status: 'HOLD',
-    reasonText: (row) => (req.body && req.body.reason) || row.reason_text,
+    reasonText: (row) => reason || row.reason_text,
     resolution: null,
-    noteBody: `Payment placed on hold. ${(req.body && req.body.reason) || ''}`.trim(),
-  }));
+    noteBody: `Payment placed on hold. ${reason}`.trim(),
+  }, ref);
+});
 
 module.exports = router;
