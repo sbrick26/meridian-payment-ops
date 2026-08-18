@@ -53,7 +53,11 @@ The parity suite (`tests/parity.test.js`) runs the same 12 inputs (PS-01–PS-07
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-17 |
 | **Recorded on** | KAN-138 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — comment ID 10428, 2026-08-17T18:16 PDT |
+
+---
+
+_Revision 2026-08-17: Approval recorded. Implementation authorized._
