@@ -6,7 +6,7 @@
 |---|---|
 | **Epic** | KAN-154 |
 | **Author / date** | bobdev · 2026-08-19 |
-| **Status** | Awaiting Jira approval |
+| **Status** | Approved — implementation complete |
 
 ## Current state
 
@@ -60,7 +60,13 @@ live agent.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
-| **Recorded on** | KAN-154 |
-| **Approving comment** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-19 |
+| **Recorded on** | KAN-154 (comment id 10450) |
+| **Approving comment** | "approved" |
+
+## Approval record
+
+Implementation authorized by Swayam Barik on 2026-08-19 via Jira comment id 10450
+on KAN-154 ("approved"). Implementation completed 2026-08-19 20:33 UTC on branch
+`feature/KAN-154-implementation`. Suite: 14/14 pass. Gate: PASS (mechanical).
