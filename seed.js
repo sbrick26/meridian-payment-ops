@@ -17,7 +17,7 @@ var fs = require('fs');
 var path = require('path');
 var Database = require('better-sqlite3');
 
-var DB_FILE = path.join(__dirname, 'payops.db');
+var DB_FILE = process.env.DB_PATH || path.join(__dirname, 'payops.db');
 var BASE_DATE = '2026-08-01';           /* as-of date for the extract */
 var OPEN_TARGET = 247;                  /* open inquiries / held payments */
 var RESOLVED_TARGET = 150;              /* closed items kept for reporting */
