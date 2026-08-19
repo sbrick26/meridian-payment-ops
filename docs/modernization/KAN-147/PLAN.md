@@ -62,3 +62,11 @@ after import without touching the live agent.
 | **Date** | 2026-08-19 |
 | **Recorded on** | KAN-147 |
 | **Approving comment** | "approved" |
+
+## Approval record correction
+
+The approval table above incorrectly attributed Jira comment `10441` to
+`bobdev`. The comment was authored by **Swayam Barik** on 2026-08-19. That
+comment approved this plan before implementation began; the plan status is
+therefore **Approved**. This correction is appended to preserve the original
+audit history.
