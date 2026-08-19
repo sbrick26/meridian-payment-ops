@@ -69,3 +69,12 @@ without touching live.
 
 ---
 *Revision appended 2026-08-19 17:46 UTC — approval recorded, implementation authorized.*
+
+## Revision — 2026-08-19 18:02 UTC
+
+- **Status:** Approved; implementation authorized by Jira comment 10437.
+- **Verification correction:** the 12 parity cases comprise 7 nominal, 2
+  bad-input, and 3 not-found cases. The total and zero-difference gate are
+  unchanged.
+- **Scope clarification:** the operative scope is exactly the two workstreams
+  in the Subtasks table.
