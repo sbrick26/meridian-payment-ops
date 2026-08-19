@@ -72,6 +72,7 @@ const TOOLS = [
         ref: { type: 'string', description: 'Payment reference, e.g. MT-2026-08812' },
         invoice: { type: 'string', description: 'Invoice number, e.g. INV-2026-4471' },
       },
+      anyOf: [{ required: ['ref'] }, { required: ['invoice'] }],
       additionalProperties: false,
     },
     call: (a) =>
@@ -329,7 +330,8 @@ router.post('/', async (req, res) => {
 /**
  * Validate arguments against the tool's declared inputSchema before anything
  * else sees them. Dependency-free by design (rule 04): required keys, no
- * unknown keys, primitive types, bounded string length, optional pattern.
+ * unknown keys, primitive types, numeric bounds, bounded string length, and
+ * optional pattern/alternative-required groups.
  * The schema on each tool is the contract; without this check it is only
  * documentation - which a guardrail audit correctly flagged.
  */
@@ -341,6 +343,15 @@ function validateArgs(schema, args) {
       errs.push(`missing required argument '${k}'`);
     }
   }
+  if (schema && Array.isArray(schema.anyOf) && !schema.anyOf.some((option) =>
+    (option.required || []).every((k) =>
+      args[k] !== undefined && args[k] !== null && String(args[k]) !== ''))) {
+    const alternatives = schema.anyOf
+      .flatMap((option) => option.required || [])
+      .map((k) => `'${k}'`)
+      .join(' or ');
+    errs.push(`missing required argument ${alternatives}`);
+  }
   if (schema && schema.additionalProperties === false) {
     for (const k of Object.keys(args)) {
       if (!props[k]) errs.push(`unknown argument '${k}'`);
@@ -351,7 +362,14 @@ function validateArgs(schema, args) {
     if (!spec || v === undefined || v === null) continue;
     if (spec.type === 'string' && typeof v !== 'string') errs.push(`'${k}' must be a string`);
     if (spec.type === 'number' && typeof v !== 'number') errs.push(`'${k}' must be a number`);
+    if (spec.type === 'integer' && !Number.isInteger(v)) errs.push(`'${k}' must be an integer`);
     if (spec.type === 'boolean' && typeof v !== 'boolean') errs.push(`'${k}' must be a boolean`);
+    if (typeof v === 'number' && spec.minimum !== undefined && v < spec.minimum) {
+      errs.push(`'${k}' must be at least ${spec.minimum}`);
+    }
+    if (typeof v === 'number' && spec.maximum !== undefined && v > spec.maximum) {
+      errs.push(`'${k}' must be at most ${spec.maximum}`);
+    }
     if (typeof v === 'string' && v.length > (spec.maxLength || 200)) errs.push(`'${k}' exceeds maximum length`);
     if (spec.pattern && typeof v === 'string' && !(new RegExp(spec.pattern)).test(v)) {
       errs.push(`'${k}' does not match the required format`);

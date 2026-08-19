@@ -77,6 +77,21 @@ test('inquiry identity is allowed to read and refused an ops tool', async (t) =>
   assert.equal(allowedBody.ref, 'MT-2026-08815');
   console.log('IDENTITY ALLOW: ap-inquiry-agent -> payment_status_lookup');
 
+  async function assertInvalid(name, args, expectedDetail) {
+    const result = await rpc('tools/call', { name, arguments: args });
+    assert.equal(result.result.isError, true);
+    const body = JSON.parse(result.result.content[0].text);
+    assert.equal(body.error, 'invalid_arguments');
+    assert.match(body.detail, expectedDetail);
+  }
+
+  await assertInvalid('payment_status_lookup', {}, /'ref' or 'invoice'/);
+  await assertInvalid('payments_search', { page: '1' }, /'page' must be an integer/);
+  await assertInvalid('payments_search', { page: 0 }, /'page' must be at least 1/);
+  await assertInvalid('payments_recent', { limit: 1.5 }, /'limit' must be an integer/);
+  await assertInvalid('payments_recent', { limit: 0 }, /'limit' must be at least 1/);
+  await assertInvalid('payments_recent', { limit: 11 }, /'limit' must be at most 10/);
+
   const refused = await rpc('tools/call', {
     name: 'payment_release', arguments: { ref: 'MT-2026-08815' },
   });
