@@ -1,0 +1,12 @@
+spec_version: v1
+kind: connection
+app_id: ap_payments_vault
+environments:
+  draft:
+    server_url: https://meridian-ap-api.2dqlf0ufke1x.ca-tor.codeengine.appdomain.cloud
+    kind: bearer
+    type: team
+  live:
+    server_url: https://meridian-ap-api.2dqlf0ufke1x.ca-tor.codeengine.appdomain.cloud
+    kind: bearer
+    type: team
