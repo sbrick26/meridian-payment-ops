@@ -1,5 +1,33 @@
 [
   {
+    "id": "32299303078-916eacd",
+    "timestamp": "2026-08-19T20:37:50Z",
+    "verdict": "FAIL",
+    "severity": "high",
+    "violation_count": 1,
+    "violations": [
+      {
+        "file": "routes/payments.js",
+        "rule": "08-behavioral-equivalence.md",
+        "detail": "The new /api/v2/payments contract's riskFor() computes a payment's risk score with a different formula than the canonical scoreRow algorithm the plan says must be preserved exactly, and this divergence is not listed in PLAN.md as an excluded intended difference nor covered by an equivalence test.",
+        "quote": "Zero unexplained diffs: intended differences are listed in the plan and excluded explicitly; everything else must match.",
+        "severity": "high"
+      }
+    ],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "32",
+    "pr_title": "[KAN-154] Modernize payment-status service with governed MCP agent layer",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/32",
+    "branch": "feature/KAN-154-implementation",
+    "base_ref": "demo-integration",
+    "sha": "916eacd",
+    "commit_message": "docs(KAN-154): append approval record to PLAN.md",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/32299303078"
+  },
+  {
     "id": "32289438695-bac265c",
     "timestamp": "2026-08-19T18:49:47Z",
     "verdict": "PASS",
