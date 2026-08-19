@@ -8,7 +8,7 @@ description: >-
   caller's most recent held payments, payment search, and payment risk.
   Read-only by identity.
 
-llm: azure-openai/gpt-5.4
+llm: groq/openai/gpt-oss-120b
 style: react_core
 collaborators: []
 

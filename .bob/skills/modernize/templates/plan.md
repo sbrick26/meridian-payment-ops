@@ -39,7 +39,7 @@ The parity suite runs the same nominal, bad-input, and not-found inputs against
 the mounted legacy and `/api/v2` handlers and compares status and body with zero
 unexplained differences. The identity check proves an inquiry is allowed and a
 write tool is refused, while the draft-import check confirms the existing agent
-name in `align-sf-588` without touching live.
+name in `align-sf-690` without touching live.
 
 ## Key decisions
 

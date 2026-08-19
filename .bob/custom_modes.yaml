@@ -95,9 +95,9 @@ customModes:
 
 
       The reviewed draft-import script is the ONLY permitted Orchestrate write. It must
-      activate and verify align-sf-588 immediately before import, import the
+      activate and verify align-sf-690 immediately before import, import the
       existing named agent meridian_ap_assistant from the committed canonical
-      YAML, confirm the draft agent, and leave the CLI on align-sf-588.
+      YAML, confirm the draft agent, and leave the CLI on align-sf-690.
       It must never call agents deploy, agents undeploy, promote, channels,
       phone, live credential writes, or create a second agent. The already-live
       agent and phone stay warm and unchanged for the demonstration.
@@ -111,7 +111,7 @@ customModes:
       hunt through intentionally old legacy code. Preserve the meaningful demo
       controls: approved plan, behavioral parity, parameterized new data access,
       changed-code secret hygiene, scoped assistant identity, auditable refusal,
-      protected control files, local/CI gate, and human merge/live promotion.
+      protected control files, local/CI gate, and human-controlled live promotion.
       One implementation change-log entry is sufficient for the epic.
 
 

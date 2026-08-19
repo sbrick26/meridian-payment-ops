@@ -16,7 +16,7 @@
 > v2 service through MCP, enforce the dedicated ap-inquiry-agent read-only
 > identity below the model, and commit the complete known-good
 > meridian_ap_assistant agent, toolkit, and connection definitions. After merge,
-> update that existing agent in the align-sf-588 draft environment only.
+> update that existing agent in the align-sf-690 draft environment only.
 
 ## Files changed
 

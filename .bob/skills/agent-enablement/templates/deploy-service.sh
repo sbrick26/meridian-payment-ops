@@ -49,12 +49,12 @@ set -euo pipefail
 REGISTRY="${REGISTRY:-ca.icr.io}"
 REGISTRY_NAMESPACE="${REGISTRY_NAMESPACE:-meridian-gov}"
 REGISTRY_SECRET="${REGISTRY_SECRET:-icr-meridian}"
-EXPECTED_ACCOUNT="${EXPECTED_ACCOUNT:-3117813}"
+EXPECTED_ACCOUNT="${EXPECTED_ACCOUNT:-3118211}"
 
 # The cloud session used for this account lives in its own config home, so this
 # script cannot be affected by — and cannot disturb — a session another piece of
 # work has active in the default one.
-export IBMCLOUD_HOME="${IBMCLOUD_HOME:-$HOME/.ibmcloud-alignsf588}"
+export IBMCLOUD_HOME="${IBMCLOUD_HOME:-$HOME/.ibmcloud-alignsf690}"
 
 MIN_SCALE="${MIN_SCALE:-1}"
 MAX_SCALE="${MAX_SCALE:-1}"

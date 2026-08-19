@@ -41,7 +41,7 @@ The reviewed script behind that tool must:
 
 1. run `orchestrate --version` and `orchestrate agents import --help` so the
    installed CLI surface is recorded before use;
-2. activate `align-sf-588` with `WXO_588_API_KEY` and immediately read back the
+2. activate `align-sf-690` with `WXO_690_API_KEY` and immediately read back the
    active environment;
 3. refuse any empty, foreign, or `tko` target;
 4. validate that committed `agent/agent.yaml` names only
@@ -51,7 +51,7 @@ The reviewed script behind that tool must:
    `orchestrate agents import -f agent/agent.yaml`;
 6. require the CLI's successful update acknowledgement and verify the exported
    draft content matches the imported canonical agent;
-7. leave the CLI on the verified `align-sf-588` project environment.
+7. leave the CLI on the verified `align-sf-690` project environment.
 
 Import updates draft. The script contains no `agents deploy`, `agents undeploy`,
 promotion, channel, phone, toolkit creation, connection mutation, or live
