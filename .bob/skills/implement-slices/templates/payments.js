@@ -36,8 +36,15 @@ const { requireScope } = require('../vault/middleware/vault-scope');
 const router = express.Router();
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'payops.db');
-const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
+let db;
+
+function database() {
+  if (!db) {
+    db = new Database(DB_PATH);
+    db.pragma('journal_mode = WAL');
+  }
+  return db;
+}
 
 const PAGE_SIZE = 20;
 const MAX_QUERY_LENGTH = 120;
@@ -110,8 +117,8 @@ const notFound = (res, what) =>
  * Reads                                                               *
  * ------------------------------------------------------------------ */
 
-const byRef = db.prepare(`${SELECT} WHERE e.payment_ref = ?`);
-const byInvoice = db.prepare(`${SELECT} WHERE e.invoice_no = ?`);
+const byRef = () => database().prepare(`${SELECT} WHERE e.payment_ref = ?`);
+const byInvoice = () => database().prepare(`${SELECT} WHERE e.invoice_no = ?`);
 
 /**
  * List, or single-record lookup by invoice.
@@ -129,7 +136,7 @@ router.get('/payments', requireScope('inquiry'), (req, res) => {
   if ([invoice, status, vendor, q].includes(null)) return;
 
   if (invoice) {
-    const row = byInvoice.get(String(invoice));
+    const row = byInvoice().get(String(invoice));
     if (!row) return notFound(res, `No payment for invoice ${invoice}`);
     return res.json(toPayment(row));
   }
@@ -146,11 +153,11 @@ router.get('/payments', requireScope('inquiry'), (req, res) => {
   const clause = where.length ? ` WHERE ${where.join(' AND ')}` : '';
 
   const page = Math.max(1, Number(req.query.page) || 1);
-  const total = db.prepare(
+  const total = database().prepare(
     `SELECT COUNT(*) AS c FROM exceptions e JOIN vendors v ON v.id = e.vendor_id${clause}`,
   ).get(...args).c;
 
-  const rows = db.prepare(
+  const rows = database().prepare(
     `${SELECT}${clause} ORDER BY e.payment_ref LIMIT ? OFFSET ?`,
   ).all(...args, PAGE_SIZE, (page - 1) * PAGE_SIZE);
 
@@ -179,11 +186,11 @@ router.get('/payments', requireScope('inquiry'), (req, res) => {
  * Mounted above `/payments/:ref` deliberately — otherwise `recent` is read as a
  * payment reference and this route is unreachable.
  */
-const recentAll = db.prepare(
+const recentAll = () => database().prepare(
   `${SELECT} WHERE e.status <> 'RESOLVED'
      ORDER BY e.created_date DESC, e.payment_ref DESC LIMIT ?`,
 );
-const recentByVendor = db.prepare(
+const recentByVendor = () => database().prepare(
   `${SELECT} WHERE e.status <> 'RESOLVED' AND v.name LIKE ?
      ORDER BY e.created_date DESC, e.payment_ref DESC LIMIT ?`,
 );
@@ -194,8 +201,8 @@ router.get('/payments/recent', requireScope('inquiry'), (req, res) => {
   const limit = Math.min(10, Math.max(1, Number(req.query.limit) || 3));
 
   const rows = vendor
-    ? recentByVendor.all(`%${vendor}%`, limit)
-    : recentAll.all(limit);
+    ? recentByVendor().all(`%${vendor}%`, limit)
+    : recentAll().all(limit);
 
   res.json({
     vendor: vendor || null,
@@ -207,7 +214,7 @@ router.get('/payments/recent', requireScope('inquiry'), (req, res) => {
 router.get('/payments/:ref', requireScope('inquiry'), (req, res) => {
   const ref = boundedQuery(res, req.params.ref, 'ref');
   if (ref === null) return;
-  const row = byRef.get(ref);
+  const row = byRef().get(ref);
   if (!row) return notFound(res, `No payment with reference ${ref}`);
   res.json(toPayment(row));
 });
@@ -220,23 +227,23 @@ router.get('/payments/:ref', requireScope('inquiry'), (req, res) => {
  * with the `ops` scope and are otherwise ordinary handlers.            *
  * ------------------------------------------------------------------ */
 
-const setStatus = db.prepare(
+const setStatus = () => database().prepare(
   'UPDATE exceptions SET status = ?, reason_text = ?, resolution = ? WHERE payment_ref = ?',
 );
-const addNote = db.prepare(
+const addNote = () => database().prepare(
   'INSERT INTO notes (exception_id, author, note_date, body) VALUES (?, ?, ?, ?)',
 );
 
 /** Record the change and who made it, then return the updated record. */
 function write(req, res, { status, reasonText, resolution, noteBody }, ref) {
-  const row = byRef.get(ref);
+  const row = byRef().get(ref);
   if (!row) return notFound(res, `No payment with reference ${ref}`);
 
   const actor = (req.vaultIdentity && req.vaultIdentity.identity) || 'unknown';
-  setStatus.run(status, reasonText(row), resolution, row.payment_ref);
-  addNote.run(row.id, actor, row.value_date, `${noteBody} (by ${actor})`);
+  setStatus().run(status, reasonText(row), resolution, row.payment_ref);
+  addNote().run(row.id, actor, row.value_date, `${noteBody} (by ${actor})`);
 
-  return res.json({ ...toPayment(byRef.get(ref)), actedBy: actor });
+  return res.json({ ...toPayment(byRef().get(ref)), actedBy: actor });
 }
 
 router.post('/payments/:ref/release', requireScope('ops'), (req, res) => {

@@ -41,11 +41,11 @@ var mcpRouter = require('./routes/mcp-endpoint');
  * CONFIGURATION - edit here, there is no properties file
  * ------------------------------------------------------------------ */
 
-var PORT = 4600;
+var PORT = Number(process.env.PORT) || 4600;
 var APP_NAME = 'AP Payment Operations';
 var APP_VERSION = '2.4.1';
 var ENVIRONMENT = 'PROD-DR';
-var DB_FILE = path.join(__dirname, 'payops.db');
+var DB_FILE = process.env.DB_PATH || path.join(__dirname, 'payops.db');
 var PAGE_SIZE = 25;
 var AS_OF_DATE = '2026-08-01';
 
