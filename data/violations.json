@@ -1,5 +1,25 @@
 [
   {
+    "id": "32287516404-c4a4d5d",
+    "timestamp": "2026-08-19T18:29:27Z",
+    "verdict": "PASS",
+    "severity": "none",
+    "violation_count": 0,
+    "violations": [],
+    "actor": "sbrick26",
+    "triggered_by": "sbrick26",
+    "pr_number": "30",
+    "pr_title": "[KAN-147] Modernize payment-status/risk-score API and governed MCP agent",
+    "pr_url": "https://github.com/sbrick26/meridian-payment-ops/pull/30",
+    "branch": "feature/KAN-147-implementation",
+    "base_ref": "demo-integration",
+    "sha": "c4a4d5d",
+    "commit_message": "feat(KAN-147): modernized v2 API, secrets-to-env, governed MCP agent layer",
+    "repo": "sbrick26/meridian-payment-ops",
+    "project": "MERIDIAN-PAYMENT-OPS",
+    "run_url": "https://github.com/sbrick26/meridian-payment-ops/actions/runs/32287516404"
+  },
+  {
     "id": "32284381790-35916da",
     "timestamp": "2026-08-19T17:56:26Z",
     "verdict": "PASS",
