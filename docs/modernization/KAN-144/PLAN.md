@@ -62,7 +62,10 @@ without touching live.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-19 |
 | **Recorded on** | KAN-144 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" — Jira comment 10437, 2026-08-19T10:46:04 |
+
+---
+*Revision appended 2026-08-19 17:46 UTC — approval recorded, implementation authorized.*
