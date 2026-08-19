@@ -136,10 +136,12 @@ jobs:
           routes/mcp-endpoint.js|.bob/skills/implement-slices/templates/mcp-endpoint.js
           tests/equivalence.test.js|.bob/skills/implement-slices/templates/equivalence.test.js
           tests/identity-mcp.test.js|.bob/skills/implement-slices/templates/identity-mcp.test.js
+          tests/clean-start.test.js|.bob/skills/implement-slices/templates/clean-start.test.js
           agent/agent.yaml|.bob/skills/agent-enablement/templates/agent.yaml
           agent/mcp-toolkit.yaml|.bob/skills/agent-enablement/templates/mcp-toolkit.yaml
           agent/connection.yaml|.bob/skills/agent-enablement/templates/connection.yaml
           server.js|.bob/skills/implement-slices/templates/server-modernized.js
+          seed.js|.bob/skills/implement-slices/templates/seed.js
           package.json|.bob/skills/implement-slices/templates/package.json
           package-lock.json|.bob/skills/implement-slices/templates/package-lock.json
           EOF
