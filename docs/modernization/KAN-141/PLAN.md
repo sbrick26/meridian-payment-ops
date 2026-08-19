@@ -6,7 +6,7 @@
 |---|---|
 | **Epic** | KAN-141 |
 | **Author / date** | bobdev · 2026-08-19 |
-| **Status** | Awaiting Jira approval |
+| **Status** | Approved — implementation authorised |
 
 ## Current state
 
@@ -59,7 +59,7 @@ agent.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
-| **Recorded on** | KAN-141 |
-| **Approving comment** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-18 |
+| **Recorded on** | KAN-141, comment ID 10432 |
+| **Approving comment** | "approved" |
