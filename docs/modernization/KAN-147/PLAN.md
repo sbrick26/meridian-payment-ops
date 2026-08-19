@@ -58,7 +58,7 @@ after import without touching the live agent.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
+| **Approver** | bobdev (Jira comment on KAN-147) |
+| **Date** | 2026-08-19 |
 | **Recorded on** | KAN-147 |
-| **Approving comment** | — |
+| **Approving comment** | "approved" |
