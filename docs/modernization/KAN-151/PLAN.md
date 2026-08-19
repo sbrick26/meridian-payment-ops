@@ -6,7 +6,7 @@
 |---|---|
 | **Epic** | KAN-151 |
 | **Author / date** | bobdev · 2026-08-19 |
-| **Status** | Awaiting Jira approval |
+| **Status** | Approved — implementation in progress |
 
 ## Current state
 
@@ -57,7 +57,7 @@ exact `identity_scope_denied` refusal shape.
 
 | | |
 |---|---|
-| **Approver** | Awaiting Jira approval |
-| **Date** | — |
-| **Recorded on** | KAN-151 |
-| **Approving comment** | — |
+| **Approver** | Swayam Barik |
+| **Date** | 2026-08-19 |
+| **Recorded on** | KAN-151 comment #10445 |
+| **Approving comment** | "approved" |
